@@ -14,7 +14,7 @@
  *                                                        *
  * POST data to HTTP Server (using Flash).                *
  *                                                        *
- * LastModified: Feb 11, 2014                             *
+ * LastModified: Feb 16, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -28,16 +28,19 @@
  * static encapsulation environment for HproseHttpRequest
  */
 
-var HproseHttpRequest = (function(global) {
+/*global ActiveXObject, HproseTags, HproseFormatter */
+/*jshint unused:false, eqeqeq:true */
+var HproseHttpRequest = (function (global) {
+    'use strict';
     // get flash path
-    var scripts = document.getElementsByTagName("script");
+    var scripts = document.getElementsByTagName('script');
     var s_flashpath = scripts[scripts.length - 1].getAttribute('flashpath') || '';
     scripts = null;
 
     // static private members
     var s_nativeXHR = (typeof(XMLHttpRequest) !== 'undefined');
-    var s_localfile = (location.protocol == "file:");
-    var s_corsSupport = (!s_localfile && s_nativeXHR && "withCredentials" in new XMLHttpRequest());
+    var s_localfile = (location.protocol === 'file:');
+    var s_corsSupport = (!s_localfile && s_nativeXHR && 'withCredentials' in new XMLHttpRequest());
     var s_flashID = 'hprosehttprequest_as3';
 
     var s_flashSupport = false;
@@ -73,13 +76,13 @@ var HproseHttpRequest = (function(global) {
     function patchXHR(xhr) {
         // some older versions of Moz did not support the readyState property
         // and the onreadystate event so we patch it!
-        if (xhr.readyState == null) {
+        if (xhr.readyState === null) {
             xhr.readyState = 0;
             xhr.addEventListener(
-                "load",
+                'load',
                 function () {
                     xhr.readyState = 4;
-                    if (typeof(xhr.onreadystatechange) === "function") {
+                    if (typeof(xhr.onreadystatechange) === 'function') {
                         xhr.onreadystatechange();
                     }
                 },
@@ -90,7 +93,7 @@ var HproseHttpRequest = (function(global) {
     }
 
     function createMSXMLHttp() {
-        if (s_XMLHttpNameCache != null) {
+        if (s_XMLHttpNameCache !== null) {
             // Use the cache name first.
             return new ActiveXObject(s_XMLHttpNameCache);
         }
@@ -113,7 +116,7 @@ var HproseHttpRequest = (function(global) {
             }
             catch(e) {}
         }
-        throw new Error("Could not find an installed XML parser");
+        throw new Error('Could not find an installed XML parser');
     }
 
     function createXHR() {
@@ -137,8 +140,8 @@ var HproseHttpRequest = (function(global) {
             version = plugins[flash].description;
             if (version && !(mimetypes && mimetypes[flashmime] &&
                          !mimetypes[flashmime].enabledPlugin)) {
-                version = version.replace(/^.*\s+(\S+\s+\S+$)/, "$1");
-                version = parseInt(version.replace(/^(.*)\..*$/, "$1"));
+                version = version.replace(/^.*\s+(\S+\s+\S+$)/, '$1');
+                version = parseInt(version.replace(/^(.*)\..*$/, '$1'));
             }
         }
         else if (global.ActiveXObject) {
@@ -146,9 +149,9 @@ var HproseHttpRequest = (function(global) {
                 ie = true;
                 var ax = new ActiveXObject(flashax);
                 if (ax) {
-                    version = ax.GetVariable("$version");
+                    version = ax.GetVariable('$version');
                     if (version) {
-                        version = version.split(" ")[1].split(",");
+                        version = version.split(' ')[1].split(',');
                         version = parseInt(version[0]);
                     }
                 }
@@ -173,7 +176,7 @@ var HproseHttpRequest = (function(global) {
             var div = document.createElement('div');
             div.style.width = 0;
             div.style.height = 0;
-            if (flashStatus == 1) {
+            if (flashStatus === 1) {
                 div.innerHTML = ['<object ',
                 'classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" ',
                 'type="application/x-shockwave-flash" ',
@@ -200,7 +203,7 @@ var HproseHttpRequest = (function(global) {
         if (!s_localfile && !s_corsSupport) setFlash();
         while (s_jsTaskQueue.length > 0) {
             var task = s_jsTaskQueue.shift();
-            if (typeof(task) == 'function') {
+            if (typeof(task) === 'function') {
                 task();
             }
         }
@@ -208,31 +211,31 @@ var HproseHttpRequest = (function(global) {
 
     function detach() {
         if (document.addEventListener) {
-            document.removeEventListener("DOMContentLoaded", completed, false);
-            global.removeEventListener("load", completed, false);
+            document.removeEventListener('DOMContentLoaded', completed, false);
+            global.removeEventListener('load', completed, false);
 
         } else {
-            document.detachEvent("onreadystatechange", completed);
-            global.detachEvent("onload", completed);
+            document.detachEvent('onreadystatechange', completed);
+            global.detachEvent('onload', completed);
         }
     }
 
     function completed() {
-        if (document.addEventListener || event.type === "load" || document.readyState === "complete") {
+        if (document.addEventListener || event.type === 'load' || document.readyState === 'complete') {
             detach();
             setJsReady();
         }
     }
 
     function init() {
-        if (document.readyState === "complete") {
+        if (document.readyState === 'complete') {
             setTimeout(setJsReady, 1);
         }
         else if (document.addEventListener) {
-            document.addEventListener("DOMContentLoaded", completed, false);
-            global.addEventListener("load", completed, false);
+            document.addEventListener('DOMContentLoaded', completed, false);
+            global.addEventListener('load', completed, false);
             if (/WebKit/i.test(navigator.userAgent)) {
-                var timer = setInterval( function() {
+                var timer = setInterval( function () {
                     if (/loaded|complete/.test(document.readyState)) {
                         clearInterval(timer);
                         completed();
@@ -241,18 +244,18 @@ var HproseHttpRequest = (function(global) {
             }
         }
         else if (document.attachEvent) {
-            document.attachEvent("onreadystatechange", completed);
-            global.attachEvent("onload", completed);
+            document.attachEvent('onreadystatechange', completed);
+            global.attachEvent('onload', completed);
             var top = false;
             try {
-                top = window.frameElement == null && document.documentElement;
+                top = window.frameElement === null && document.documentElement;
             }
             catch(e) {}
             if (top && top.doScroll) {
                 (function doScrollCheck() {
                     if (!s_jsReady) {
                         try {
-                            top.doScroll("left");
+                            top.doScroll('left');
                         }
                         catch(e) {
                             return setTimeout(doScrollCheck, 15);
@@ -277,7 +280,7 @@ var HproseHttpRequest = (function(global) {
             s_request.post(url, header, data, callbackid, timeout);
         }
         else {
-            var task = function() {
+            var task = function () {
                 s_request.post(url, header, data, callbackid, timeout);
             };
             s_swfTaskQueue.push(task);
@@ -288,12 +291,12 @@ var HproseHttpRequest = (function(global) {
         var xhr = createXHR();
         var timeoutId;
         xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4) {
+            if (xhr.readyState === 4) {
                 xhr.onreadystatechange = function () {};
                 if (timeoutId !== undefined) {
                     global.clearTimeout(timeoutId);
                 }
-                if (xhr.status == 200) {
+                if (xhr.status === 200) {
                     HproseHttpRequest.__callback(callbackid, xhr.responseText, true);
                 }
                 else {
@@ -303,7 +306,7 @@ var HproseHttpRequest = (function(global) {
                                             HproseTags.TagEnd);
                 }
             }
-        }
+        };
         xhr.open('POST', url, true);
         if (s_corsSupport) {
             xhr.withCredentials = 'true';
@@ -315,9 +318,9 @@ var HproseHttpRequest = (function(global) {
             HproseHttpRequest.__callback(callbackid, HproseTags.TagError +
                                     HproseFormatter.serialize('timeout', true) +
                                     HproseTags.TagEnd);
-        }
+        };
         if (xhr.timeout === undefined) {
-            timeoutId = global.setTimeout(function() {
+            timeoutId = global.setTimeout(function () {
                 xhr.onreadystatechange = function () {};
                 xhr.abort();
                 timeoutHandler();
@@ -332,8 +335,8 @@ var HproseHttpRequest = (function(global) {
 
     function post(url, header, data, callbackid, timeout) {
         if (s_flashSupport && !s_localfile &&
-           (url.substr(0, 7).toLowerCase() == "http://" ||
-            url.substr(0, 8).toLowerCase() == "https://")) {
+           (url.substr(0, 7).toLowerCase() === 'http://' ||
+            url.substr(0, 8).toLowerCase() === 'https://')) {
             flashpost(url, header, data, callbackid, timeout);
         }
         else {
@@ -355,33 +358,33 @@ var HproseHttpRequest = (function(global) {
             post(url, header, data, callbackid, timeout);
         }
         else {
-            var task = function() {
+            var task = function () {
                 post(url, header, data, callbackid, timeout);
             };
             s_jsTaskQueue.push(task);
         }
-    }
+    };
 
-    HproseHttpRequest.__callback = function(callbackid, data, needToFilter) {
+    HproseHttpRequest.__callback = function (callbackid, data, needToFilter) {
         if (needToFilter) {
             data = s_callbackFilters[callbackid].inputFilter(data);
         }
-        if (typeof(s_callbackList[callbackid]) == 'function') {
+        if (typeof(s_callbackList[callbackid]) === 'function') {
             s_callbackList[callbackid](data);
         }
         delete s_callbackList[callbackid];
         delete s_callbackFilters[callbackid];
-    }
+    };
 
     HproseHttpRequest.__jsReady = function () {
         return s_jsReady;
-    }
+    };
 
     HproseHttpRequest.__setSwfReady = function () {
-        s_request = (navigator.appName.indexOf("Microsoft") != -1) ?
+        s_request = (navigator.appName.indexOf('Microsoft') !== -1) ?
                     global[s_flashID] : document[s_flashID];
         s_swfReady = true;
-        global["__flash__removeCallback"] = function(instance, name) {
+        global.__flash__removeCallback = function (instance, name) {
             try {
                 if (instance) {
                     instance[name] = null;
@@ -392,13 +395,13 @@ var HproseHttpRequest = (function(global) {
         };
         while (s_swfTaskQueue.length > 0) {
             var task = s_swfTaskQueue.shift();
-            if (typeof(task) == 'function') {
+            if (typeof(task) === 'function') {
                 task();
             }
         }
-    }
+    };
 
     init();
 
     return HproseHttpRequest;
-})(this);
+})(window);

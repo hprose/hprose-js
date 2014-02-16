@@ -14,28 +14,31 @@
  *                                                        *
  * hprose io stream library for JavaScript.               *
  *                                                        *
- * LastModified: Feb 15, 2014                             *
+ * LastModified: Feb 16, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
+/*global HproseException, WeakMap, Map */
+/*jshint unused:false, eqeqeq:true */
+/*jslint plusplus:true, white:true, vars:true */
+
 function HproseStringInputStream(str) {
-    var pos = 0;
-    var length = str.length;
-    this.getc = function() {
+    'use strict';
+    var pos = 0, length = str.length;
+    this.getc = function () {
         return str.charAt(pos++);
-    }
-    this.read = function(len) {
+    };
+    this.read = function (len) {
         var s = str.substr(pos, len);
         this.skip(len);
         return s;
-    }
-    this.skip = function(n) {
+    };
+    this.skip = function (n) {
         pos += n;
-    }
-    this.readuntil = function(tag) {
-        var p = str.indexOf(tag, pos);
-        var s;
+    };
+    this.readuntil = function (tag) {
+        var p = str.indexOf(tag, pos), s;
         if (p >= 0) {
             s = str.substr(pos, p - pos);
             pos = p + tag.length;
@@ -45,27 +48,30 @@ function HproseStringInputStream(str) {
             pos = length;
         }
         return s;
-    }
+    };
 }
 
 function HproseStringOutputStream(str) {
-    if (str === undefined) str = '';
+    'use strict';
+    if (str === undefined) {
+        str = '';
+    }
     var buf = [str];
-    this.write = function(s) {
+    this.write = function (s) {
         buf.push(s);
-    }
-    this.mark = function() {
+    };
+    this.mark = function () {
         str = this.toString();
-    }
-    this.reset = function() {
+    };
+    this.reset = function () {
         buf = [str];
-    }
-    this.clear = function() {
+    };
+    this.clear = function () {
         buf = [];
-    }
-    this.toString = function() {
+    };
+    this.toString = function () {
         return buf.join('');
-    }
+    };
 }
 
 var HproseTags = {
@@ -106,39 +112,43 @@ var HproseTags = {
     TagArgument: 'A',
     TagError: 'E',
     TagEnd: 'z'
-}
+};
 
-var HproseClassManager = new (function() {
+var HproseClassManager = (function () {
+    'use strict';
     var classCache = {};
     var aliasCache = new WeakMap();
-    this.register = function(cls, alias) {
-        aliasCache.set(cls, alias);
-        classCache[alias] = cls;
-    }
-    this.getClassAlias = function(cls) {
-        return aliasCache.get(cls);
-    }
-    this.getClass = function(alias) {
-        return classCache[alias];
-    }
-    this.register(Object, 'Object');
+    var cm = {
+        register: function (cls, alias) {
+            aliasCache.set(cls, alias);
+            classCache[alias] = cls;
+        },
+        getClassAlias: function (cls) {
+            return aliasCache.get(cls);
+        },
+        getClass: function (alias) {
+            return classCache[alias];
+        }
+    };
+    cm.register(Object, 'Object');
+    return cm;
 })();
 
-var HproseRawReader;
-var HproseSimpleReader, HproseReader;
-var HproseSimpleWriter, HproseWriter;
-(function(global) {
+var HproseRawReader, HproseReader, HproseWriter;
+(function (global) {
+    'use strict';
     // private static members
     var hproseTags = HproseTags;
-    var hproseException = HproseException;
     var hproseClassManager = HproseClassManager;
+    var HException = HproseException;
 
     function getter(str) {
         var obj = global;
         var names = str.split('.');
-        for(var i = 0; i < names.length; i++) {
+        var i;
+        for (i = 0; i < names.length; i++) {
             obj = obj[names[i]];
-            if (typeof(obj) === 'undefined') {
+            if (obj === undefined) {
                 return null;
             }
         }
@@ -150,7 +160,7 @@ var HproseSimpleWriter, HproseWriter;
             cn[pos] = c;
             var cls = findClass(cn, poslist, i + 1, '.');
             if (i + 1 < poslist.length) {
-                if (cls == null) {
+                if (cls === null) {
                     cls = findClass(cn, poslist, i + 1, '_');
                 }
             }
@@ -158,62 +168,99 @@ var HproseSimpleWriter, HproseWriter;
         }
         var classname = cn.join('');
         try {
-            var cls = getter(classname);
-            return (typeof(cls) === "function" ? cls : null);
-        }
-        catch(e) {
+            var cl = getter(classname);
+            return ((typeof(cl) === 'function') ? cl : null);
+        } catch (e) {
             return null;
         }
     }
     function getClass(classname) {
         var cls = hproseClassManager.getClass(classname);
-        if (cls) return cls;
+        if (cls) { return cls; }
         cls = getter(classname);
-        if (typeof(cls) === "function") {
+        if (typeof(cls) === 'function') {
             hproseClassManager.register(cls, classname);
             return cls;
         }
         var poslist = [];
-        var pos = classname.indexOf("_");
+        var pos = classname.indexOf('_');
         while (pos >= 0) {
             poslist[poslist.length] = pos;
-            pos = classname.indexOf("_", pos + 1);
+            pos = classname.indexOf('_', pos + 1);
         }
         if (poslist.length > 0) {
             var cn = classname.split('');
             cls = findClass(cn, poslist, 0, '.');
-            if (cls == null) {
+            if (cls === null) {
                 cls = findClass(cn, poslist, 0, '_');
             }
-            if (typeof(cls) === "function") {
+            if (typeof(cls) === 'function') {
                 hproseClassManager.register(cls, classname);
                 return cls;
             }
         }
-        cls = function() {
-            this.getClassName = function() {
+        cls = function () {
+            this.getClassName = function () {
                 return classname;
-            }
+            };
         };
         hproseClassManager.register(cls, classname);
         return cls;
     }
-    var prototypePropertyOfArray = function() {
-        var result = {};
-        for (var p in []) {
-            result[p] = true;
-        }
-        return result;
-    }();
-    var prototypePropertyOfObject = function() {
-        var result = {};
-        for (var p in {}) {
-            result[p] = true;
-        }
-        return result;
-    }();
     function isDigit(value) {
-        switch (value.toString()) {
+        switch (value) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+            return true;
+        }
+        return false;
+    }
+    function isInt32(value) {
+        return (value >= -2147483648) &&
+               (value <= 2147483647) &&
+               (Math.floor(value) === value);
+    }
+    function getClassName(obj) {
+        if (obj === undefined || obj.constructor === undefined) { return ''; }
+        var cls = obj.constructor;
+        var classname = hproseClassManager.getClassAlias(cls);
+        if (classname) { return classname; }
+        var ctor = cls.toString();
+        classname = ctor.substr(0, ctor.indexOf('(')).replace(/(^\s*function\s*)|(\s*$)/ig, '');
+        if (classname === '' || classname === 'Object') {
+            return (typeof(obj.getClassName) === 'function') ? obj.getClassName() : 'Object';
+        }
+        if (classname !== 'Object') {
+            hproseClassManager.register(cls, classname);
+        }
+        return classname;
+    }
+
+    function unexpectedTag(tag, expectTags) {
+        if (tag && expectTags) {
+            throw new HException('Tag "' + expectTags + '" expected, but "' + tag + '" found in stream');
+        }
+        if (tag) {
+            throw new HException('Unexpected serialize tag "' + tag + '" in stream');
+        }
+        throw new HException('No byte found in stream');
+    }
+
+    // public class
+    HproseRawReader = function hproseRawReader(stream) {
+        function readRaw(ostream, tag) {
+            if (ostream === undefined) { ostream = new HproseStringOutputStream(); }
+            if (tag === undefined) { tag = stream.getc(); }
+            ostream.write(tag);
+            switch (tag) {
             case '0':
             case '1':
             case '2':
@@ -223,180 +270,120 @@ var HproseSimpleWriter, HproseWriter;
             case '6':
             case '7':
             case '8':
-            case '9': return true;
-        }
-        return false;
-    }
-    function isInteger(value) {
-        var l = value.length;
-        for (var i = (value.charAt(0) == '-') ? 1 : 0; i < l; i++) {
-            if (!isDigit(value.charAt(i))) return false;
-        }
-        return (value != '-');
-    }
-    function isInt32(value) {
-        var s = value.toString();
-        var l = s.length;
-        return ((l < 12) && isInteger(s) &&
-                !(value < -2147483648 || value > 2147483647));
-    }
-    function getClassName(obj) {
-        if (obj === undefined || obj.constructor === undefined) return '';
-        var cls = obj.constructor;
-        var classname = hproseClassManager.getClassAlias(cls);
-        if (classname) return classname;
-        var ctor = cls.toString();
-        classname = ctor.substr(0, ctor.indexOf('(')).replace(/(^\s*function\s*)|(\s*$)/ig, '');
-        if (classname == '' || classname == 'Object') {
-            return (typeof(obj.getClassName) == 'function') ? obj.getClassName() : 'Object';
-        }
-        if (classname != 'Object') {
-            hproseClassManager.register(cls, classname);
-        }
-        return classname;
-    }
-
-    function unexpectedTag(tag, expectTags) {
-        if (tag && expectTags) {
-            throw new hproseException("Tag '" + expectTags + "' expected, but '" + tag + "' found in stream");
-        }
-        else if (tag) {
-            throw new hproseException("Unexpected serialize tag '" + tag + "' in stream")
-        }
-        else {
-            throw new hproseException('No byte found in stream');
-        }
-    }
-
-    // public class
-    HproseRawReader = function hproseRawReader(stream) {
-        function readRaw(ostream, tag) {
-            if (ostream === undefined) ostream = new HproseStringOutputStream();
-            if (tag === undefined) tag = stream.getc();
-            ostream.write(tag);
-            switch (tag) {
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                case hproseTags.TagNull:
-                case hproseTags.TagEmpty:
-                case hproseTags.TagTrue:
-                case hproseTags.TagFalse:
-                case hproseTags.TagNaN:
-                    break;
-                case hproseTags.TagInfinity:
-                case hproseTags.TagUTF8Char:
-                    ostream.write(stream.getc());
-                    break;
-                case hproseTags.TagInteger:
-                case hproseTags.TagLong:
-                case hproseTags.TagDouble:
-                case hproseTags.TagRef:
-                    readNumberRaw(ostream);
-                    break;
-                case hproseTags.TagDate:
-                case hproseTags.TagTime:
-                    readDateTimeRaw(ostream);
-                    break;
-                case hproseTags.TagString:
-                    readStringRaw(ostream);
-                    break;
-                case hproseTags.TagGuid:
-                    readGuidRaw(ostream);
-                    break;
-                case hproseTags.TagList:
-                case hproseTags.TagMap:
-                case hproseTags.TagObject:
-                    readComplexRaw(ostream);
-                    break;
-                case hproseTags.TagClass:
-                    readComplexRaw(ostream);
-                    readRaw(ostream);
-                    break;
-                case hproseTags.TagError:
-                    readRaw(ostream);
-                    break;
-                default: unexpectedTag(tag);
+            case '9':
+            case hproseTags.TagNull:
+            case hproseTags.TagEmpty:
+            case hproseTags.TagTrue:
+            case hproseTags.TagFalse:
+            case hproseTags.TagNaN:
+                break;
+            case hproseTags.TagInfinity:
+            case hproseTags.TagUTF8Char:
+                ostream.write(stream.getc());
+                break;
+            case hproseTags.TagInteger:
+            case hproseTags.TagLong:
+            case hproseTags.TagDouble:
+            case hproseTags.TagRef:
+                readNumberRaw(ostream);
+                break;
+            case hproseTags.TagDate:
+            case hproseTags.TagTime:
+                readDateTimeRaw(ostream);
+                break;
+            case hproseTags.TagString:
+                readStringRaw(ostream);
+                break;
+            case hproseTags.TagGuid:
+                readGuidRaw(ostream);
+                break;
+            case hproseTags.TagList:
+            case hproseTags.TagMap:
+            case hproseTags.TagObject:
+                readComplexRaw(ostream);
+                break;
+            case hproseTags.TagClass:
+                readComplexRaw(ostream);
+                readRaw(ostream);
+                break;
+            case hproseTags.TagError:
+                readRaw(ostream);
+                break;
+            default: unexpectedTag(tag);
             }
             return ostream;
         }
         function readNumberRaw(ostream) {
+            var tag;
             do {
-                var tag = stream.getc();
+                tag = stream.getc();
                 ostream.write(tag);
-            } while (tag != hproseTags.TagSemicolon);
+            } while (tag !== hproseTags.TagSemicolon);
         }
         function readDateTimeRaw(ostream) {
+            var tag;
             do {
-                var tag = stream.getc();
+                tag = stream.getc();
                 ostream.write(tag);
-            } while (tag != hproseTags.TagSemicolon &&
-                     tag != hproseTags.TagUTC);
+            } while (tag !== hproseTags.TagSemicolon &&
+                     tag !== hproseTags.TagUTC);
         }
         function readStringRaw(ostream) {
             var s = stream.readuntil(hproseTags.TagQuote);
             ostream.write(s);
             ostream.write(hproseTags.TagQuote);
             var len = 0;
-            if (s.length > 0) len = parseInt(s, 10);
+            if (s.length > 0) { len = parseInt(s, 10); }
             ostream.write(stream.read(len + 1));
         }
         function readGuidRaw(ostream) {
             ostream.write(stream.read(38));
         }
         function readComplexRaw(ostream) {
+            var tag;
             do {
-                var tag = stream.getc();
+                tag = stream.getc();
                 ostream.write(tag);
-            } while (tag != hproseTags.TagOpenbrace);
-            while ((tag = stream.getc()) != hproseTags.TagClosebrace) {
+            } while (tag !== hproseTags.TagOpenbrace);
+            while ((tag = stream.getc()) !== hproseTags.TagClosebrace) {
                 readRaw(ostream, tag);
             }
             ostream.write(tag);
         }
         this.readRaw = readRaw;
-    }
+    };
 
-    var FakeReaderRefer = function() {}
-
-    FakeReaderRefer.prototype = {
-        set: function(val) {},
-        read: function(index) {
+    var fakeReaderRefer = {
+        set: function (val) {},
+        read: function (index) {
             unexpectedTag(hproseTags.TagRef);
         },
-        reset: function() {}
-    }
+        reset: function () {}
+    };
 
-    var RealReaderRefer = function() {}
-
-    RealReaderRefer.prototype = {
-        ref: [],
-        set: function(val) {
-            this.ref[this.ref.length] = val;
-        },
-        read: function(index) {
-            return this.ref[index];
-        },
-        reset: function() {
-            this.ref.length = 0;
-        }
+    function fealReaderRefer() {
+        var ref = [];
+        return {
+            set: function (val) {
+                ref[ref.length] = val;
+            },
+            read: function (index) {
+                return ref[index];
+            },
+            reset: function () {
+                ref.length = 0;
+            }
+        };
     }
 
     // public class
     HproseReader = function hproseReader(stream, simple) {
         HproseRawReader.call(this, stream);
         var classref = [];
-        var refer = (simple ? new FakeReaderRefer() : new RealReaderRefer());
+        var refer = (simple ? fakeReaderRefer : fealReaderRefer());
         function checkTag(expectTag, tag) {
             if (tag === undefined) tag = stream.getc();
-            if (tag != expectTag) unexpectedTag(tag, expectTag);
+            if (tag !== expectTag) unexpectedTag(tag, expectTag);
         }
         function checkTags(expectTags, tag) {
             if (tag === undefined) tag = stream.getc();
@@ -405,7 +392,7 @@ var HproseSimpleWriter, HproseWriter;
         }
         function readInt(tag) {
             var s = stream.readuntil(tag);
-            if (s.length == 0) return 0;
+            if (s.length === 0) return 0;
             return parseInt(s, 10);
         }
         function unserialize(tag) {
@@ -413,37 +400,37 @@ var HproseSimpleWriter, HproseWriter;
                 tag = stream.getc();
             }
             switch (tag) {
-                case '0': return 0;
-                case '1': return 1;
-                case '2': return 2;
-                case '3': return 3;
-                case '4': return 4;
-                case '5': return 5;
-                case '6': return 6;
-                case '7': return 7;
-                case '8': return 8;
-                case '9': return 9;
-                case hproseTags.TagInteger: return readIntegerWithoutTag();
-                case hproseTags.TagLong: return readLongWithoutTag();
-                case hproseTags.TagDouble: return readDoubleWithoutTag();
-                case hproseTags.TagNull: return null;
-                case hproseTags.TagEmpty: return '';
-                case hproseTags.TagTrue: return true;
-                case hproseTags.TagFalse: return false;
-                case hproseTags.TagNaN: return NaN;
-                case hproseTags.TagInfinity: return readInfinityWithoutTag();
-                case hproseTags.TagDate: return readDateWithoutTag();
-                case hproseTags.TagTime: return readTimeWithoutTag();
-                case hproseTags.TagUTF8Char: return stream.getc();
-                case hproseTags.TagString: return readStringWithoutTag();
-                case hproseTags.TagGuid: return readGuidWithoutTag();
-                case hproseTags.TagList: return readListWithoutTag();
-                case hproseTags.TagMap: return readMapWithoutTag();
-                case hproseTags.TagClass: readClass(); return readObject();
-                case hproseTags.TagObject: return readObjectWithoutTag();
-                case hproseTags.TagRef: return readRef();
-                case hproseTags.TagError: throw new hproseException(readString());
-                default: unexpectedTag(tag);
+            case '0': return 0;
+            case '1': return 1;
+            case '2': return 2;
+            case '3': return 3;
+            case '4': return 4;
+            case '5': return 5;
+            case '6': return 6;
+            case '7': return 7;
+            case '8': return 8;
+            case '9': return 9;
+            case hproseTags.TagInteger: return readIntegerWithoutTag();
+            case hproseTags.TagLong: return readLongWithoutTag();
+            case hproseTags.TagDouble: return readDoubleWithoutTag();
+            case hproseTags.TagNull: return null;
+            case hproseTags.TagEmpty: return '';
+            case hproseTags.TagTrue: return true;
+            case hproseTags.TagFalse: return false;
+            case hproseTags.TagNaN: return NaN;
+            case hproseTags.TagInfinity: return readInfinityWithoutTag();
+            case hproseTags.TagDate: return readDateWithoutTag();
+            case hproseTags.TagTime: return readTimeWithoutTag();
+            case hproseTags.TagUTF8Char: return stream.getc();
+            case hproseTags.TagString: return readStringWithoutTag();
+            case hproseTags.TagGuid: return readGuidWithoutTag();
+            case hproseTags.TagList: return readListWithoutTag();
+            case hproseTags.TagMap: return readMapWithoutTag();
+            case hproseTags.TagClass: readClass(); return readObject();
+            case hproseTags.TagObject: return readObjectWithoutTag();
+            case hproseTags.TagRef: return readRef();
+            case hproseTags.TagError: throw new HException(readString());
+            default: unexpectedTag(tag);
             }
         }
         function readIntegerWithoutTag() {
@@ -452,18 +439,18 @@ var HproseSimpleWriter, HproseWriter;
         function readInteger() {
             var tag = stream.getc();
             switch (tag) {
-                case '0': return 0;
-                case '1': return 1;
-                case '2': return 2;
-                case '3': return 3;
-                case '4': return 4;
-                case '5': return 5;
-                case '6': return 6;
-                case '7': return 7;
-                case '8': return 8;
-                case '9': return 9;
-                case hproseTags.TagInteger: return readIntegerWithoutTag();
-                default: unexpectedTag(tag);
+            case '0': return 0;
+            case '1': return 1;
+            case '2': return 2;
+            case '3': return 3;
+            case '4': return 4;
+            case '5': return 5;
+            case '6': return 6;
+            case '7': return 7;
+            case '8': return 8;
+            case '9': return 9;
+            case hproseTags.TagInteger: return readIntegerWithoutTag();
+            default: unexpectedTag(tag);
             }
         }
         function readLongWithoutTag() {
@@ -472,19 +459,19 @@ var HproseSimpleWriter, HproseWriter;
         function readLong() {
             var tag = stream.getc();
             switch (tag) {
-                case '0': return 0;
-                case '1': return 1;
-                case '2': return 2;
-                case '3': return 3;
-                case '4': return 4;
-                case '5': return 5;
-                case '6': return 6;
-                case '7': return 7;
-                case '8': return 8;
-                case '9': return 9;
-                case hproseTags.TagInteger:
-                case hproseTags.TagLong: return readLongWithoutTag();
-                default: unexpectedTag(tag);
+            case '0': return 0;
+            case '1': return 1;
+            case '2': return 2;
+            case '3': return 3;
+            case '4': return 4;
+            case '5': return 5;
+            case '6': return 6;
+            case '7': return 7;
+            case '8': return 8;
+            case '9': return 9;
+            case hproseTags.TagInteger:
+            case hproseTags.TagLong: return readLongWithoutTag();
+            default: unexpectedTag(tag);
             }
         }
         function readDoubleWithoutTag() {
@@ -493,33 +480,33 @@ var HproseSimpleWriter, HproseWriter;
         function readDouble() {
             var tag = stream.getc();
             switch (tag) {
-                case '0': return 0;
-                case '1': return 1;
-                case '2': return 2;
-                case '3': return 3;
-                case '4': return 4;
-                case '5': return 5;
-                case '6': return 6;
-                case '7': return 7;
-                case '8': return 8;
-                case '9': return 9;
-                case hproseTags.TagInteger:
-                case hproseTags.TagLong:
-                case hproseTags.TagDouble: return readDoubleWithoutTag();
-                case hproseTags.TagNaN: return NaN;
-                case hproseTags.TagInfinity: return readInfinityWithoutTag();
-                default: unexpectedTag(tag);
+            case '0': return 0;
+            case '1': return 1;
+            case '2': return 2;
+            case '3': return 3;
+            case '4': return 4;
+            case '5': return 5;
+            case '6': return 6;
+            case '7': return 7;
+            case '8': return 8;
+            case '9': return 9;
+            case hproseTags.TagInteger:
+            case hproseTags.TagLong:
+            case hproseTags.TagDouble: return readDoubleWithoutTag();
+            case hproseTags.TagNaN: return NaN;
+            case hproseTags.TagInfinity: return readInfinityWithoutTag();
+            default: unexpectedTag(tag);
             }
         }
         function readInfinityWithoutTag() {
-            return ((stream.getc() == hproseTags.TagNeg) ? -Infinity : Infinity);
+            return ((stream.getc() === hproseTags.TagNeg) ? -Infinity : Infinity);
         }
         function readBoolean() {
             var tag = stream.getc();
             switch (tag) {
-                case hproseTags.TagTrue: return true;
-                case hproseTags.TagFalse: return false;
-                default: unexpectedTag(tag);
+            case hproseTags.TagTrue: return true;
+            case hproseTags.TagFalse: return false;
+            default: unexpectedTag(tag);
             }
         }
         function readDateWithoutTag() {
@@ -528,13 +515,13 @@ var HproseSimpleWriter, HproseWriter;
             var day = parseInt(stream.read(2), 10);
             var date;
             var tag = stream.getc();
-            if (tag == hproseTags.TagTime) {
+            if (tag === hproseTags.TagTime) {
                 var hour = parseInt(stream.read(2), 10);
                 var minute = parseInt(stream.read(2), 10);
                 var second = parseInt(stream.read(2), 10);
                 var millisecond = 0;
                 tag = stream.getc();
-                if (tag == hproseTags.TagPoint) {
+                if (tag === hproseTags.TagPoint) {
                     millisecond = parseInt(stream.read(3), 10);
                     tag = stream.getc();
                     if ((tag >= '0') && (tag <= '9')) {
@@ -546,14 +533,14 @@ var HproseSimpleWriter, HproseWriter;
                         }
                     }
                 }
-                if (tag == hproseTags.TagUTC) {
+                if (tag === hproseTags.TagUTC) {
                     date = new Date(Date.UTC(year, month, day, hour, minute, second, millisecond));
                 }
                 else {
                     date = new Date(year, month, day, hour, minute, second, millisecond);
                 }
             }
-            else if (tag == hproseTags.TagUTC) {
+            else if (tag === hproseTags.TagUTC) {
                 date = new Date(Date.UTC(year, month, day));
             }
             else {
@@ -565,9 +552,9 @@ var HproseSimpleWriter, HproseWriter;
         function readDate() {
             var tag = stream.getc();
             switch (tag) {
-                case hproseTags.TagDate: return readDateWithoutTag();
-                case hproseTags.TagRef: return readRef();
-                default: unexpectedTag(tag);
+            case hproseTags.TagDate: return readDateWithoutTag();
+            case hproseTags.TagRef: return readRef();
+            default: unexpectedTag(tag);
             }
         }
         function readTimeWithoutTag() {
@@ -577,7 +564,7 @@ var HproseSimpleWriter, HproseWriter;
             var second = parseInt(stream.read(2), 10);
             var millisecond = 0;
             var tag = stream.getc();
-            if (tag == hproseTags.TagPoint) {
+            if (tag === hproseTags.TagPoint) {
                 millisecond = parseInt(stream.read(3), 10);
                 tag = stream.getc();
                 if ((tag >= '0') && (tag <= '9')) {
@@ -589,7 +576,7 @@ var HproseSimpleWriter, HproseWriter;
                     }
                 }
             }
-            if (tag == hproseTags.TagUTC) {
+            if (tag === hproseTags.TagUTC) {
                 time = new Date(Date.UTC(1970, 0, 1, hour, minute, second, millisecond));
             }
             else {
@@ -601,17 +588,10 @@ var HproseSimpleWriter, HproseWriter;
         function readTime() {
             var tag = stream.getc();
             switch (tag) {
-                case hproseTags.TagTime: return readTimeWithoutTag();
-                case hproseTags.TagRef: return readRef();
-                default: unexpectedTag(tag);
+            case hproseTags.TagTime: return readTimeWithoutTag();
+            case hproseTags.TagRef: return readRef();
+            default: unexpectedTag(tag);
             }
-        }
-        function readUTF8CharWithoutTag() {
-            return stream.getc();
-        }
-        function readUTF8Char() {
-            checkTag(hproseTags.TagUTF8Char);
-            return stream.getc();
         }
         function _readString() {
             var s = stream.read(readInt(hproseTags.TagQuote));
@@ -626,9 +606,9 @@ var HproseSimpleWriter, HproseWriter;
         function readString() {
             var tag = stream.getc();
             switch (tag) {
-                case hproseTags.TagString: return readStringWithoutTag();
-                case hproseTags.TagRef: return readRef();
-                default: unexpectedTag(tag);
+            case hproseTags.TagString: return readStringWithoutTag();
+            case hproseTags.TagRef: return readRef();
+            default: unexpectedTag(tag);
             }
         }
         function readGuidWithoutTag() {
@@ -641,9 +621,9 @@ var HproseSimpleWriter, HproseWriter;
         function readGuid() {
             var tag = stream.getc();
             switch (tag) {
-                case hproseTags.TagGuid: return readGuidWithoutTag();
-                case hproseTags.TagRef: return readRef();
-                default: unexpectedTag(tag);
+            case hproseTags.TagGuid: return readGuidWithoutTag();
+            case hproseTags.TagRef: return readRef();
+            default: unexpectedTag(tag);
             }
         }
         function readListWithoutTag() {
@@ -659,9 +639,9 @@ var HproseSimpleWriter, HproseWriter;
         function readList() {
             var tag = stream.getc();
             switch (tag) {
-                case hproseTags.TagList: return readListWithoutTag();
-                case hproseTags.TagRef: return readRef();
-                default: unexpectedTag(tag);
+            case hproseTags.TagList: return readListWithoutTag();
+            case hproseTags.TagRef: return readRef();
+            default: unexpectedTag(tag);
             }
         }
         function readMapWithoutTag() {
@@ -679,9 +659,9 @@ var HproseSimpleWriter, HproseWriter;
         function readMap() {
             var tag = stream.getc();
             switch (tag) {
-                case hproseTags.TagMap: return readMapWithoutTag();
-                case hproseTags.TagRef: return readRef();
-                default: unexpectedTag(tag);
+            case hproseTags.TagMap: return readMapWithoutTag();
+            case hproseTags.TagRef: return readRef();
+            default: unexpectedTag(tag);
             }
         }
         function readObjectWithoutTag() {
@@ -697,10 +677,10 @@ var HproseSimpleWriter, HproseWriter;
         function readObject() {
             var tag = stream.getc();
             switch(tag) {
-                case hproseTags.TagClass: readClass(); return readObject();
-                case hproseTags.TagObject: return readObjectWithoutTag();
-                case hproseTags.TagRef: return readRef();
-                default: unexpectedTag(tag);
+            case hproseTags.TagClass: readClass(); return readObject();
+            case hproseTags.TagObject: return readObjectWithoutTag();
+            case hproseTags.TagRef: return readRef();
+            default: unexpectedTag(tag);
             }
         }
         function readClass() {
@@ -736,7 +716,6 @@ var HproseSimpleWriter, HproseWriter;
         this.readDate = readDate;
         this.readTimeWithoutTag = readTimeWithoutTag;
         this.readTime = readTime;
-        this.readUTF8Char = readUTF8Char;
         this.readStringWithoutTag = readStringWithoutTag;
         this.readString = readString;
         this.readGuidWithoutTag = readGuidWithoutTag;
@@ -748,45 +727,45 @@ var HproseSimpleWriter, HproseWriter;
         this.readObjectWithoutTag = readObjectWithoutTag;
         this.readObject = readObject;
         this.reset = reset;
-    }
+    };
 
-    var FakeWriterRefer = function() {}
-    FakeWriterRefer.prototype = {
-        set: function(val) {},
-        write: function(stream, val) { return false; },
-        reset: function() {}
-    }
+    var fakeWriterRefer = {
+        set: function (val) {},
+        write: function (stream, val) { return false; },
+        reset: function () {}
+    };
 
-    var RealWriterRefer = function() {}
-    RealWriterRefer.prototype = {
-        ref: new Map(),
-        refcount: 0,
-        set: function(val) {
-            this.ref.set(val, this.refcount++);
-        },
-        write: function(stream, val) {
-            var index = this.ref.get(val);
-            if (index !== undefined) {
-                stream.write(hproseTags.TagRef + index + hproseTags.TagSemicolon);
-                return true;
+    var realWriterRefer = function () {
+        var ref = new Map();
+        var refcount = 0;
+        return {
+            set: function (val) {
+                ref.set(val, refcount++);
+            },
+            write: function (stream, val) {
+                var index = ref.get(val);
+                if (index !== undefined) {
+                    stream.write(hproseTags.TagRef + index + hproseTags.TagSemicolon);
+                    return true;
+                }
+                return false;
+            },
+            reset: function () {
+                ref = new Map();
+                refcount = 0;
             }
-            return false;
-        },
-        reset: function() {
-            this.ref = new Map();
-            this.refcount = 0;
-        }
-    }
+        };
+    };
 
     // public class
     HproseWriter = function hproseWriter(stream, simple) {
         var classref = {};
         var fieldsref = [];
-        var refer = (simple ? new FakeWriterRefer() : new RealWriterRefer());
+        var refer = (simple ? fakeWriterRefer : realWriterRefer());
         function serialize(variable) {
             if (variable === undefined ||
                 variable === null ||
-                variable.constructor == Function) {
+                variable.constructor === Function) {
                 writeNull();
                 return;
             }
@@ -795,30 +774,48 @@ var HproseSimpleWriter, HproseWriter;
                 return;
             }
             switch (variable.constructor) {
-                case Boolean: writeBoolean(variable); break;
-                case Number: isDigit(variable) ?
-                             stream.write(variable) :
-                             isInt32(variable) ?
-                             writeInteger(variable) :
-                             writeDouble(variable); break;
-                case String: variable.length == 1 ?
-                             writeUTF8Char(variable) :
-                             writeStringWithRef(variable); break;
-                case Date: writeDateWithRef(variable); break;
-                default: {
-                    if (Array.isArray(variable)) {
-                        writeListWithRef(variable);
+            case Boolean:
+                writeBoolean(variable);
+                break;
+            case Number:
+                writeNumber(variable);
+                break;
+            case String:
+                if (variable.length === 1) {
+                    writeUTF8Char(variable);
+                }
+                else {
+                    writeStringWithRef(variable);
+                }
+                break;
+            case Date:
+                writeDateWithRef(variable);
+                break;
+            default:
+                if (Array.isArray(variable)) {
+                    writeListWithRef(variable);
+                }
+                else {
+                    var classname = getClassName(variable);
+                    if (classname === 'Object') {
+                        writeMapWithRef(variable);
                     }
                     else {
-                        var classname = getClassName(variable);
-                        if (classname == "Object") {
-                            writeMapWithRef(variable);
-                        }
-                        else {
-                            writeObjectWithRef(variable);
-                        }
+                        writeObjectWithRef(variable);
                     }
                 }
+                break;
+            }
+        }
+        function writeNumber(n) {
+            if (isDigit(n)) {
+                stream.write(n);
+            }
+            else if (isInt32(n)) {
+                writeInteger(n);
+            }
+            else {
+                writeDouble(n);
             }
         }
         function writeInteger(i) {
@@ -866,13 +863,13 @@ var HproseSimpleWriter, HproseWriter;
             var millisecond = ('000' + date.getUTCMilliseconds()).slice(-3);
             stream.write(hproseTags.TagDate + year + month + day +
                          hproseTags.TagTime + hour + minute + second);
-            if (millisecond != '000') {
+            if (millisecond !== '000') {
                 stream.write(hproseTags.TagPoint + millisecond);
             }
             stream.write(hproseTags.TagUTC);
         }
         function writeUTCDateWithRef(date) {
-            if (!refer.write(date)) writeUTCDate(date);
+            if (!refer.write(stream, date)) writeUTCDate(date);
         }
         function writeDate(date) {
             refer.set(date);
@@ -883,27 +880,27 @@ var HproseSimpleWriter, HproseWriter;
             var minute = ('00' + date.getMinutes()).slice(-2);
             var second = ('00' + date.getSeconds()).slice(-2);
             var millisecond = ('000' + date.getMilliseconds()).slice(-3);
-            if ((hour == '00') && (minute == '00') &&
-                (second == '00') && (millisecond == '000')) {
+            if ((hour === '00') && (minute === '00') &&
+                (second === '00') && (millisecond === '000')) {
                 stream.write(hproseTags.TagDate + year + month + day);
             }
-            else if ((year == '1970') && (month == '01') && (day == '01')) {
+            else if ((year === '1970') && (month === '01') && (day === '01')) {
                 stream.write(hproseTags.TagTime + hour + minute + second);
-                if (millisecond != '000') {
+                if (millisecond !== '000') {
                     stream.write(hproseTags.TagPoint + millisecond);
                 }
             }
             else {
                 stream.write(hproseTags.TagDate + year + month + day +
                              hproseTags.TagTime + hour + minute + second);
-                if (millisecond != '000') {
+                if (millisecond !== '000') {
                     stream.write(hproseTags.TagPoint + millisecond);
                 }
             }
             stream.write(hproseTags.TagSemicolon);
         }
         function writeDateWithRef(date) {
-            if (!refer.write(date)) writeDate(date);
+            if (!refer.write(stream, date)) writeDate(date);
         }
         function writeTime(time) {
             refer.set(time);
@@ -912,13 +909,13 @@ var HproseSimpleWriter, HproseWriter;
             var second = ('00' + time.getSeconds()).slice(-2);
             var millisecond = ('000' + time.getMilliseconds()).slice(-3);
             stream.write(hproseTags.TagTime + hour + minute + second);
-            if (millisecond != '000') {
+            if (millisecond !== '000') {
                 stream.write(hproseTags.TagPoint + millisecond);
             }
             stream.write(hproseTags.TagSemicolon);
         }
         function writeTimeWithRef(time) {
-            if (!refer.write(time)) writeTime(time);
+            if (!refer.write(stream, time)) writeTime(time);
         }
         function writeUTF8Char(c) {
             stream.write(hproseTags.TagUTF8Char + c);
@@ -930,7 +927,7 @@ var HproseSimpleWriter, HproseWriter;
                 hproseTags.TagQuote + str + hproseTags.TagQuote);
         }
         function writeStringWithRef(str) {
-            if (!refer.write(str)) writeString(str);
+            if (!refer.write(stream, str)) writeString(str);
         }
         function writeList(list) {
             refer.set(list);
@@ -942,15 +939,13 @@ var HproseSimpleWriter, HproseWriter;
             stream.write(hproseTags.TagClosebrace);
         }
         function writeListWithRef(list) {
-            if (!refer.write(list)) writeList(list);
+            if (!refer.write(stream, list)) writeList(list);
         }
         function writeMap(map) {
             refer.set(map);
             var fields = [];
             for (var key in map) {
-                if (typeof(map[key]) != 'function' &&
-                    !prototypePropertyOfObject[key] &&
-                    !prototypePropertyOfArray[key]) {
+                if (map.hasOwnProperty(key) && typeof(map[key]) !== 'function') {
                     fields[fields.length] = key;
                 }
             }
@@ -963,7 +958,7 @@ var HproseSimpleWriter, HproseWriter;
             stream.write(hproseTags.TagClosebrace);
         }
         function writeMapWithRef(map) {
-            if (!refer.write(map)) writeMap(map);
+            if (!refer.write(stream, map)) writeMap(map);
         }
         function writeObject(obj) {
             var classname = getClassName(obj);
@@ -975,8 +970,8 @@ var HproseSimpleWriter, HproseWriter;
             else {
                 fields = [];
                 for (var key in obj) {
-                    if (typeof(obj[key]) != 'function' &&
-                        !prototypePropertyOfObject[key]) {
+                    if (obj.hasOwnProperty(key) &&
+                        typeof(obj[key]) !== 'function') {
                         fields[fields.length] = key.toString();
                     }
                 }
@@ -991,7 +986,7 @@ var HproseSimpleWriter, HproseWriter;
             stream.write(hproseTags.TagClosebrace);
         }
         function writeObjectWithRef(obj) {
-            if (!refer.write(obj)) writeObject(obj);
+            if (!refer.write(stream, obj)) writeObject(obj);
         }
         function writeClass(classname, fields) {
             var count = fields.length;
@@ -1037,19 +1032,21 @@ var HproseSimpleWriter, HproseWriter;
         this.writeObject = writeObject;
         this.writeObjectWithRef = writeObjectWithRef;
         this.reset = reset;
-    }
-})(this);
+    };
+})(window);
 
 var HproseFormatter = {
-    serialize: function(variable, simple) {
+    serialize: function (variable, simple) {
+        'use strict';
         var stream = new HproseStringOutputStream();
         var writer = new HproseWriter(stream, simple);
         writer.serialize(variable);
         return stream.toString();
     },
-    unserialize: function(variable_representation, simple) {
+    unserialize: function (variable_representation, simple) {
+        'use strict';
         var stream = new HproseStringInputStream(variable_representation);
         var reader = new HproseReader(stream, simple);
         return reader.unserialize();
     }
-}
+};
