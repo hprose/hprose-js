@@ -361,7 +361,7 @@ var HproseRawReader, HproseReader, HproseWriter;
         reset: function () {}
     };
 
-    function fealReaderRefer() {
+    function realReaderRefer() {
         var ref = [];
         return {
             set: function (val) {
@@ -380,7 +380,7 @@ var HproseRawReader, HproseReader, HproseWriter;
     HproseReader = function hproseReader(stream, simple) {
         HproseRawReader.call(this, stream);
         var classref = [];
-        var refer = (simple ? fakeReaderRefer : fealReaderRefer());
+        var refer = (simple ? fakeReaderRefer : realReaderRefer());
         function checkTag(expectTag, tag) {
             if (tag === undefined) tag = stream.getc();
             if (tag !== expectTag) unexpectedTag(tag, expectTag);
