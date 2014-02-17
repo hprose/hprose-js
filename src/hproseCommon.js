@@ -19,7 +19,7 @@
  *                                                        *
 \**********************************************************/
 
-/*jshint unused:false, eqeqeq:true */
+/*jshint es3:true, unused:false, eqeqeq:true */
 var HproseResultMode = {
     Normal: 0,
     Serialized: 1,

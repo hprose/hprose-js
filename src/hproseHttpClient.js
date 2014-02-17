@@ -28,7 +28,7 @@
 /*global HproseReader */
 /*global HproseWriter */
 /*global HproseTags */
-/*jshint unused:false, eqeqeq:true */
+/*jshint es3:true, unused:false, eqeqeq:true */
 var HproseHttpClient = (function () {
     'use strict';
     /* Reference of global Class */
@@ -437,26 +437,26 @@ var HproseHttpClient = (function () {
                     try {
                         while ((tag = stream.getc()) !== HTags.TagEnd) {
                             switch (tag) {
-                                case HTags.TagResult:
-                                    if (resultMode === HResultMode.Serialized) {
-                                        result = reader.readRaw().toString();
-                                    }
-                                    else {
-                                        reader.reset();
-                                        result = reader.unserialize();
-                                    }
-                                    break;
-                                case HTags.TagArgument:
+                            case HTags.TagResult:
+                                if (resultMode === HResultMode.Serialized) {
+                                    result = reader.readRaw().toString();
+                                }
+                                else {
                                     reader.reset();
-                                    args = reader.readList();
-                                    break;
-                                case HTags.TagError:
-                                    reader.reset();
-                                    error = new HException(reader.readString());
-                                    break;
-                                default:
-                                    error = new HException('Wrong Response:\r\n' + response);
-                                    break;
+                                    result = reader.unserialize();
+                                }
+                                break;
+                            case HTags.TagArgument:
+                                reader.reset();
+                                args = reader.readList();
+                                break;
+                            case HTags.TagError:
+                                reader.reset();
+                                error = new HException(reader.readString());
+                                break;
+                            default:
+                                error = new HException('Wrong Response:\r\n' + response);
+                                break;
                             }
                         }
                     }

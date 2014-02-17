@@ -14,7 +14,7 @@
  *                                                        *
  * POST data to HTTP Server (using Flash).                *
  *                                                        *
- * LastModified: Feb 16, 2014                             *
+ * LastModified: Feb 17, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -29,7 +29,7 @@
  */
 
 /*global ActiveXObject, HproseTags, HproseFormatter */
-/*jshint unused:false, eqeqeq:true */
+/*jshint es3:true, unused:false, eqeqeq:true */
 var HproseHttpRequest = (function (global) {
     'use strict';
     // get flash path
@@ -141,7 +141,7 @@ var HproseHttpRequest = (function (global) {
             if (version && !(mimetypes && mimetypes[flashmime] &&
                          !mimetypes[flashmime].enabledPlugin)) {
                 version = version.replace(/^.*\s+(\S+\s+\S+$)/, '$1');
-                version = parseInt(version.replace(/^(.*)\..*$/, '$1'));
+                version = parseInt(version.replace(/^(.*)\..*$/, '$1'), 10);
             }
         }
         else if (global.ActiveXObject) {
@@ -152,7 +152,7 @@ var HproseHttpRequest = (function (global) {
                     version = ax.GetVariable('$version');
                     if (version) {
                         version = version.split(' ')[1].split(',');
-                        version = parseInt(version[0]);
+                        version = parseInt(version[0], 10);
                     }
                 }
             }

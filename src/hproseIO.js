@@ -20,7 +20,7 @@
 \**********************************************************/
 
 /*global HproseException, WeakMap, Map */
-/*jshint unused:false, eqeqeq:true */
+/*jshint es3:true, unused:false, eqeqeq:true */
 /*jslint plusplus:true, white:true, vars:true */
 
 function HproseStringInputStream(str) {
