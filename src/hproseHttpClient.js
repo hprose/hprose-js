@@ -14,7 +14,7 @@
  *                                                        *
  * hprose http client for Javascript.                     *
  *                                                        *
- * LastModified: Feb 15, 2014                             *
+ * LastModified: Feb 17, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -94,7 +94,7 @@ var HproseHttpClient = (function () {
         this.invoke = function () {
             var args = arguments;
             var func = Array.prototype.shift.apply(args);
-            return invoke.call(this, func, args);
+            return invoke(this, func, args);
         };
         this.setHeader = function (name, value) {
             if (name.toLowerCase() !== 'content-type') {
@@ -157,7 +157,7 @@ var HproseHttpClient = (function () {
                         case HTags.TagFunctions:
                             var functions = reader.readList();
                             reader.checkTag(HTags.TagEnd);
-                            setFunctions.call(stub, functions);
+                            setFunctions(stub, functions);
                             break;
                         default:
                             error = new HException('Wrong Response:\r\n' + response);
