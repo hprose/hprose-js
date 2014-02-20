@@ -57,6 +57,7 @@
 * iOS 上的 Google Chrome
 * Android 上的 Google Chrome
 * Android 的默认浏览器
+* Windows Phone 上的 Internet Explorer
 * WebOS 的默认浏览器
 * Blackberry 的默认浏览器
 * N9 MeeGo 的默认浏览器

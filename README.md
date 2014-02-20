@@ -57,6 +57,7 @@ This project is the implementation of Hprose for JavaScript.
 * Google Chrome on iOS
 * Google Chrome on Android
 * Default Browser on Android
+* Internet Explorer on Windows Phone
 * Default Browser on WebOS
 * Default Browser on Blackberry
 * Default Browser on N9 MeeGo
