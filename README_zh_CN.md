@@ -57,13 +57,17 @@
 * iOS 上的 Google Chrome
 * Android 上的 Google Chrome
 * Android 的默认浏览器
-* Symbian 的默认浏览器
 * WebOS 的默认浏览器
 * Blackberry 的默认浏览器
-* Opera Mini
+* N9 MeeGo 的默认浏览器
+* N9 MeeGo 上的 Mozilla Firefox
+* \*Symbian^3 的默认浏览器
 * Opera Mobile
-* Pocket IE
+* \*Opera Mini
+* \*Pocket IE
 * ...
+
+以上所有浏览器（除了加星号标注的），使用 Hprose for JavaScript 均支持跨域调用。
 
 ## 使用
 

@@ -57,13 +57,17 @@ This project is the implementation of Hprose for JavaScript.
 * Google Chrome on iOS
 * Google Chrome on Android
 * Default Browser on Android
-* Default Browser on Symbian
 * Default Browser on WebOS
 * Default Browser on Blackberry
-* Opera Mini
+* Default Browser on N9 MeeGo
+* Mozilla Firefox on N9 MeeGo
+* \*Default Browser on Symbian
 * Opera Mobile
-* Pocket IE
+* \*Opera Mini
+* \*Pocket IE
 * ...
+
+All of the above browsers (except asterisk marked) support cross-domain invoking with Hprose for JavaScript.
 
 ## Usage
 
