@@ -14,7 +14,7 @@
  *                                                        *
  * hprose io stream library for JavaScript.               *
  *                                                        *
- * LastModified: Feb 16, 2014                             *
+ * LastModified: Mar 7, 2014                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -395,10 +395,8 @@ var HproseRawReader, HproseReader, HproseWriter;
             if (s.length === 0) return 0;
             return parseInt(s, 10);
         }
-        function unserialize(tag) {
-            if (tag === undefined) {
-                tag = stream.getc();
-            }
+        function unserialize() {
+            var tag = stream.getc();
             switch (tag) {
             case '0': return 0;
             case '1': return 1;
