@@ -14,7 +14,7 @@
  *                                                        *
  * hprose http client for Javascript.                     *
  *                                                        *
- * LastModified: Feb 17, 2014                             *
+ * LastModified: Mar 17, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -170,7 +170,7 @@ var HproseHttpClient = (function () {
                 if (error !== null) {
                     self.onError('useService', error);
                 }
-            }, m_timeout, m_filter);
+            }, m_timeout, m_filter, self);
         }
         function setFunction(stub, func) {
             return function () {
@@ -475,7 +475,7 @@ var HproseHttpClient = (function () {
                 else if (callback) {
                     callback(result, args);
                 }
-            }, m_timeout, m_filter);
+            }, m_timeout, m_filter, self);
         }
         /* constructor */ {
             if (typeof(url) === s_string) {

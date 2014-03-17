@@ -14,7 +14,7 @@
  *                                                        *
  * POST data to HTTP Server (using Flash).                *
  *                                                        *
- * LastModified: Feb 17, 2014                             *
+ * LastModified: Mar 17, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -56,9 +56,13 @@ var HproseHttpRequest = (function (global) {
     var s_callbackList = [];
 
     /*
-     * to save all request callback filters
+     * to save all request filters
      */
-    var s_callbackFilters = [];
+    var s_filters = [];
+    /*
+     * to save all request clients
+     */
+    var s_clients = [];
     /*
      * to save HproseHttpRequest tasks.
      */
@@ -346,14 +350,15 @@ var HproseHttpRequest = (function (global) {
 
     var HproseHttpRequest = {};
 
-    HproseHttpRequest.post = function (url, header, data, callback, timeout, filter) {
+    HproseHttpRequest.post = function (url, header, data, callback, timeout, filter, client) {
         var callbackid = -1;
         if (callback) {
             callbackid = s_callbackList.length;
             s_callbackList[callbackid] = callback;
-            s_callbackFilters[callbackid] = filter;
+            s_filters[callbackid] = filter;
+            s_clients[callbackid] = client;
         }
-        data = filter.outputFilter(data);
+        data = filter.outputFilter(data, client);
         if (s_jsReady) {
             post(url, header, data, callbackid, timeout);
         }
@@ -367,13 +372,14 @@ var HproseHttpRequest = (function (global) {
 
     HproseHttpRequest.__callback = function (callbackid, data, needToFilter) {
         if (needToFilter) {
-            data = s_callbackFilters[callbackid].inputFilter(data);
+            data = s_filters[callbackid].inputFilter(data, s_clients[callbackid]);
         }
         if (typeof(s_callbackList[callbackid]) === 'function') {
             s_callbackList[callbackid](data);
         }
         delete s_callbackList[callbackid];
-        delete s_callbackFilters[callbackid];
+        delete s_filters[callbackid];
+        delete s_clients[callbackid];
     };
 
     HproseHttpRequest.__jsReady = function () {
