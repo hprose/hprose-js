@@ -14,7 +14,7 @@
  *                                                        *
  * hprose http client for Javascript.                     *
  *                                                        *
- * LastModified: Mar 17, 2014                             *
+ * LastModified: Mar 20, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -252,11 +252,16 @@ var HproseHttpClient = (function () {
                            self[lowerCaseFunc + s_onSuccess] ||
                            self[lowerCaseFunc + s_onsuccess];
             var count = args.length;
-            if (typeof(args[count - 1]) === s_boolean &&
-                typeof(args[count - 2]) === s_number &&
-                typeof(args[count - 3]) === s_boolean &&
-                typeof(args[count - 4]) === s_function &&
-                typeof(args[count - 5]) === s_function) {
+            var tArg5 = typeof(args[count - 5]);
+            var tArg4 = typeof(args[count - 4]);
+            var tArg3 = typeof(args[count - 3]);
+            var tArg2 = typeof(args[count - 2]);
+            var tArg1 = typeof(args[count - 1]);
+            if (tArg1 === s_boolean &&
+                tArg2 === s_number &&
+                tArg3 === s_boolean &&
+                tArg4 === s_function &&
+                tArg5 === s_function) {
                 simple = args[count - 1];
                 resultMode = args[count - 2];
                 byref = args[count - 3];
@@ -269,10 +274,10 @@ var HproseHttpClient = (function () {
                 delete args[count - 5];
                 args.length -= 5;
             }
-            else if (typeof(args[count - 1]) === s_boolean &&
-                     typeof(args[count - 2]) === s_number &&
-                     typeof(args[count - 3]) === s_function &&
-                     typeof(args[count - 4]) === s_function) {
+            else if (tArg1 === s_boolean &&
+                     tArg2 === s_number &&
+                     tArg3 === s_function &&
+                     tArg4 === s_function) {
                 simple = args[count - 1];
                 resultMode = args[count - 2];
                 errorHandler = args[count - 3];
@@ -283,10 +288,10 @@ var HproseHttpClient = (function () {
                 delete args[count - 4];
                 args.length -= 4;
             }
-            else if (typeof(args[count - 1]) === s_number &&
-                     typeof(args[count - 2]) === s_boolean &&
-                     typeof(args[count - 3]) === s_function &&
-                     typeof(args[count - 4]) === s_function) {
+            else if (tArg1 === s_number &&
+                     tArg2 === s_boolean &&
+                     tArg3 === s_function &&
+                     tArg4 === s_function) {
                 resultMode = args[count - 1];
                 byref = args[count - 2];
                 errorHandler = args[count - 3];
@@ -297,10 +302,10 @@ var HproseHttpClient = (function () {
                 delete args[count - 4];
                 args.length -= 4;
             }
-            else if (typeof(args[count - 1]) === s_boolean &&
-                     typeof(args[count - 2]) === s_boolean &&
-                     typeof(args[count - 3]) === s_function &&
-                     typeof(args[count - 4]) === s_function) {
+            else if (tArg1 === s_boolean &&
+                     tArg2 === s_boolean &&
+                     tArg3 === s_function &&
+                     tArg4 === s_function) {
                 simple = args[count - 1];
                 byref = args[count - 2];
                 errorHandler = args[count - 3];
@@ -311,9 +316,9 @@ var HproseHttpClient = (function () {
                 delete args[count - 4];
                 args.length -= 4;
             }
-            else if (typeof(args[count - 1]) === s_boolean &&
-                     typeof(args[count - 2]) === s_function &&
-                     typeof(args[count - 3]) === s_function) {
+            else if (tArg1 === s_boolean &&
+                     tArg2 === s_function &&
+                     tArg3 === s_function) {
                 byref = args[count - 1];
                 errorHandler = args[count - 2];
                 callback = args[count - 3];
@@ -322,9 +327,9 @@ var HproseHttpClient = (function () {
                 delete args[count - 3];
                 args.length -= 3;
             }
-            else if (typeof(args[count - 1]) === s_number &&
-                     typeof(args[count - 2]) === s_function &&
-                     typeof(args[count - 3]) === s_function) {
+            else if (tArg1 === s_number &&
+                     tArg2 === s_function &&
+                     tArg3 === s_function) {
                 resultMode = args[count - 1];
                 errorHandler = args[count - 2];
                 callback = args[count - 3];
@@ -333,18 +338,18 @@ var HproseHttpClient = (function () {
                 delete args[count - 3];
                 args.length -= 3;
             }
-            else if (typeof(args[count - 1]) === s_function &&
-                     typeof(args[count - 2]) === s_function) {
+            else if (tArg1 === s_function &&
+                     tArg2 === s_function) {
                 errorHandler = args[count - 1];
                 callback = args[count - 2];
                 delete args[count - 1];
                 delete args[count - 2];
                 args.length -= 2;
             }
-            else if (typeof(args[count - 1]) === s_boolean &&
-                     typeof(args[count - 2]) === s_number &&
-                     typeof(args[count - 3]) === s_boolean &&
-                     typeof(args[count - 4]) === s_function) {
+            else if (tArg1 === s_boolean &&
+                     tArg2 === s_number &&
+                     tArg3 === s_boolean &&
+                     tArg4 === s_function) {
                 simple = args[count - 1];
                 resultMode = args[count - 2];
                 byref = args[count - 3];
@@ -355,9 +360,9 @@ var HproseHttpClient = (function () {
                 delete args[count - 4];
                 args.length -= 4;
             }
-            else if (typeof(args[count - 1]) === s_boolean &&
-                     typeof(args[count - 2]) === s_number &&
-                     typeof(args[count - 3]) === s_function) {
+            else if (tArg1 === s_boolean &&
+                     tArg2 === s_number &&
+                     tArg3 === s_function) {
                 simple = args[count - 1];
                 resultMode = args[count - 2];
                 callback = args[count - 3];
@@ -366,9 +371,9 @@ var HproseHttpClient = (function () {
                 delete args[count - 3];
                 args.length -= 3;
             }
-            else if (typeof(args[count - 1]) === s_number &&
-                     typeof(args[count - 2]) === s_boolean &&
-                     typeof(args[count - 3]) === s_function) {
+            else if (tArg1 === s_number &&
+                     tArg2 === s_boolean &&
+                     tArg3 === s_function) {
                 resultMode = args[count - 1];
                 byref = args[count - 2];
                 callback = args[count - 3];
@@ -377,9 +382,9 @@ var HproseHttpClient = (function () {
                 delete args[count - 3];
                 args.length -= 3;
             }
-            else if (typeof(args[count - 1]) === s_boolean &&
-                     typeof(args[count - 2]) === s_boolean &&
-                     typeof(args[count - 3]) === s_function) {
+            else if (tArg1 === s_boolean &&
+                     tArg2 === s_boolean &&
+                     tArg3 === s_function) {
                 simple = args[count - 1];
                 byref = args[count - 2];
                 callback = args[count - 3];
@@ -388,23 +393,23 @@ var HproseHttpClient = (function () {
                 delete args[count - 3];
                 args.length -= 3;
             }
-            else if (typeof(args[count - 1]) === s_boolean &&
-                     typeof(args[count - 2]) === s_function) {
+            else if (tArg1 === s_boolean &&
+                     tArg2 === s_function) {
                 byref = args[count - 1];
                 callback = args[count - 2];
                 delete args[count - 1];
                 delete args[count - 2];
                 args.length -= 2;
             }
-            else if (typeof(args[count - 1]) === s_number &&
-                     typeof(args[count - 2]) === s_function) {
+            else if (tArg1 === s_number &&
+                     tArg2 === s_function) {
                 resultMode = args[count - 1];
                 callback = args[count - 2];
                 delete args[count - 1];
                 delete args[count - 2];
                 args.length -= 2;
             }
-            else if (typeof(args[count - 1]) === s_function) {
+            else if (tArg1 === s_function) {
                 callback = args[count - 1];
                 delete args[count - 1];
                 args.length--;
