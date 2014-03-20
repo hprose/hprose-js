@@ -230,13 +230,12 @@ var HproseHttpClient = (function () {
         function invoke(stub, func, args) {
             var batchCnt = m_batchCnt - 1;
             var batches = m_batches[batchCnt];
-            var resultMode, stream;
+            var resultMode = HResultMode.Normal, stream, errorHandler, callback;
             if (!m_batch && (!batches || !batches.length) || m_batch) {
-                resultMode = HResultMode.Normal;
                 var byref = m_byref;
                 var simple = m_simple;
                 var lowerCaseFunc = func.toLowerCase();
-                var errorHandler = stub[func + s_OnError] ||
+                errorHandler = stub[func + s_OnError] ||
                                    stub[func + s_onError] ||
                                    stub[func + s_onerror] ||
                                    stub[lowerCaseFunc + s_OnError] ||
@@ -248,7 +247,7 @@ var HproseHttpClient = (function () {
                                    self[lowerCaseFunc + s_OnError] ||
                                    self[lowerCaseFunc + s_onError] ||
                                    self[lowerCaseFunc + s_onerror];
-                var callback = stub[func + s_Callback] ||
+                callback = stub[func + s_Callback] ||
                                stub[func + s_callback] ||
                                stub[func + s_OnSuccess] ||
                                stub[func + s_onSuccess] ||
@@ -444,7 +443,7 @@ var HproseHttpClient = (function () {
 
                 if (m_batch) {
                     batches.push({args: args, fn: func, call: stream.toString(),
-                                    rm: resultMode, cb: callback, eh: errorHandler});
+                                    cb: callback, eh: errorHandler});
                 }
                 else {
                     stream.write(HTags.TagEnd);
@@ -456,12 +455,10 @@ var HproseHttpClient = (function () {
                 var inBatch = !!batchSize;
                 var request = "";
                 if (inBatch) {
-                    resultMode = batches[batchSize - 1].rm;
                     for (var i = 0, item; i < batchSize; ++i) {
                         item = batches[i];
                         request += item.call;
                         delete item.call;
-                        delete item.rm;
                     }
                     request += HTags.TagEnd;
                 }
@@ -476,15 +473,9 @@ var HproseHttpClient = (function () {
                     var item;
                     if (resultMode === HResultMode.RawWithEndTag) {
                         result = response;
-                        if (inBatch) {
-                            batches[0].rs = result;
-                        }
                     }
                     else if (resultMode === HResultMode.Raw) {
                         result = response.substr(0, response.length - 1);
-                        if (inBatch) {
-                            batches[0].rs = result;
-                        }
                     }
                     else {
                         var stream = new HStringInputStream(response);
@@ -525,6 +516,7 @@ var HproseHttpClient = (function () {
                                     error = new HException('Wrong Response:\r\n' + response);
                                     if (inBatch) {
                                         batches[++i].ex = error;
+                                        batches[++i].rs = null;
                                     }
                                     break;
                                 }
