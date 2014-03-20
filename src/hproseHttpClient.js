@@ -74,7 +74,7 @@ var HproseHttpClient = (function () {
             if (typeof(functions) === s_boolean && create === undefined) {
                 create = functions;
             }
-            var stub = this;
+            var stub = self;
             if (create) {
                 stub = {};
             }
@@ -98,7 +98,7 @@ var HproseHttpClient = (function () {
         self.invoke = function () {
             var args = arguments;
             var func = Array.prototype.shift.apply(args);
-            return invoke(this, func, args);
+            return invoke(self, func, args);
         };
         self.setHeader = function (name, value) {
             if (name.toLowerCase() !== 'content-type') {
