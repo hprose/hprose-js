@@ -14,7 +14,7 @@
  *                                                        *
  * hprose http client for Javascript.                     *
  *                                                        *
- * LastModified: Mar 17, 2014                             *
+ * LastModified: Mar 20, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -54,6 +54,7 @@ var HproseHttpClient = (function () {
     var s_OnSuccess = '_OnSuccess';
     var s_onSuccess = '_onSuccess';
     var s_onsuccess = '_onsuccess';
+    var NOOP = function(){};
 
     function HproseHttpClient(url, functions) {
         // private members
@@ -64,9 +65,12 @@ var HproseHttpClient = (function () {
         var m_byref = false;
         var m_simple = false;
         var m_filter = new HFilter();
+        var m_batch = false;
+        var m_batchCnt = 0;
+        var m_batches = {};
         var self = this;
         // public methods
-        this.useService = function (url, functions, create) {
+        self.useService = function (url, functions, create) {
             if (typeof(functions) === s_boolean && create === undefined) {
                 create = functions;
             }
@@ -91,12 +95,12 @@ var HproseHttpClient = (function () {
             }
             return stub;
         };
-        this.invoke = function () {
+        self.invoke = function () {
             var args = arguments;
             var func = Array.prototype.shift.apply(args);
             return invoke(this, func, args);
         };
-        this.setHeader = function (name, value) {
+        self.setHeader = function (name, value) {
             if (name.toLowerCase() !== 'content-type') {
                 if (value) {
                     m_header[name] = value;
@@ -106,42 +110,48 @@ var HproseHttpClient = (function () {
                 }
             }
         };
-        this.setTimeout = function (timeout) {
+        self.setTimeout = function (timeout) {
             m_timeout = timeout;
         };
-        this.getTimeout = function () {
+        self.getTimeout = function () {
             return m_timeout;
         };
-        this.getReady = function () {
+        self.getReady = function () {
             return m_ready;
         };
-        this.getByRef = function () {
+        self.getByRef = function () {
             return m_byref;
         };
-        this.setByRef = function (value) {
+        self.setByRef = function (value) {
             if (value === undefined) value = true;
             m_byref = value;
         };
-        this.getFilter = function () {
+        self.getFilter = function () {
             return m_filter;
         };
-        this.setFilter = function (filter) {
+        self.setFilter = function (filter) {
             m_filter = filter;
         };
-        this.getSimpleMode = function () {
+        self.getSimpleMode = function () {
             return m_simple;
         };
-        this.setSimpleMode = function (value) {
+        self.setSimpleMode = function (value) {
             if (value === undefined) value = true;
             m_simple = value;
         };
+        self.beginBatch = function () {
+            if(!m_batch) {
+                m_batch = true;
+                m_batches[m_batchCnt++] = [];
+            }
+        };
+        self.endBatch = function () {
+           m_batch = false;
+           invoke();
+        };
         // events
-        this.onReady = function () {
-            // your code
-        };
-        this.onError = function (name, error) {
-            // your code
-        };
+        self.onReady = NOOP;
+        self.onError = NOOP;/*name, error*/
         // private methods
         function useService(stub) {
             HHttpRequest.post(m_url, m_header, HTags.TagEnd, function (response) {
@@ -215,271 +225,346 @@ var HproseHttpClient = (function () {
             self.onReady();
         }
         function invoke(stub, func, args) {
-            var resultMode = HResultMode.Normal;
-            var byref = m_byref;
-            var simple = m_simple;
-            var lowerCaseFunc = func.toLowerCase();
-            var errorHandler = stub[func + s_OnError] ||
-                               stub[func + s_onError] ||
-                               stub[func + s_onerror] ||
-                               stub[lowerCaseFunc + s_OnError] ||
-                               stub[lowerCaseFunc + s_onError] ||
-                               stub[lowerCaseFunc + s_onerror] ||
-                               self[func + s_OnError] ||
-                               self[func + s_onError] ||
-                               self[func + s_onerror] ||
-                               self[lowerCaseFunc + s_OnError] ||
-                               self[lowerCaseFunc + s_onError] ||
-                               self[lowerCaseFunc + s_onerror];
-            var callback = stub[func + s_Callback] ||
-                           stub[func + s_callback] ||
-                           stub[func + s_OnSuccess] ||
-                           stub[func + s_onSuccess] ||
-                           stub[func + s_onsuccess] ||
-                           stub[lowerCaseFunc + s_Callback] ||
-                           stub[lowerCaseFunc + s_callback] ||
-                           stub[lowerCaseFunc + s_OnSuccess] ||
-                           stub[lowerCaseFunc + s_onSuccess] ||
-                           stub[lowerCaseFunc + s_onsuccess] ||
-                           self[func + s_Callback] ||
-                           self[func + s_callback] ||
-                           self[func + s_OnSuccess] ||
-                           self[func + s_onSuccess] ||
-                           self[func + s_onsuccess] ||
-                           self[lowerCaseFunc + s_Callback] ||
-                           self[lowerCaseFunc + s_callback] ||
-                           self[lowerCaseFunc + s_OnSuccess] ||
-                           self[lowerCaseFunc + s_onSuccess] ||
-                           self[lowerCaseFunc + s_onsuccess];
-            var count = args.length;
-            if (typeof(args[count - 1]) === s_boolean &&
-                typeof(args[count - 2]) === s_number &&
-                typeof(args[count - 3]) === s_boolean &&
-                typeof(args[count - 4]) === s_function &&
-                typeof(args[count - 5]) === s_function) {
-                simple = args[count - 1];
-                resultMode = args[count - 2];
-                byref = args[count - 3];
-                errorHandler = args[count - 4];
-                callback = args[count - 5];
-                delete args[count - 1];
-                delete args[count - 2];
-                delete args[count - 3];
-                delete args[count - 4];
-                delete args[count - 5];
-                args.length -= 5;
-            }
-            else if (typeof(args[count - 1]) === s_boolean &&
-                     typeof(args[count - 2]) === s_number &&
-                     typeof(args[count - 3]) === s_function &&
-                     typeof(args[count - 4]) === s_function) {
-                simple = args[count - 1];
-                resultMode = args[count - 2];
-                errorHandler = args[count - 3];
-                callback = args[count - 4];
-                delete args[count - 1];
-                delete args[count - 2];
-                delete args[count - 3];
-                delete args[count - 4];
-                args.length -= 4;
-            }
-            else if (typeof(args[count - 1]) === s_number &&
-                     typeof(args[count - 2]) === s_boolean &&
-                     typeof(args[count - 3]) === s_function &&
-                     typeof(args[count - 4]) === s_function) {
-                resultMode = args[count - 1];
-                byref = args[count - 2];
-                errorHandler = args[count - 3];
-                callback = args[count - 4];
-                delete args[count - 1];
-                delete args[count - 2];
-                delete args[count - 3];
-                delete args[count - 4];
-                args.length -= 4;
-            }
-            else if (typeof(args[count - 1]) === s_boolean &&
-                     typeof(args[count - 2]) === s_boolean &&
-                     typeof(args[count - 3]) === s_function &&
-                     typeof(args[count - 4]) === s_function) {
-                simple = args[count - 1];
-                byref = args[count - 2];
-                errorHandler = args[count - 3];
-                callback = args[count - 4];
-                delete args[count - 1];
-                delete args[count - 2];
-                delete args[count - 3];
-                delete args[count - 4];
-                args.length -= 4;
-            }
-            else if (typeof(args[count - 1]) === s_boolean &&
-                     typeof(args[count - 2]) === s_function &&
-                     typeof(args[count - 3]) === s_function) {
-                byref = args[count - 1];
-                errorHandler = args[count - 2];
-                callback = args[count - 3];
-                delete args[count - 1];
-                delete args[count - 2];
-                delete args[count - 3];
-                args.length -= 3;
-            }
-            else if (typeof(args[count - 1]) === s_number &&
-                     typeof(args[count - 2]) === s_function &&
-                     typeof(args[count - 3]) === s_function) {
-                resultMode = args[count - 1];
-                errorHandler = args[count - 2];
-                callback = args[count - 3];
-                delete args[count - 1];
-                delete args[count - 2];
-                delete args[count - 3];
-                args.length -= 3;
-            }
-            else if (typeof(args[count - 1]) === s_function &&
-                     typeof(args[count - 2]) === s_function) {
-                errorHandler = args[count - 1];
-                callback = args[count - 2];
-                delete args[count - 1];
-                delete args[count - 2];
-                args.length -= 2;
-            }
-            else if (typeof(args[count - 1]) === s_boolean &&
-                     typeof(args[count - 2]) === s_number &&
-                     typeof(args[count - 3]) === s_boolean &&
-                     typeof(args[count - 4]) === s_function) {
-                simple = args[count - 1];
-                resultMode = args[count - 2];
-                byref = args[count - 3];
-                callback = args[count - 4];
-                delete args[count - 1];
-                delete args[count - 2];
-                delete args[count - 3];
-                delete args[count - 4];
-                args.length -= 4;
-            }
-            else if (typeof(args[count - 1]) === s_boolean &&
-                     typeof(args[count - 2]) === s_number &&
-                     typeof(args[count - 3]) === s_function) {
-                simple = args[count - 1];
-                resultMode = args[count - 2];
-                callback = args[count - 3];
-                delete args[count - 1];
-                delete args[count - 2];
-                delete args[count - 3];
-                args.length -= 3;
-            }
-            else if (typeof(args[count - 1]) === s_number &&
-                     typeof(args[count - 2]) === s_boolean &&
-                     typeof(args[count - 3]) === s_function) {
-                resultMode = args[count - 1];
-                byref = args[count - 2];
-                callback = args[count - 3];
-                delete args[count - 1];
-                delete args[count - 2];
-                delete args[count - 3];
-                args.length -= 3;
-            }
-            else if (typeof(args[count - 1]) === s_boolean &&
-                     typeof(args[count - 2]) === s_boolean &&
-                     typeof(args[count - 3]) === s_function) {
-                simple = args[count - 1];
-                byref = args[count - 2];
-                callback = args[count - 3];
-                delete args[count - 1];
-                delete args[count - 2];
-                delete args[count - 3];
-                args.length -= 3;
-            }
-            else if (typeof(args[count - 1]) === s_boolean &&
-                     typeof(args[count - 2]) === s_function) {
-                byref = args[count - 1];
-                callback = args[count - 2];
-                delete args[count - 1];
-                delete args[count - 2];
-                args.length -= 2;
-            }
-            else if (typeof(args[count - 1]) === s_number &&
-                     typeof(args[count - 2]) === s_function) {
-                resultMode = args[count - 1];
-                callback = args[count - 2];
-                delete args[count - 1];
-                delete args[count - 2];
-                args.length -= 2;
-            }
-            else if (typeof(args[count - 1]) === s_function) {
-                callback = args[count - 1];
-                delete args[count - 1];
-                args.length--;
-            }
-            var stream = new HStringOutputStream(HTags.TagCall);
-            var writer = new HWriter(stream, simple);
-            writer.writeString(func);
-            if (args.length > 0 || byref) {
-                writer.reset();
-                writer.writeList(args);
-                if (byref) {
-                    writer.writeBoolean(true);
+            var batchCnt = m_batchCnt - 1;
+            var batches = m_batches[batchCnt];
+            if (!m_batch && (!batches || !batches.length) || m_batch) {
+                var resultMode = HResultMode.Normal;
+                var byref = m_byref;
+                var simple = m_simple;
+                var lowerCaseFunc = func.toLowerCase();
+                var errorHandler = stub[func + s_OnError] ||
+                                   stub[func + s_onError] ||
+                                   stub[func + s_onerror] ||
+                                   stub[lowerCaseFunc + s_OnError] ||
+                                   stub[lowerCaseFunc + s_onError] ||
+                                   stub[lowerCaseFunc + s_onerror] ||
+                                   self[func + s_OnError] ||
+                                   self[func + s_onError] ||
+                                   self[func + s_onerror] ||
+                                   self[lowerCaseFunc + s_OnError] ||
+                                   self[lowerCaseFunc + s_onError] ||
+                                   self[lowerCaseFunc + s_onerror];
+                var callback = stub[func + s_Callback] ||
+                               stub[func + s_callback] ||
+                               stub[func + s_OnSuccess] ||
+                               stub[func + s_onSuccess] ||
+                               stub[func + s_onsuccess] ||
+                               stub[lowerCaseFunc + s_Callback] ||
+                               stub[lowerCaseFunc + s_callback] ||
+                               stub[lowerCaseFunc + s_OnSuccess] ||
+                               stub[lowerCaseFunc + s_onSuccess] ||
+                               stub[lowerCaseFunc + s_onsuccess] ||
+                               self[func + s_Callback] ||
+                               self[func + s_callback] ||
+                               self[func + s_OnSuccess] ||
+                               self[func + s_onSuccess] ||
+                               self[func + s_onsuccess] ||
+                               self[lowerCaseFunc + s_Callback] ||
+                               self[lowerCaseFunc + s_callback] ||
+                               self[lowerCaseFunc + s_OnSuccess] ||
+                               self[lowerCaseFunc + s_onSuccess] ||
+                               self[lowerCaseFunc + s_onsuccess];
+                var count = args.length;
+                var tArg5 = typeof(args[count - 5]);
+                var tArg4 = typeof(args[count - 4]);
+                var tArg3 = typeof(args[count - 3]);
+                var tArg2 = typeof(args[count - 2]);
+                var tArg1 = typeof(args[count - 1]);
+                if (tArg1 === s_boolean &&
+                    tArg2 === s_number &&
+                    tArg3 === s_boolean &&
+                    tArg4 === s_function &&
+                    tArg5 === s_function) {
+                    simple = args[count - 1];
+                    resultMode = args[count - 2];
+                    byref = args[count - 3];
+                    errorHandler = args[count - 4];
+                    callback = args[count - 5];
+                    delete args[count - 1];
+                    delete args[count - 2];
+                    delete args[count - 3];
+                    delete args[count - 4];
+                    delete args[count - 5];
+                    args.length -= 5;
                 }
-            }
-            stream.write(HTags.TagEnd);
-            var request = stream.toString();
-            HHttpRequest.post(m_url, m_header, request, function (response) {
-                var result = null;
-                var error = null;
-                if (resultMode === HResultMode.RawWithEndTag) {
-                    result = response;
+                else if (tArg1 === s_boolean &&
+                         tArg2 === s_number &&
+                         tArg3 === s_function &&
+                         tArg4 === s_function) {
+                    simple = args[count - 1];
+                    resultMode = args[count - 2];
+                    errorHandler = args[count - 3];
+                    callback = args[count - 4];
+                    delete args[count - 1];
+                    delete args[count - 2];
+                    delete args[count - 3];
+                    delete args[count - 4];
+                    args.length -= 4;
                 }
-                else if (resultMode === HResultMode.Raw) {
-                    result = response.substr(0, response.length - 1);
+                else if (tArg1 === s_number &&
+                         tArg2 === s_boolean &&
+                         tArg3 === s_function &&
+                         tArg4 === s_function) {
+                    resultMode = args[count - 1];
+                    byref = args[count - 2];
+                    errorHandler = args[count - 3];
+                    callback = args[count - 4];
+                    delete args[count - 1];
+                    delete args[count - 2];
+                    delete args[count - 3];
+                    delete args[count - 4];
+                    args.length -= 4;
+                }
+                else if (tArg1 === s_boolean &&
+                         tArg2 === s_boolean &&
+                         tArg3 === s_function &&
+                         tArg4 === s_function) {
+                    simple = args[count - 1];
+                    byref = args[count - 2];
+                    errorHandler = args[count - 3];
+                    callback = args[count - 4];
+                    delete args[count - 1];
+                    delete args[count - 2];
+                    delete args[count - 3];
+                    delete args[count - 4];
+                    args.length -= 4;
+                }
+                else if (tArg1 === s_boolean &&
+                         tArg2 === s_function &&
+                         tArg3 === s_function) {
+                    byref = args[count - 1];
+                    errorHandler = args[count - 2];
+                    callback = args[count - 3];
+                    delete args[count - 1];
+                    delete args[count - 2];
+                    delete args[count - 3];
+                    args.length -= 3;
+                }
+                else if (tArg1 === s_number &&
+                         tArg2 === s_function &&
+                         tArg3 === s_function) {
+                    resultMode = args[count - 1];
+                    errorHandler = args[count - 2];
+                    callback = args[count - 3];
+                    delete args[count - 1];
+                    delete args[count - 2];
+                    delete args[count - 3];
+                    args.length -= 3;
+                }
+                else if (tArg1 === s_function &&
+                         tArg2 === s_function) {
+                    errorHandler = args[count - 1];
+                    callback = args[count - 2];
+                    delete args[count - 1];
+                    delete args[count - 2];
+                    args.length -= 2;
+                }
+                else if (tArg1 === s_boolean &&
+                         tArg2 === s_number &&
+                         tArg3 === s_boolean &&
+                         tArg4 === s_function) {
+                    simple = args[count - 1];
+                    resultMode = args[count - 2];
+                    byref = args[count - 3];
+                    callback = args[count - 4];
+                    delete args[count - 1];
+                    delete args[count - 2];
+                    delete args[count - 3];
+                    delete args[count - 4];
+                    args.length -= 4;
+                }
+                else if (tArg1 === s_boolean &&
+                         tArg2 === s_number &&
+                         tArg3 === s_function) {
+                    simple = args[count - 1];
+                    resultMode = args[count - 2];
+                    callback = args[count - 3];
+                    delete args[count - 1];
+                    delete args[count - 2];
+                    delete args[count - 3];
+                    args.length -= 3;
+                }
+                else if (tArg1 === s_number &&
+                         tArg2 === s_boolean &&
+                         tArg3 === s_function) {
+                    resultMode = args[count - 1];
+                    byref = args[count - 2];
+                    callback = args[count - 3];
+                    delete args[count - 1];
+                    delete args[count - 2];
+                    delete args[count - 3];
+                    args.length -= 3;
+                }
+                else if (tArg1 === s_boolean &&
+                         tArg2 === s_boolean &&
+                         tArg3 === s_function) {
+                    simple = args[count - 1];
+                    byref = args[count - 2];
+                    callback = args[count - 3];
+                    delete args[count - 1];
+                    delete args[count - 2];
+                    delete args[count - 3];
+                    args.length -= 3;
+                }
+                else if (tArg1 === s_boolean &&
+                         tArg2 === s_function) {
+                    byref = args[count - 1];
+                    callback = args[count - 2];
+                    delete args[count - 1];
+                    delete args[count - 2];
+                    args.length -= 2;
+                }
+                else if (tArg1 === s_number &&
+                         tArg2 === s_function) {
+                    resultMode = args[count - 1];
+                    callback = args[count - 2];
+                    delete args[count - 1];
+                    delete args[count - 2];
+                    args.length -= 2;
+                }
+                else if (tArg1 === s_function) {
+                    callback = args[count - 1];
+                    delete args[count - 1];
+                    args.length--;
+                }
+                var stream = new HStringOutputStream(HTags.TagCall);
+                var writer = new HWriter(stream, simple);
+                writer.writeString(func);
+                if (args.length > 0 || byref) {
+                    writer.reset();
+                    writer.writeList(args);
+                    if (byref) {
+                        writer.writeBoolean(true);
+                    }
+                }
+                if (m_batch) {
+                    batches.push({args: args, fn: func, call: stream.toString(), 
+                                    rm: resultMode, cb: callback, eh: errorHandler});
                 }
                 else {
-                    var stream = new HStringInputStream(response);
-                    var reader = new HReader(stream);
-                    var tag;
-                    try {
-                        while ((tag = stream.getc()) !== HTags.TagEnd) {
-                            switch (tag) {
-                            case HTags.TagResult:
-                                if (resultMode === HResultMode.Serialized) {
-                                    result = reader.readRaw().toString();
-                                }
-                                else {
+                    stream.write(HTags.TagEnd);
+                }
+            }
+            if (!m_batch) {
+                var batchSize = batches && batches.length;
+                var inBatch = !!batchSize;
+                var request;
+                if (inBatch) {
+                    resultMode = batches[batchSize - 1].rm;
+                    for (var i = 0, item; i < batchSize; ++i) {
+                        item = batches[i];
+                        request += item.call;
+                        delete item.call;
+                        delete item.rm;
+                    }
+                    request + = HTags.TagEnd; 
+                }
+                else {
+                    request = stream.toString();
+                }
+                
+                HHttpRequest.post(m_url, m_header, request, function (response) {
+                    var result = null;
+                    var error = null;
+                    var i;
+                    var item;
+                    if (resultMode === HResultMode.RawWithEndTag) {
+                        result = response;
+                        if (inBatch) {
+                            batches[0].rs = result;
+                        }
+                    }
+                    else if (resultMode === HResultMode.Raw) {
+                        result = response.substr(0, response.length - 1);
+                        if (inBatch) {
+                            batches[0].rs = result;
+                        }
+                    }
+                    else {
+                        var stream = new HStringInputStream(response);
+                        var reader = new HReader(stream);
+                        var tag;
+                        i = -1;
+                        try {
+                            while ((tag = stream.getc()) !== HTags.TagEnd) {
+                                switch (tag) {
+                                case HTags.TagResult:
+                                    if (resultMode === HResultMode.Serialized) {
+                                        result = reader.readRaw().toString();
+                                    }
+                                    else {
+                                        reader.reset();
+                                        result = reader.unserialize();
+                                    }
+                                    if (inBatch) {
+                                        batches[++i].rs = result;
+                                    }
+                                    break;
+                                case HTags.TagArgument:
                                     reader.reset();
-                                    result = reader.unserialize();
+                                    args = reader.readList();
+                                    if (inBatch) {
+                                        batches[i].args = args;
+                                    }
+                                    break;
+                                case HTags.TagError:
+                                    reader.reset();
+                                    error = new HException(reader.readString());
+                                    if (inBatch) {
+                                        batches[++i].ex = error;
+                                    }
+                                    break;
+                                default:
+                                    error = new HException('Wrong Response:\r\n' + response);
+                                    if (inBatch) {
+                                        batches[++i].ex = error;
+                                    }
+                                    break;
                                 }
-                                break;
-                            case HTags.TagArgument:
-                                reader.reset();
-                                args = reader.readList();
-                                break;
-                            case HTags.TagError:
-                                reader.reset();
-                                error = new HException(reader.readString());
-                                break;
-                            default:
-                                error = new HException('Wrong Response:\r\n' + response);
-                                break;
+                            }
+                        }
+                        catch (e) {
+                            error = e;
+                            if (inBatch) {
+                                batches[i < 0 ? 0 : i >= batchSize ? i - 1 : i].ex = error;
                             }
                         }
                     }
-                    catch (e) {
-                        error = e;
+                    
+                    if (!inBatch) {
+                        batchSize  = 1;
+                        batches = [{args: args, fn: func, rs: result, cb: callback, 
+                                    eh: errorHandler, ex: error}];
                     }
-                }
-                if (error !== null) {
-                    if (errorHandler) {
-                        errorHandler(func, error);
+                    for (i = 0; i < batchSize; ++i) {
+                        item = batches[i];
+                        error = item.ex;
+                        callback = item.cb;
+                        if (error !== null) {
+                            errorHandler = item.eh;
+                            func = item.fn;
+                            if (errorHandler) {
+                                errorHandler(func, error);
+                            }
+                            else {
+                                self.onError(func, error);
+                            }
+                        }
+                        else if (callback) {
+                            callback(item.rs, item.args);
+                        }
                     }
-                    else {
-                        self.onError(func, error);
-                    }
-                }
-                else if (callback) {
-                    callback(result, args);
-                }
-            }, m_timeout, m_filter, self);
+                    batches.length = 0;
+                    if (inBatch) {
+                        delete m_batches[batchCnt];
+                    } 
+                }, m_timeout, m_filter, self);
+                
+            }
         }
         /* constructor */ {
             if (typeof(url) === s_string) {
-                this.useService(url, functions);
+                self.useService(url, functions);
             }
         }
     }
