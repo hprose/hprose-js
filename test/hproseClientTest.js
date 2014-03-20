@@ -52,4 +52,20 @@
     client.getUserList(function(result) {
         console.info(result);
     });
+    client.beginBatch();
+    client.hello('World', function(result) {
+        console.info(result);
+    });
+    client.sum(1,2,3,4,5, function(result) {
+        console.info(result);
+    });
+    client.swapKeyAndValue(weeks, function(result, args) {
+        console.info(weeks);
+        console.info(result);
+        console.info(args[0]);
+    }, true);
+    client.getUserList(function(result) {
+        console.info(result);
+    });
+    client.endBatch();
 })();
