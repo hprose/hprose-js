@@ -230,8 +230,9 @@ var HproseHttpClient = (function () {
         function invoke(stub, func, args) {
             var batchCnt = m_batchCnt - 1;
             var batches = m_batches[batchCnt];
+            var resultMode, stream;
             if (!m_batch && (!batches || !batches.length) || m_batch) {
-                var resultMode = HResultMode.Normal;
+                resultMode = HResultMode.Normal;
                 var byref = m_byref;
                 var simple = m_simple;
                 var lowerCaseFunc = func.toLowerCase();
@@ -430,7 +431,7 @@ var HproseHttpClient = (function () {
                     delete args[count - 1];
                     args.length--;
                 }
-                var stream = new HStringOutputStream(HTags.TagCall);
+                stream = new HStringOutputStream(HTags.TagCall);
                 var writer = new HWriter(stream, simple);
                 writer.writeString(func);
                 if (args.length > 0 || byref) {
@@ -440,14 +441,16 @@ var HproseHttpClient = (function () {
                         writer.writeBoolean(true);
                     }
                 }
+
                 if (m_batch) {
-                    batches.push({args: args, fn: func, call: stream.toString(), 
+                    batches.push({args: args, fn: func, call: stream.toString(),
                                     rm: resultMode, cb: callback, eh: errorHandler});
                 }
                 else {
                     stream.write(HTags.TagEnd);
                 }
             }
+
             if (!m_batch) {
                 var batchSize = batches && batches.length;
                 var inBatch = !!batchSize;
@@ -460,12 +463,12 @@ var HproseHttpClient = (function () {
                         delete item.call;
                         delete item.rm;
                     }
-                    request += HTags.TagEnd; 
+                    request += HTags.TagEnd;
                 }
                 else {
                     request = stream.toString();
                 }
-                
+
                 HHttpRequest.post(m_url, m_header, request, function (response) {
                     var result = null;
                     var error = null;
@@ -534,10 +537,10 @@ var HproseHttpClient = (function () {
                             }
                         }
                     }
-                    
+
                     if (!inBatch) {
                         batchSize  = 1;
-                        batches = [{args: args, fn: func, rs: result, cb: callback, 
+                        batches = [{args: args, fn: func, rs: result, cb: callback,
                                     eh: errorHandler, ex: error}];
                     }
                     for (i = 0; i < batchSize; ++i) {
@@ -561,9 +564,9 @@ var HproseHttpClient = (function () {
                     batches.length = 0;
                     if (inBatch) {
                         delete m_batches[batchCnt];
-                    } 
+                    }
                 }, m_timeout, m_filter, self);
-                
+
             }
         }
         /* constructor */ {
