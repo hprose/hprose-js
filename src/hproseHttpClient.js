@@ -41,6 +41,7 @@ var HproseHttpClient = (function () {
     var HReader = HproseReader;
     var HWriter = HproseWriter;
     var HTags = HproseTags;
+    var NOOP = function(){};
 
     var s_boolean = 'boolean';
     var s_string = 'string';
@@ -54,7 +55,6 @@ var HproseHttpClient = (function () {
     var s_OnSuccess = '_OnSuccess';
     var s_onSuccess = '_onSuccess';
     var s_onsuccess = '_onsuccess';
-    var NOOP = function(){};
 
     function HproseHttpClient(url, functions) {
         // private members
@@ -146,8 +146,11 @@ var HproseHttpClient = (function () {
             }
         };
         self.endBatch = function () {
-           m_batch = false;
-           invoke();
+            m_batch = false;
+            var batches = m_batches[m_batchCnt - 1];
+            if (batches && !!batches.length) {
+                invoke();
+            }
         };
         // events
         self.onReady = NOOP;
@@ -448,7 +451,7 @@ var HproseHttpClient = (function () {
             if (!m_batch) {
                 var batchSize = batches && batches.length;
                 var inBatch = !!batchSize;
-                var request;
+                var request = "";
                 if (inBatch) {
                     resultMode = batches[batchSize - 1].rm;
                     for (var i = 0, item; i < batchSize; ++i) {
@@ -457,7 +460,7 @@ var HproseHttpClient = (function () {
                         delete item.call;
                         delete item.rm;
                     }
-                    request + = HTags.TagEnd; 
+                    request += HTags.TagEnd; 
                 }
                 else {
                     request = stream.toString();
@@ -498,6 +501,7 @@ var HproseHttpClient = (function () {
                                     }
                                     if (inBatch) {
                                         batches[++i].rs = result;
+                                        batches[i].ex = null;
                                     }
                                     break;
                                 case HTags.TagArgument:
