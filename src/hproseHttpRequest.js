@@ -14,7 +14,7 @@
  *                                                        *
  * POST data to HTTP Server (using Flash).                *
  *                                                        *
- * LastModified: Mar 17, 2014                             *
+ * LastModified: Mar 21, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -350,15 +350,17 @@ var HproseHttpRequest = (function (global) {
 
     var HproseHttpRequest = {};
 
-    HproseHttpRequest.post = function (url, header, data, callback, timeout, filter, client) {
+    HproseHttpRequest.post = function (url, header, data, callback, timeout, filters, client) {
         var callbackid = -1;
         if (callback) {
             callbackid = s_callbackList.length;
             s_callbackList[callbackid] = callback;
-            s_filters[callbackid] = filter;
+            s_filters[callbackid] = filters;
             s_clients[callbackid] = client;
         }
-        data = filter.outputFilter(data, client);
+        for (var i = 0, n = filters.length; i < n; i++) {
+            data = filters[i].outputFilter(data, client);
+        }
         if (s_jsReady) {
             post(url, header, data, callbackid, timeout);
         }
@@ -372,7 +374,11 @@ var HproseHttpRequest = (function (global) {
 
     HproseHttpRequest.__callback = function (callbackid, data, needToFilter) {
         if (needToFilter) {
-            data = s_filters[callbackid].inputFilter(data, s_clients[callbackid]);
+            var filters = s_filters[callbackid];
+            var client = s_clients[callbackid];
+            for (var i = filters.length - 1; i >= 0; i--) {
+                data = filters[i].inputFilter(data, client);
+            }
         }
         if (typeof(s_callbackList[callbackid]) === 'function') {
             s_callbackList[callbackid](data);

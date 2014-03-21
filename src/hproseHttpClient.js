@@ -14,7 +14,7 @@
  *                                                        *
  * hprose http client for Javascript.                     *
  *                                                        *
- * LastModified: Mar 20, 2014                             *
+ * LastModified: Mar 21, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -64,7 +64,7 @@ var HproseHttpClient = (function () {
         var m_timeout = 30000;
         var m_byref = false;
         var m_simple = false;
-        var m_filter = new HFilter();
+        var m_filters = [];
         var m_batch = false;
         var m_batchCnt = 0;
         var m_batches = {};
@@ -127,10 +127,27 @@ var HproseHttpClient = (function () {
             m_byref = value;
         };
         self.getFilter = function () {
-            return m_filter;
+            if (m_filters.length === 0) {
+                return null;
+            }
+            return m_filters[0];
         };
         self.setFilter = function (filter) {
-            m_filter = filter;
+            m_filters.length = 0;
+            if (filter !== undefined && filter !== null) {
+                m_filters.push(filter);
+            }
+        };
+        self.addFilter = function (filter) {
+            m_filters.push(filter);
+        };
+        self.removeFilter = function (filter) {
+            var i = m_filters.indexOf(filter);
+            if (i === -1) {
+                return false;
+            }
+            m_filters.splice(i, 1);
+            return true;
         };
         self.getSimpleMode = function () {
             return m_simple;
@@ -183,7 +200,7 @@ var HproseHttpClient = (function () {
                 if (error !== null) {
                     self.onError('useService', error);
                 }
-            }, m_timeout, m_filter, self);
+            }, m_timeout, m_filters, self);
         }
         function setFunction(stub, func) {
             return function () {
@@ -453,7 +470,7 @@ var HproseHttpClient = (function () {
             if (!m_batch) {
                 var batchSize = batches && batches.length;
                 var inBatch = !!batchSize;
-                var request = "";
+                var request = '';
                 if (inBatch) {
                     for (var i = 0, item; i < batchSize; ++i) {
                         item = batches[i];
@@ -557,7 +574,7 @@ var HproseHttpClient = (function () {
                     if (inBatch) {
                         delete m_batches[batchCnt];
                     }
-                }, m_timeout, m_filter, self);
+                }, m_timeout, m_filters, self);
 
             }
         }
