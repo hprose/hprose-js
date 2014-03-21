@@ -253,37 +253,37 @@ var HproseHttpClient = (function () {
                 var simple = m_simple;
                 var lowerCaseFunc = func.toLowerCase();
                 errorHandler = stub[func + s_OnError] ||
-                                   stub[func + s_onError] ||
-                                   stub[func + s_onerror] ||
-                                   stub[lowerCaseFunc + s_OnError] ||
-                                   stub[lowerCaseFunc + s_onError] ||
-                                   stub[lowerCaseFunc + s_onerror] ||
-                                   self[func + s_OnError] ||
-                                   self[func + s_onError] ||
-                                   self[func + s_onerror] ||
-                                   self[lowerCaseFunc + s_OnError] ||
-                                   self[lowerCaseFunc + s_onError] ||
-                                   self[lowerCaseFunc + s_onerror];
+                               stub[func + s_onError] ||
+                               stub[func + s_onerror] ||
+                               stub[lowerCaseFunc + s_OnError] ||
+                               stub[lowerCaseFunc + s_onError] ||
+                               stub[lowerCaseFunc + s_onerror] ||
+                               self[func + s_OnError] ||
+                               self[func + s_onError] ||
+                               self[func + s_onerror] ||
+                               self[lowerCaseFunc + s_OnError] ||
+                               self[lowerCaseFunc + s_onError] ||
+                               self[lowerCaseFunc + s_onerror];
                 callback = stub[func + s_Callback] ||
-                               stub[func + s_callback] ||
-                               stub[func + s_OnSuccess] ||
-                               stub[func + s_onSuccess] ||
-                               stub[func + s_onsuccess] ||
-                               stub[lowerCaseFunc + s_Callback] ||
-                               stub[lowerCaseFunc + s_callback] ||
-                               stub[lowerCaseFunc + s_OnSuccess] ||
-                               stub[lowerCaseFunc + s_onSuccess] ||
-                               stub[lowerCaseFunc + s_onsuccess] ||
-                               self[func + s_Callback] ||
-                               self[func + s_callback] ||
-                               self[func + s_OnSuccess] ||
-                               self[func + s_onSuccess] ||
-                               self[func + s_onsuccess] ||
-                               self[lowerCaseFunc + s_Callback] ||
-                               self[lowerCaseFunc + s_callback] ||
-                               self[lowerCaseFunc + s_OnSuccess] ||
-                               self[lowerCaseFunc + s_onSuccess] ||
-                               self[lowerCaseFunc + s_onsuccess];
+                           stub[func + s_callback] ||
+                           stub[func + s_OnSuccess] ||
+                           stub[func + s_onSuccess] ||
+                           stub[func + s_onsuccess] ||
+                           stub[lowerCaseFunc + s_Callback] ||
+                           stub[lowerCaseFunc + s_callback] ||
+                           stub[lowerCaseFunc + s_OnSuccess] ||
+                           stub[lowerCaseFunc + s_onSuccess] ||
+                           stub[lowerCaseFunc + s_onsuccess] ||
+                           self[func + s_Callback] ||
+                           self[func + s_callback] ||
+                           self[func + s_OnSuccess] ||
+                           self[func + s_onSuccess] ||
+                           self[func + s_onsuccess] ||
+                           self[lowerCaseFunc + s_Callback] ||
+                           self[lowerCaseFunc + s_callback] ||
+                           self[lowerCaseFunc + s_OnSuccess] ||
+                           self[lowerCaseFunc + s_onSuccess] ||
+                           self[lowerCaseFunc + s_onsuccess];
                 var count = args.length;
                 var tArg5 = typeof(args[count - 5]);
                 var tArg4 = typeof(args[count - 4]);
