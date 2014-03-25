@@ -417,10 +417,11 @@ if (!Array.prototype.indexOf) {
         var OldMap = global.Map;
         global.Map = function Map() {
             var map = new OldMap();
+            var size = 0;
             var keys = [];
             var m = Object.create(Map.prototype, {
                 size: {
-                    get : function () { return map.size; },
+                    get : function () { return size; },
                     configurable: false,
                     enumerable: false
                 },
@@ -436,6 +437,7 @@ if (!Array.prototype.indexOf) {
                     value: function (key, value) {
                         if (!map.has(key)) {
                             keys.push(key);
+                            size++;
                         }
                         map.set(key, value);
                     },
@@ -454,6 +456,7 @@ if (!Array.prototype.indexOf) {
                 'delete': {
                     value: function (key) {
                         if (map.has(key)) {
+                            size--;
                             keys.splice(keys.indexOf(key), 1);
                             return map['delete'](key);
                         }
@@ -467,6 +470,7 @@ if (!Array.prototype.indexOf) {
                     value: function () {
                         keys.length = 0;
                         map.clear();
+                        size = 0;
                     },
                     writable: false,
                     configurable: false,
