@@ -468,8 +468,15 @@ if (!Array.prototype.indexOf) {
                 },
                 clear: {
                     value: function () {
+                        if ('clear' in map) {
+                            map.clear();
+                        }
+                        else {
+                            for (var i = 0, n = keys.length; i < n; i++) {
+                                map['delete'](keys[i]);
+                            }
+                        }
                         keys.length = 0;
-                        map.clear();
                         size = 0;
                     },
                     writable: false,
