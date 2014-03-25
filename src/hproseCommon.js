@@ -104,17 +104,37 @@ if (!Array.prototype.indexOf) {
     var reDefineValueOf = function (obj) {
         var privates = createNPO();
         var baseValueOf = obj.valueOf;
-        obj.valueOf = function (namespace, n) {
-            if ((this === obj) &&
-                (n in namespaces) &&
-                (namespaces[n] === namespace)) {
-                if (!(n in privates)) privates[n] = Object.create(null);
-                return privates[n];
-            }
-            else {
-                return baseValueOf.apply(this, arguments);
-            }
-        };
+        if (hasObject_create) {
+            Object.defineProperty(obj, 'valueOf', {
+                value: function (namespace, n) {
+                        if ((this === obj) &&
+                            (n in namespaces) &&
+                            (namespaces[n] === namespace)) {
+                            if (!(n in privates)) privates[n] = Object.create(null);
+                            return privates[n];
+                        }
+                        else {
+                            return baseValueOf.apply(this, arguments);
+                        }
+                    },
+                writable: true,
+                configurable: true,
+                enumerable: false
+            });
+        }
+        else {
+            obj.valueOf = function (namespace, n) {
+                if ((this === obj) &&
+                    (n in namespaces) &&
+                    (namespaces[n] === namespace)) {
+                    if (!(n in privates)) privates[n] = Object.create(null);
+                    return privates[n];
+                }
+                else {
+                    return baseValueOf.apply(this, arguments);
+                }
+            };
+        }
     };
 
     if (!hasWeakMap) {
