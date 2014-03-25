@@ -14,7 +14,7 @@
  *                                                        *
  * hprose serialize test for JavaScript.                  *
  *                                                        *
- * LastModified: Feb 16, 2014                             *
+ * LastModified: Mar 25, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -27,6 +27,7 @@
     var serialize = HproseFormatter.serialize;
     var unserialize = HproseFormatter.unserialize;
     console.assert(unserialize(serialize(0)) === 0);
+    console.assert(unserialize(serialize(-0)) === -0);
     console.assert(unserialize(serialize(1)) === 1);
     console.assert(unserialize(serialize(-1)) === -1);
     console.assert(unserialize(serialize(-2147483648)) === -2147483648);

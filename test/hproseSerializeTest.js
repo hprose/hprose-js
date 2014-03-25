@@ -14,7 +14,7 @@
  *                                                        *
  * hprose serialize test for JavaScript.                  *
  *                                                        *
- * LastModified: Feb 16, 2014                             *
+ * LastModified: Mar 25, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -26,6 +26,7 @@
     'use strict';
     var serialize = HproseFormatter.serialize;
     console.assert(serialize(0) === '0', 'serialize(0): ' + serialize(0));
+    console.assert(serialize(-0) === 'i-0;', 'serialize(-0): ' + serialize(-0));
     console.assert(serialize(1) === '1', 'serialize(1): ' + serialize(1));
     console.assert(serialize(-1) === 'i-1;', 'serialize(-1): ' + serialize(-1));
     console.assert(serialize(-2147483648) === 'i-2147483648;', 'serialize(-2147483648): ' + serialize(-2147483648));
@@ -54,10 +55,10 @@
     console.assert(serialize(['Tom', 'Tom']) === 'a2{s3"Tom"r1;}', 'serialize(["Tom", "Tom"]): ' + serialize(['Tom', 'Tom']));
     var a = [];
     a[0] = a;
-    console.assert(serialize(a) === 'a1{r0;}', 'serialize(serialize(a)): ' + serialize(a));
+    console.assert(serialize(a) === 'a1{r0;}', 'serialize(a): ' + serialize(a));
     var m = {};
     m.self = m;
-    console.assert(serialize(m) === 'm1{s4"self"r0;}', 'serialize(serialize(m)): ' + serialize(m));
+    console.assert(serialize(m) === 'm1{s4"self"r0;}', 'serialize(m): ' + serialize(m));
     function User() {
         this.name = '';
         this.age = 0;
@@ -68,5 +69,10 @@
     user.name = '张三';
     user.age = 28;
     user.self = user;
-    console.assert(serialize(user) === 'c4"User"3{s4"name"s3"age"s4"self"}o0{s2"张三"i28;r3;}', 'serialize(serialize(user)): ' + serialize(user));
+    console.assert(serialize(user) === 'c4"User"3{s4"name"s3"age"s4"self"}o0{s2"张三"i28;r3;}', 'serialize(user): ' + serialize(user));
+    var map = new Map();
+    map.set(map, map);
+    map.set(0, '+0');
+    map.set(-0, '-0');
+    console.assert(serialize(map) === 'm3{r0;r0;0s2"+0"i-0;s2"-0"}', 'serialize(map): ' + serialize(map));
 })();

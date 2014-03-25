@@ -14,7 +14,7 @@
  *                                                        *
  * hprose io stream library for JavaScript.               *
  *                                                        *
- * LastModified: Mar 8, 2014                              *
+ * LastModified: Mar 25, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -207,6 +207,11 @@ var HproseRawReader, HproseReader, HproseWriter;
         hproseClassManager.register(cls, classname);
         return cls;
     }
+
+    function isNegZero(value) {
+        return (value === 0 && 1/value === -Infinity);
+    }
+
     function isDigit(value) {
         switch (value) {
         case 0:
@@ -377,7 +382,7 @@ var HproseRawReader, HproseReader, HproseWriter;
     }
 
     // public class
-    HproseReader = function hproseReader(stream, simple) {
+    HproseReader = function hproseReader(stream, simple, useHarmonyMap) {
         HproseRawReader.call(this, stream);
         var classref = [];
         var refer = (simple ? fakeReaderRefer : realReaderRefer());
@@ -423,7 +428,7 @@ var HproseRawReader, HproseReader, HproseWriter;
             case hproseTags.TagString: return readStringWithoutTag();
             case hproseTags.TagGuid: return readGuidWithoutTag();
             case hproseTags.TagList: return readListWithoutTag();
-            case hproseTags.TagMap: return readMapWithoutTag();
+            case hproseTags.TagMap: return useHarmonyMap ? readHarmonyMapWithoutTag() : readMapWithoutTag();
             case hproseTags.TagClass: readClass(); return readObject();
             case hproseTags.TagObject: return readObjectWithoutTag();
             case hproseTags.TagRef: return readRef();
@@ -670,6 +675,27 @@ var HproseRawReader, HproseReader, HproseWriter;
             default: unexpectedTag(tag);
             }
         }
+        function readHarmonyMapWithoutTag() {
+            var map = new Map();
+            refer.set(map);
+            var count = readInt(hproseTags.TagOpenbrace);
+            for (var i = 0; i < count; i++) {
+                var key = unserialize();
+                var value = unserialize();
+                map.set(key, value);
+            }
+            stream.skip(1);
+            return map;
+        }
+        function readHarmonyMap() {
+            var tag = stream.getc();
+            switch (tag) {
+            case hproseTags.TagNull: return null;
+            case hproseTags.TagMap: return readHarmonyMapWithoutTag();
+            case hproseTags.TagRef: return readRef();
+            default: unexpectedTag(tag);
+            }
+        }
         function readObjectWithoutTag() {
             var cls = classref[readInt(hproseTags.TagOpenbrace)];
             var obj = new cls.classname();
@@ -731,6 +757,8 @@ var HproseRawReader, HproseReader, HproseWriter;
         this.readList = readList;
         this.readMapWithoutTag = readMapWithoutTag;
         this.readMap = readMap;
+        this.readHarmonyMapWithoutTag = readHarmonyMapWithoutTag;
+        this.readHarmonyMap = readHarmonyMap;
         this.readObjectWithoutTag = readObjectWithoutTag;
         this.readObject = readObject;
         this.reset = reset;
@@ -798,6 +826,9 @@ var HproseRawReader, HproseReader, HproseWriter;
             case Date:
                 writeDateWithRef(variable);
                 break;
+            case Map:
+                writeHarmonyMapWithRef(variable);
+                break;
             default:
                 if (Array.isArray(variable)) {
                     writeListWithRef(variable);
@@ -815,7 +846,10 @@ var HproseRawReader, HproseReader, HproseWriter;
             }
         }
         function writeNumber(n) {
-            if (isDigit(n)) {
+            if (isNegZero(n)) {
+                stream.write(hproseTags.TagInteger + '-0' + hproseTags.TagSemicolon);
+            }
+            else if (isDigit(n)) {
                 stream.write(n);
             }
             else if (isInt32(n)) {
@@ -967,6 +1001,19 @@ var HproseRawReader, HproseReader, HproseWriter;
         function writeMapWithRef(map) {
             if (!refer.write(stream, map)) writeMap(map);
         }
+        function writeHarmonyMap(map) {
+            refer.set(map);
+            var count = map.size;
+            stream.write(hproseTags.TagMap + (count > 0 ? count : '') + hproseTags.TagOpenbrace);
+            map.forEach(function(value, key, m) {
+                serialize(key);
+                serialize(value);
+            });
+            stream.write(hproseTags.TagClosebrace);
+        }
+        function writeHarmonyMapWithRef(map) {
+            if (!refer.write(stream, map)) writeHarmonyMap(map);
+        }
         function writeObject(obj) {
             var classname = getClassName(obj);
             var index = classref[classname];
@@ -1036,6 +1083,8 @@ var HproseRawReader, HproseReader, HproseWriter;
         this.writeListWithRef = writeListWithRef;
         this.writeMap = writeMap;
         this.writeMapWithRef = writeMapWithRef;
+        this.writeHarmonyMap = writeHarmonyMap;
+        this.writeHarmonyMapWithRef = writeHarmonyMapWithRef;
         this.writeObject = writeObject;
         this.writeObjectWithRef = writeObjectWithRef;
         this.reset = reset;
@@ -1050,10 +1099,10 @@ var HproseFormatter = {
         writer.serialize(variable);
         return stream.toString();
     },
-    unserialize: function (variable_representation, simple) {
+    unserialize: function (variable_representation, simple, useHarmonyMap) {
         'use strict';
         var stream = new HproseStringInputStream(variable_representation);
-        var reader = new HproseReader(stream, simple);
+        var reader = new HproseReader(stream, simple, useHarmonyMap);
         return reader.unserialize();
     }
 };

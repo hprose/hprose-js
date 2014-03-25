@@ -14,7 +14,7 @@
  *                                                        *
  * hprose common library for JavaScript.                  *
  *                                                        *
- * LastModified: Mar 21, 2014                             *
+ * LastModified: Mar 25, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -84,14 +84,21 @@ if (!Array.prototype.indexOf) {
 
 (function (global) {
     'use strict';
-    var hasMap = 'Map' in global;
     var hasWeakMap = 'WeakMap' in global;
-    if (hasMap && hasWeakMap) return;
+    var hasMap = 'Map' in global;
+    var hasForEach = true;
+
+    if (hasMap) {
+        hasForEach = 'forEach' in new global.Map();
+    }
+
+    if (hasWeakMap && hasMap && hasForEach) return;
+
     var hasObject_create = 'create' in Object;
-    var hasObject_freeze = 'freeze' in Object;
     var createNPO = function () {
         return hasObject_create ? Object.create(null) : {};
     };
+
     var namespaces = createNPO();
     var count = 0;
     var reDefineValueOf = function (obj) {
@@ -101,11 +108,11 @@ if (!Array.prototype.indexOf) {
             if ((this === obj) &&
                 (n in namespaces) &&
                 (namespaces[n] === namespace)) {
-                if (!(n in privates)) privates[n] = createNPO();
+                if (!(n in privates)) privates[n] = Object.create(null);
                 return privates[n];
             }
             else {
-                baseValueOf.apply(this, arguments);
+                return baseValueOf.apply(this, arguments);
             }
         };
     };
@@ -122,30 +129,30 @@ if (!Array.prototype.indexOf) {
                 reDefineValueOf(key);
                 return key.valueOf(namespace, n);
             };
-            if (hasObject_freeze) {
-                return Object.freeze(Object.create(WeakMap.prototype, {
+            var m = (hasObject_create ?
+                Object.create(WeakMap.prototype, {
                     get: {
                         value: function (key) { return map(key).value; },
-                        writable: true,
-                        configurable: true,
+                        writable: false,
+                        configurable: false,
                         enumerable: false
                     },
                     set: {
                         value: function (key, value) { map(key).value = value; },
-                        writable: true,
-                        configurable: true,
+                        writable: false,
+                        configurable: false,
                         enumerable: false
                     },
                     has: {
                         value: function (key) { return 'value' in map(key); },
-                        writable: true,
-                        configurable: true,
+                        writable: false,
+                        configurable: false,
                         enumerable: false
                     },
                     'delete': {
                         value: function (key) { return delete map(key).value; },
-                        writable: true,
-                        configurable: true,
+                        writable: false,
+                        configurable: false,
                         enumerable: false
                     },
                     clear: {
@@ -154,23 +161,30 @@ if (!Array.prototype.indexOf) {
                             n = count++;
                             namespaces[n] = namespace;
                         },
-                        writable: true,
-                        configurable: true,
+                        writable: false,
+                        configurable: false,
                         enumerable: false
                     }
-                }));
+                }) :
+                {
+                    get : function (key) { return map(key).value; },
+                    set : function (key, value) { map(key).value = value; },
+                    has : function (key) { return 'value' in map(key); },
+                    'delete' : function (key) { return delete map(key).value; },
+                    clear : function () {
+                        delete namespaces[n];
+                        n = count++;
+                        namespaces[n] = namespace;
+                    }
+                }
+            );
+            if (arguments.length > 0 && Array.isArray(arguments[0])) {
+                var iterable = arguments[0];
+                for (var i = 0, len = iterable.length; i < len; i++) {
+                    m.set(iterable[i][0], iterable[i][1]);
+                }
             }
-            else {
-                this.get = function (key) { return map(key).value; };
-                this.set = function (key, value) { map(key).value = value; };
-                this.has = function (key) { return 'value' in map(key); };
-                this['delete'] = function (key) { return delete map(key).value; };
-                this.clear = function () {
-                    delete namespaces[n];
-                    n = count++;
-                    namespaces[n] = namespace;
-                };
-            }
+            return m;
         };
     }
 
@@ -199,6 +213,37 @@ if (!Array.prototype.indexOf) {
                 }
             };
         };
+        var noKeyMap = function () {
+            var map = createNPO();
+            return {
+                get: function () { return map.value; },
+                set: function (_, value) { map.value = value; },
+                has: function () { return 'value' in map; },
+                'delete': function () { return delete map.value; },
+                clear: function () { map = createNPO(); }
+            };
+        };
+        var numberMap = function () {
+            var map = createNPO();
+            var isNegZero = function(value) {
+                return (value === 0 && 1/value === -Infinity);
+            };
+            var negZeroMap = noKeyMap();
+            return {
+                get: function (key) { return isNegZero(key) ? negZeroMap.get() : map[key]; },
+                set: function (key, value) {
+                    if (isNegZero(key)) {
+                        negZeroMap.set(key, value);
+                    }
+                    else {
+                        map[key] = value;
+                    }
+                },
+                has: function (key) { return isNegZero(key) ? negZeroMap.has() : key in map; },
+                'delete': function (key) { return isNegZero(key) ? negZeroMap['delete']() : delete map[key]; },
+                clear: function () { negZeroMap.clear(); map = createNPO(); }
+            };
+        };
         var scalarMap = function () {
             var map = createNPO();
             return {
@@ -221,19 +266,9 @@ if (!Array.prototype.indexOf) {
                 };
             };
         }
-        var noKeyMap = function () {
-            var map = createNPO();
-            return {
-                get: function (key) { return map.value; },
-                set: function (key, value) { map.value = value; },
-                has: function (key) { return 'value' in map; },
-                'delete': function (key) { return delete map.value; },
-                clear: function () { map = createNPO(); }
-            };
-        };
         global.Map = function Map() {
             var map = {
-                'number': scalarMap(),
+                'number': numberMap(),
                 'string': hasObject_create ? scalarMap() : stringMap(),
                 'boolean': scalarMap(),
                 'object': objectMap(),
@@ -243,85 +278,198 @@ if (!Array.prototype.indexOf) {
                 'null': noKeyMap()
             };
             var size = 0;
-            if (hasObject_freeze) {
-                return Object.freeze(Object.create(Map.prototype, {
+            var keys = [];
+            var m = (hasObject_create ?
+                Object.create(Map.prototype, {
                     size: {
                         get : function () { return size; },
-                        configurable: true,
+                        configurable: false,
                         enumerable: false
                     },
                     get: {
                         value: function (key) {
                             return map[typeof(key)].get(key);
                         },
-                        writable: true,
-                        configurable: true,
+                        writable: false,
+                        configurable: false,
                         enumerable: false
                     },
                     set: {
                         value: function (key, value) {
-                            if (!this.has(key)) size++;
+                            if (!this.has(key)) {
+                                keys.push(key);
+                                size++;
+                            }
                             map[typeof(key)].set(key, value);
                         },
-                        writable: true,
-                        configurable: true,
+                        writable: false,
+                        configurable: false,
                         enumerable: false
                     },
                     has: {
                         value: function (key) {
                             return map[typeof(key)].has(key);
                         },
-                        writable: true,
-                        configurable: true,
+                        writable: false,
+                        configurable: false,
                         enumerable: false
                     },
                     'delete': {
                         value: function (key) {
                             if (this.has(key)) {
                                 size--;
+                                keys.splice(keys.indexOf(key), 1);
                                 return map[typeof(key)]['delete'](key);
                             }
                             return false;
                         },
-                        writable: true,
-                        configurable: true,
+                        writable: false,
+                        configurable: false,
                         enumerable: false
                     },
                     clear: {
                         value: function () {
+                            keys.length = 0;
                             for (var key in map) map[key].clear();
                             size = 0;
                         },
-                        writable: true,
-                        configurable: true,
+                        writable: false,
+                        configurable: false,
+                        enumerable: false
+                    },
+                    forEach: {
+                        value: function (callback, thisArg) {
+                            for (var i = 0, n = keys.length; i < n; i++) {
+                                callback.call(thisArg, this.get(keys[i]), keys[i], this);
+                            }
+                        },
+                        writable: false,
+                        configurable: false,
                         enumerable: false
                     }
-                }));
-            }
-            else {
-                this.size = size;
-                this.get = function (key) {
-                    return map[typeof(key)].get(key);
-                };
-                this.set = function (key, value) {
-                    if (!this.has(key)) this.size = ++size;
-                    map[typeof(key)].set(key, value);
-                };
-                this.has = function (key) {
-                    return map[typeof(key)].has(key);
-                };
-                this['delete'] = function (key) {
-                    if (this.has(key)) {
-                        this.size = --size;
-                        return map[typeof(key)]['delete'](key);
+                }) :
+                {
+                    size: size,
+                    get: function (key) {
+                        return map[typeof(key)].get(key);
+                    },
+                    set: function (key, value) {
+                        if (!this.has(key)) {
+                            keys.push(key);
+                            this.size = ++size;
+                        }
+                        map[typeof(key)].set(key, value);
+                    },
+                    has: function (key) {
+                        return map[typeof(key)].has(key);
+                    },
+                    'delete': function (key) {
+                        if (this.has(key)) {
+                            this.size = --size;
+                            keys.splice(keys.indexOf(key), 1);
+                            return map[typeof(key)]['delete'](key);
+                        }
+                        return false;
+                    },
+                    clear: function () {
+                        keys.length = 0;
+                        for (var key in map) map[key].clear();
+                        this.size = size = 0;
+                    },
+                    forEach: function (callback, thisArg) {
+                        for (var i = 0, n = keys.length; i < n; i++) {
+                            callback.call(thisArg, this.get(keys[i]), keys[i], this);
+                        }
                     }
-                    return false;
-                };
-                this.clear = function () {
-                    for (var key in map) map[key].clear();
-                    this.size = size = 0;
-                };
+                }
+            );
+            if (arguments.length > 0 && Array.isArray(arguments[0])) {
+                var iterable = arguments[0];
+                for (var i = 0, len = iterable.length; i < len; i++) {
+                    m.set(iterable[i][0], iterable[i][1]);
+                }
             }
+            return m;
+        };
+    }
+
+    if (!hasForEach) {
+        var OldMap = global.Map;
+        global.Map = function Map() {
+            var map = new OldMap();
+            var keys = [];
+            var m = Object.create(Map.prototype, {
+                size: {
+                    get : function () { return map.size; },
+                    configurable: false,
+                    enumerable: false
+                },
+                get: {
+                    value: function (key) {
+                        return map.get(key);
+                    },
+                    writable: false,
+                    configurable: false,
+                    enumerable: false
+                },
+                set: {
+                    value: function (key, value) {
+                        if (!map.has(key)) {
+                            keys.push(key);
+                        }
+                        map.set(key, value);
+                    },
+                    writable: false,
+                    configurable: false,
+                    enumerable: false
+                },
+                has: {
+                    value: function (key) {
+                        return map.has(key);
+                    },
+                    writable: false,
+                    configurable: false,
+                    enumerable: false
+                },
+                'delete': {
+                    value: function (key) {
+                        if (map.has(key)) {
+                            keys.splice(keys.indexOf(key), 1);
+                            return map['delete'](key);
+                        }
+                        return false;
+                    },
+                    writable: false,
+                    configurable: false,
+                    enumerable: false
+                },
+                clear: {
+                    value: function () {
+                        keys.length = 0;
+                        map.clear();
+                    },
+                    writable: false,
+                    configurable: false,
+                    enumerable: false
+                },
+                forEach: {
+                    value: function (callback, thisArg) {
+                        for (var i = 0, n = keys.length; i < n; i++) {
+                            callback.call(thisArg, this.get(keys[i]), keys[i], this);
+                        }
+                    },
+                    writable: false,
+                    configurable: false,
+                    enumerable: false
+                }
+            });
+            if (arguments.length > 0 && Array.isArray(arguments[0])) {
+                var iterable = arguments[0];
+                for (var i = 0, len = iterable.length; i < len; i++) {
+                    m.set(iterable[i][0], iterable[i][1]);
+                }
+            }
+            return m;
         };
     }
 })(this);

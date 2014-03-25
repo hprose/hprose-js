@@ -14,7 +14,7 @@
  *                                                        *
  * hprose http client for Javascript.                     *
  *                                                        *
- * LastModified: Mar 21, 2014                             *
+ * LastModified: Mar 25, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -169,6 +169,8 @@ var HproseHttpClient = (function () {
                 invoke();
             }
         };
+        // property
+        self.useHarmonyMap = false;
         // events
         self.onReady = NOOP;
         self.onError = NOOP;/*name, error*/
@@ -496,7 +498,7 @@ var HproseHttpClient = (function () {
                     }
                     else {
                         var stream = new HStringInputStream(response);
-                        var reader = new HReader(stream);
+                        var reader = new HReader(stream, false, self.useHarmonyMap);
                         var tag;
                         i = -1;
                         try {
