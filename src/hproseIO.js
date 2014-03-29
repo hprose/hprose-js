@@ -887,7 +887,7 @@ var HproseRawReader, HproseReader, HproseWriter;
             stream.write(hproseTags.TagEmpty);
         }
         function writeBoolean(b) {
-            stream.write(b ? hproseTags.TagTrue : hproseTags.TagFalse);
+            stream.write(b.valueOf() ? hproseTags.TagTrue : hproseTags.TagFalse);
         }
         function writeUTCDate(date) {
             refer.set(date);
