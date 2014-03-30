@@ -14,7 +14,7 @@
  *                                                        *
  * hprose serialize test for JavaScript.                  *
  *                                                        *
- * LastModified: Mar 7, 2014                              *
+ * LastModified: Mar 29, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -26,8 +26,8 @@
     'use strict';
     var methodList = ['hello', 'sum', 'swapKeyAndValue', 'getUserList'];
     var client = new HproseHttpClient('http://hprose.com/example/', methodList);
-    client.onerror = function(name, err) {
-        console.err(name + ':' + err);
+    client.onError = function(name, err) {
+        console.error(name + ':' + err);
     };
     client.hello('World', function(result) {
         console.info(result);

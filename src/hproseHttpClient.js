@@ -14,7 +14,7 @@
  *                                                        *
  * hprose http client for Javascript.                     *
  *                                                        *
- * LastModified: Mar 25, 2014                             *
+ * LastModified: Mar 30, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -58,16 +58,16 @@ var HproseHttpClient = (function () {
 
     function HproseHttpClient(url, functions) {
         // private members
+        var m_url;
         var m_ready    = false;
         var m_header = {'Content-Type': 'text/plain'};
-        var m_url;
         var m_timeout = 30000;
         var m_byref = false;
         var m_simple = false;
         var m_filters = [];
         var m_batch = false;
-        var m_batchCnt = 0;
-        var m_batches = {};
+        var m_batches = [];
+
         var self = this;
         // public methods
         self.useService = function (url, functions, create) {
@@ -157,15 +157,11 @@ var HproseHttpClient = (function () {
             m_simple = value;
         };
         self.beginBatch = function () {
-            if(!m_batch) {
-                m_batch = true;
-                m_batches[m_batchCnt++] = [];
-            }
+            m_batch = true;
         };
         self.endBatch = function () {
             m_batch = false;
-            var batches = m_batches[m_batchCnt - 1];
-            if (batches && !!batches.length) {
+            if (m_batches.length) {
                 invoke();
             }
         };
@@ -247,10 +243,8 @@ var HproseHttpClient = (function () {
             self.onReady();
         }
         function invoke(stub, func, args) {
-            var batchCnt = m_batchCnt - 1;
-            var batches = m_batches[batchCnt];
             var resultMode = HResultMode.Normal, stream, errorHandler, callback;
-            if (!m_batch && (!batches || !batches.length) || m_batch) {
+            if (!m_batch && !m_batches.length || m_batch) {
                 var byref = m_byref;
                 var simple = m_simple;
                 var lowerCaseFunc = func.toLowerCase();
@@ -461,7 +455,7 @@ var HproseHttpClient = (function () {
                 }
 
                 if (m_batch) {
-                    batches.push({args: args, fn: func, call: stream.toString(),
+                    m_batches.push({args: args, fn: func, call: stream.toString(),
                                     cb: callback, eh: errorHandler});
                 }
                 else {
@@ -470,12 +464,12 @@ var HproseHttpClient = (function () {
             }
 
             if (!m_batch) {
-                var batchSize = batches && batches.length;
-                var inBatch = !!batchSize;
+                var batchSize = m_batches.length;
+                var batch = !!batchSize;
                 var request = '';
-                if (inBatch) {
+                if (batch) {
                     for (var i = 0, item; i < batchSize; ++i) {
-                        item = batches[i];
+                        item = m_batches[i];
                         request += item.call;
                         delete item.call;
                     }
@@ -484,6 +478,9 @@ var HproseHttpClient = (function () {
                 else {
                     request = stream.toString();
                 }
+
+                var batches = m_batches.slice(0);
+                m_batches.length = 0;
 
                 HHttpRequest.post(m_url, m_header, request, function (response) {
                     var result = null;
@@ -512,7 +509,7 @@ var HproseHttpClient = (function () {
                                         reader.reset();
                                         result = reader.unserialize();
                                     }
-                                    if (inBatch) {
+                                    if (batch) {
                                         batches[++i].rs = result;
                                         batches[i].ex = null;
                                     }
@@ -520,22 +517,21 @@ var HproseHttpClient = (function () {
                                 case HTags.TagArgument:
                                     reader.reset();
                                     args = reader.readList();
-                                    if (inBatch) {
+                                    if (batch) {
                                         batches[i].args = args;
                                     }
                                     break;
                                 case HTags.TagError:
                                     reader.reset();
                                     error = new HException(reader.readString());
-                                    if (inBatch) {
+                                    if (batch) {
                                         batches[++i].ex = error;
                                     }
                                     break;
                                 default:
                                     error = new HException('Wrong Response:\r\n' + response);
-                                    if (inBatch) {
+                                    if (batch) {
                                         batches[++i].ex = error;
-                                        batches[++i].rs = null;
                                     }
                                     break;
                                 }
@@ -543,13 +539,13 @@ var HproseHttpClient = (function () {
                         }
                         catch (e) {
                             error = e;
-                            if (inBatch) {
+                            if (batch) {
                                 batches[i < 0 ? 0 : i >= batchSize ? i - 1 : i].ex = error;
                             }
                         }
                     }
 
-                    if (!inBatch) {
+                    if (!batch) {
                         batchSize  = 1;
                         batches = [{args: args, fn: func, rs: result, cb: callback,
                                     eh: errorHandler, ex: error}];
@@ -571,10 +567,6 @@ var HproseHttpClient = (function () {
                         else if (callback) {
                             callback(item.rs, item.args);
                         }
-                    }
-                    batches.length = 0;
-                    if (inBatch) {
-                        delete m_batches[batchCnt];
                     }
                 }, m_timeout, m_filters, self);
 
