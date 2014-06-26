@@ -13,7 +13,7 @@
  *                                                        *
  * hprose common library for JavaScript.                  *
  *                                                        *
- * LastModified: Mar 25, 2014                             *
+ * LastModified: Jun 26, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -109,7 +109,7 @@ if (!Array.prototype.indexOf) {
                         if ((this === obj) &&
                             (n in namespaces) &&
                             (namespaces[n] === namespace)) {
-                            if (!(n in privates)) privates[n] = Object.create(null);
+                            if (!(n in privates)) privates[n] = createNPO();
                             return privates[n];
                         }
                         else {
@@ -126,7 +126,7 @@ if (!Array.prototype.indexOf) {
                 if ((this === obj) &&
                     (n in namespaces) &&
                     (namespaces[n] === namespace)) {
-                    if (!(n in privates)) privates[n] = Object.create(null);
+                    if (!(n in privates)) privates[n] = createNPO();
                     return privates[n];
                 }
                 else {
