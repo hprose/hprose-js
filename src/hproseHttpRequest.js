@@ -13,7 +13,7 @@
  *                                                        *
  * POST data to HTTP Server (using Flash).                *
  *                                                        *
- * LastModified: Mar 21, 2014                             *
+ * LastModified: Oct 17, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -59,9 +59,9 @@ var HproseHttpRequest = (function (global) {
      */
     var s_filters = [];
     /*
-     * to save all request clients
+     * to save all request contexts
      */
-    var s_clients = [];
+    var s_contexts = [];
     /*
      * to save HproseHttpRequest tasks.
      */
@@ -351,14 +351,15 @@ var HproseHttpRequest = (function (global) {
 
     HproseHttpRequest.post = function (url, header, data, callback, timeout, filters, client) {
         var callbackid = -1;
+        var context = {client: client, userdata: {}};
         if (callback) {
             callbackid = s_callbackList.length;
             s_callbackList[callbackid] = callback;
             s_filters[callbackid] = filters;
-            s_clients[callbackid] = client;
+            s_contexts[callbackid] = context;
         }
         for (var i = 0, n = filters.length; i < n; i++) {
-            data = filters[i].outputFilter(data, client);
+            data = filters[i].outputFilter(data, context);
         }
         if (s_jsReady) {
             post(url, header, data, callbackid, timeout);
@@ -374,9 +375,9 @@ var HproseHttpRequest = (function (global) {
     HproseHttpRequest.__callback = function (callbackid, data, needToFilter) {
         if (needToFilter) {
             var filters = s_filters[callbackid];
-            var client = s_clients[callbackid];
+            var context = s_contexts[callbackid];
             for (var i = filters.length - 1; i >= 0; i--) {
-                data = filters[i].inputFilter(data, client);
+                data = filters[i].inputFilter(data, context);
             }
         }
         if (typeof(s_callbackList[callbackid]) === 'function') {
@@ -384,7 +385,7 @@ var HproseHttpRequest = (function (global) {
         }
         delete s_callbackList[callbackid];
         delete s_filters[callbackid];
-        delete s_clients[callbackid];
+        delete s_contexts[callbackid];
     };
 
     HproseHttpRequest.__jsReady = function () {
