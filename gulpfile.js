@@ -2,7 +2,6 @@ var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     concat = require('gulp-concat'),
     jshint = require("gulp-jshint"),
-    lzmajs = require("gulp-lzmajs"),
     del = require('del');
 
 gulp.task('clear', function(){
@@ -11,9 +10,11 @@ gulp.task('clear', function(){
 
 gulp.task('compress', ['clear'], function() {
     return gulp.src(['src/Init.js',
-                     'src/Array.js',
+                     'src/Helper.js',
+                     'src/Polyfill.js',
                      'src/HarmonyMaps.js',
                      'src/setImmediate.js',
+                     'src/Future.js',
                      'src/ResultMode.js',
                      'src/Tags.js',
                      'src/hproseIO.js',
@@ -25,7 +26,6 @@ gulp.task('compress', ['clear'], function() {
         .pipe(jshint.reporter())
         .pipe(concat('hprose.js'))
         .pipe(uglify())
-        .pipe(lzmajs())
         .pipe(gulp.dest('dist'));
 });
 
