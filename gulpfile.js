@@ -10,7 +10,9 @@ gulp.task('clear', function(){
 });
 
 gulp.task('default', ['clear'], function() {
-    return gulp.src(['src/hproseCommon.js',
+    return gulp.src(['src/Init.js',
+                     'src/setImmediate.js',
+                     'src/hproseCommon.js',
                      'src/hproseIO.js',
                      'src/hproseHttpRequest.js',
                      'src/hproseHttpClient.js',
@@ -20,7 +22,8 @@ gulp.task('default', ['clear'], function() {
         .pipe(concat('hprose.js'))
         .pipe(uglify())
         .pipe(lzmajs())
-        .pipe(gulp.dest('dist'));
+        .pipe(gulp.dest('dist'))
+        .pipe(gulp.dest('test'));
 });
 
 /*
