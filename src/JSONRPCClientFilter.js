@@ -21,7 +21,7 @@
 /*jshint es3:true, unused:false, eqeqeq:true */
 
 var JSONRPCClientFilter = (function (global) {
-    'use strict'
+    'use strict';
     var s_id = 1;
     var JSONRPCClientFilter = {
         version: "2.0",
