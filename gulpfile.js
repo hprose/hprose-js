@@ -9,27 +9,28 @@ gulp.task('clear', function(){
     del(['dist/hprose.js']);
 });
 
-gulp.task('default', ['clear'], function() {
+gulp.task('compress', ['clear'], function() {
     return gulp.src(['src/Init.js',
                      'src/setImmediate.js',
+                     'src/ResultMode.js',
+                     'src/Tags.js',
                      'src/hproseCommon.js',
                      'src/hproseIO.js',
                      'src/hproseHttpRequest.js',
                      'src/hproseHttpClient.js',
-                     'src/JSONRPCClientFilter.js'])
+                     'src/JSONRPCClientFilter.js',
+                     'src/Loader.js'])
         .pipe(jshint())
         .pipe(jshint.reporter())
         .pipe(concat('hprose.js'))
         .pipe(uglify())
         .pipe(lzmajs())
-        .pipe(gulp.dest('dist'))
-        .pipe(gulp.dest('test'));
+        .pipe(gulp.dest('dist'));
 });
 
-/*
 gulp.task('default', ['compress'], function() {
     return gulp.src(['src/CopyRight.js', 'dist/hprose.js'])
            .pipe(concat('hprose.js'))
-           .pipe(gulp.dest('dist'));
+           .pipe(gulp.dest('dist'))
+           .pipe(gulp.dest('test'));
 });
-*/
