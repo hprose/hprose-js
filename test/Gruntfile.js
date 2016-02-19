@@ -186,7 +186,7 @@ module.exports = function (grunt) {
           browsers: browsers,
           build: process.env.TRAVIS_JOB_ID,
           testname: 'hprose-js tests',
-          throttled: 3,
+          throttled: 1,
           statusCheckAttempts: -1,
           maxRetries: 3,
           sauceConfig: {
