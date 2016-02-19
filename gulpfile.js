@@ -2,7 +2,7 @@ var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     concat = require('gulp-concat'),
     jshint = require("gulp-jshint"),
-//    lzmajs = require("gulp-lzmajs"),
+    lzmajs = require("gulp-lzmajs"),
     del = require('del');
 
 gulp.task('clear', function(){
@@ -19,6 +19,7 @@ gulp.task('default', ['clear'], function() {
         .pipe(jshint.reporter())
         .pipe(concat('hprose.js'))
         .pipe(uglify())
+        .pipe(lzmajs())
         .pipe(gulp.dest('dist'));
 });
 

@@ -148,8 +148,9 @@ if (!Array.prototype.indexOf) {
                 reDefineValueOf(key);
                 return key.valueOf(namespace, n);
             };
-            var m = (hasObject_create ?
-                Object.create(WeakMap.prototype, {
+            var m = this;
+            if (hasObject_create) {
+                m = Object.create(WeakMap.prototype, {
                     get: {
                         value: function (key) { return map(key).value; },
                         writable: false,
@@ -184,19 +185,20 @@ if (!Array.prototype.indexOf) {
                         configurable: false,
                         enumerable: false
                     }
-                }) :
-                {
-                    get : function (key) { return map(key).value; },
-                    set : function (key, value) { map(key).value = value; },
-                    has : function (key) { return 'value' in map(key); },
-                    'delete' : function (key) { return delete map(key).value; },
-                    clear : function () {
-                        delete namespaces[n];
-                        n = count++;
-                        namespaces[n] = namespace;
-                    }
-                }
-            );
+                });
+            }
+            else {
+                m.get = function (key) { return map(key).value; };
+                m.set = function (key, value) { map(key).value = value; };
+                m.has = function (key) { return 'value' in map(key); };
+                m['delete'] = function (key) { return delete map(key).value; };
+                m.clear = function () {
+                    delete namespaces[n];
+                    n = count++;
+                    namespaces[n] = namespace;
+                };
+            }
+
             if (arguments.length > 0 && Array.isArray(arguments[0])) {
                 var iterable = arguments[0];
                 for (var i = 0, len = iterable.length; i < len; i++) {
@@ -298,7 +300,8 @@ if (!Array.prototype.indexOf) {
             };
             var size = 0;
             var keys = [];
-            var m = (hasObject_create ?
+            var m = this;
+            if (hasObject_create) {
                 Object.create(Map.prototype, {
                     size: {
                         get : function () { return size; },
@@ -366,42 +369,42 @@ if (!Array.prototype.indexOf) {
                         configurable: false,
                         enumerable: false
                     }
-                }) :
-                {
-                    size: size,
-                    get: function (key) {
-                        return map[typeof(key)].get(key);
-                    },
-                    set: function (key, value) {
-                        if (!this.has(key)) {
-                            keys.push(key);
-                            this.size = ++size;
-                        }
-                        map[typeof(key)].set(key, value);
-                    },
-                    has: function (key) {
-                        return map[typeof(key)].has(key);
-                    },
-                    'delete': function (key) {
-                        if (this.has(key)) {
-                            this.size = --size;
-                            keys.splice(keys.indexOf(key), 1);
-                            return map[typeof(key)]['delete'](key);
-                        }
-                        return false;
-                    },
-                    clear: function () {
-                        keys.length = 0;
-                        for (var key in map) map[key].clear();
-                        this.size = size = 0;
-                    },
-                    forEach: function (callback, thisArg) {
-                        for (var i = 0, n = keys.length; i < n; i++) {
-                            callback.call(thisArg, this.get(keys[i]), keys[i], this);
-                        }
+                });
+            }
+            else {
+                m.size = size;
+                m.get = function (key) {
+                    return map[typeof(key)].get(key);
+                };
+                m.set = function (key, value) {
+                    if (!this.has(key)) {
+                        keys.push(key);
+                        this.size = ++size;
                     }
-                }
-            );
+                    map[typeof(key)].set(key, value);
+                };
+                m.has = function (key) {
+                    return map[typeof(key)].has(key);
+                };
+                m['delete'] = function (key) {
+                    if (this.has(key)) {
+                        this.size = --size;
+                        keys.splice(keys.indexOf(key), 1);
+                        return map[typeof(key)]['delete'](key);
+                    }
+                    return false;
+                };
+                m.clear = function () {
+                    keys.length = 0;
+                    for (var key in map) map[key].clear();
+                    this.size = size = 0;
+                };
+                m.forEach = function (callback, thisArg) {
+                    for (var i = 0, n = keys.length; i < n; i++) {
+                        callback.call(thisArg, this.get(keys[i]), keys[i], this);
+                    }
+                };
+            }
             if (arguments.length > 0 && Array.isArray(arguments[0])) {
                 var iterable = arguments[0];
                 for (var i = 0, len = iterable.length; i < len; i++) {
