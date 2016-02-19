@@ -13,7 +13,7 @@
  *                                                        *
  * hprose common library for JavaScript.                  *
  *                                                        *
- * LastModified: Jun 26, 2014                             *
+ * LastModified: Feb 19, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -302,7 +302,7 @@ if (!Array.prototype.indexOf) {
             var keys = [];
             var m = this;
             if (hasObject_create) {
-                Object.create(Map.prototype, {
+                m = Object.create(Map.prototype, {
                     size: {
                         get : function () { return size; },
                         configurable: false,
