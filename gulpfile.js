@@ -11,10 +11,11 @@ gulp.task('clear', function(){
 
 gulp.task('compress', ['clear'], function() {
     return gulp.src(['src/Init.js',
+                     'src/Array.js',
+                     'src/HarmonyMaps.js',
                      'src/setImmediate.js',
                      'src/ResultMode.js',
                      'src/Tags.js',
-                     'src/hproseCommon.js',
                      'src/hproseIO.js',
                      'src/hproseHttpRequest.js',
                      'src/hproseHttpClient.js',

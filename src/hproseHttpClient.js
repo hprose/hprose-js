@@ -19,8 +19,6 @@
 \**********************************************************/
 
 /*global HproseResultMode */
-/*global HproseException */
-/*global HproseFilter */
 /*global HproseHttpRequest */
 /*global HproseStringInputStream */
 /*global HproseStringOutputStream */
@@ -32,8 +30,6 @@ var HproseHttpClient = (function () {
     'use strict';
     /* Reference of global Class */
     var HResultMode = HproseResultMode;
-    var HException = HproseException;
-    var HFilter = HproseFilter;
     var HHttpRequest = HproseHttpRequest;
     var HStringInputStream = HproseStringInputStream;
     var HStringOutputStream = HproseStringOutputStream;
@@ -79,7 +75,7 @@ var HproseHttpClient = (function () {
             }
             m_ready = false;
             if (url === undefined) {
-                return new HException('You should set server url first!');
+                return new Error('You should set server url first!');
             }
             m_url = url;
             if (typeof(functions) === s_string ||
@@ -179,7 +175,7 @@ var HproseHttpClient = (function () {
                     var tag = stream.getc();
                     switch (tag) {
                         case HTags.TagError:
-                            error = new HException(reader.readString());
+                            error = new Error(reader.readString());
                             break;
                         case HTags.TagFunctions:
                             var functions = reader.readList();
@@ -187,7 +183,7 @@ var HproseHttpClient = (function () {
                             setFunctions(stub, functions);
                             break;
                         default:
-                            error = new HException('Wrong Response:\r\n' + response);
+                            error = new Error('Wrong Response:\r\n' + response);
                             break;
                     }
                 }
@@ -522,13 +518,13 @@ var HproseHttpClient = (function () {
                                     break;
                                 case HTags.TagError:
                                     reader.reset();
-                                    error = new HException(reader.readString());
+                                    error = new Error(reader.readString());
                                     if (batch) {
                                         batches[++i].ex = error;
                                     }
                                     break;
                                 default:
-                                    error = new HException('Wrong Response:\r\n' + response);
+                                    error = new Error('Wrong Response:\r\n' + response);
                                     if (batch) {
                                         batches[++i].ex = error;
                                     }

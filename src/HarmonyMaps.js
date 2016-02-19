@@ -9,74 +9,19 @@
 
 /**********************************************************\
  *                                                        *
- * hproseCommon.js                                        *
+ * HarmonyMaps.js                                         *
  *                                                        *
- * hprose common library for JavaScript.                  *
+ * Harmony Maps for JavaScript.                           *
  *                                                        *
  * LastModified: Feb 19, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-/*jshint es3:true, unused:false, eqeqeq:true */
-
-function HproseException(message) {
-    'use strict';
-    this.message = message;
-}
-
-HproseException.prototype = new Error();
-HproseException.prototype.name = 'HproseException';
-
-function HproseFilter() {
-    'use strict';
-    this.inputFilter = function (value, context) { return value; };
-    this.outputFilter = function (value, context) { return value; };
-}
-
-if (!('isArray' in Array)) {
-    Array.isArray = function (arg) {
-        'use strict';
-        return Object.prototype.toString.call(arg) === '[object Array]';
-    };
-}
-
-if (!Array.prototype.indexOf) {
-    Array.prototype.indexOf = function (searchElement /*, fromIndex */ ) {
-        'use strict';
-        if (this === undefined || this === null) {
-            throw new TypeError('this is null or not defined');
-        }
-        var t = Object(this);
-        var len = t.length >>> 0;
-        if (len === 0) {
-            return -1;
-        }
-        var n = 0;
-        if (arguments.length > 0) {
-            n = Number(arguments[1]);
-            if (n !== n) { // shortcut for verifying if it's NaN
-                n = 0;
-            }
-            else if (n !== 0 && n !== Infinity && n !== -Infinity) {
-                n = (n > 0 || -1) * Math.floor(Math.abs(n));
-            }
-        }
-        if (n >= len) {
-            return -1;
-        }
-        var k = n >= 0 ? n : Math.max(len - Math.abs(n), 0);
-        for (; k < len; k++) {
-            if (k in t && t[k] === searchElement) {
-                return k;
-            }
-        }
-        return -1;
-    };
-}
-
+/* jshint -W067 */
 (function (global) {
     'use strict';
+
     var hasWeakMap = 'WeakMap' in global;
     var hasMap = 'Map' in global;
     var hasForEach = true;
@@ -238,27 +183,6 @@ if (!Array.prototype.indexOf) {
                 clear: function () { map = createNPO(); }
             };
         };
-        var numberMap = function () {
-            var map = createNPO();
-            var isNegZero = function(value) {
-                return (value === 0 && 1/value === -Infinity);
-            };
-            var negZeroMap = noKeyMap();
-            return {
-                get: function (key) { return isNegZero(key) ? negZeroMap.get() : map[key]; },
-                set: function (key, value) {
-                    if (isNegZero(key)) {
-                        negZeroMap.set(key, value);
-                    }
-                    else {
-                        map[key] = value;
-                    }
-                },
-                has: function (key) { return isNegZero(key) ? negZeroMap.has() : key in map; },
-                'delete': function (key) { return isNegZero(key) ? negZeroMap['delete']() : delete map[key]; },
-                clear: function () { negZeroMap.clear(); map = createNPO(); }
-            };
-        };
         var scalarMap = function () {
             var map = createNPO();
             return {
@@ -283,8 +207,9 @@ if (!Array.prototype.indexOf) {
         }
         global.Map = function Map() {
             var map = {
-                'number': numberMap(),
-                'string': hasObject_create ? scalarMap() : stringMap(),
+                'number': scalarMap(),
+                'string': scalarMap(),
+                //'string': hasObject_create ? scalarMap() : stringMap(),
                 'boolean': scalarMap(),
                 'object': objectMap(),
                 'function': objectMap(),
@@ -499,4 +424,6 @@ if (!Array.prototype.indexOf) {
             return m;
         };
     }
-})(this);
+}(function() {
+return this || (1, eval)('this');
+}()));

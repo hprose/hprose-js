@@ -22,7 +22,7 @@
 (function (global) {
     'use strict';
 
-    global.HproseResultMode =
+    global.HproseResultMode  =
     global.hprose.ResultMode = {
         Normal: 0,
         Serialized: 1,

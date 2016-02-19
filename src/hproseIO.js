@@ -18,7 +18,7 @@
  *                                                        *
 \**********************************************************/
 
-/*global HproseException, WeakMap, Map */
+/*global WeakMap, Map */
 /*jshint es3:true, unused:false, eqeqeq:true */
 /*jslint plusplus:true, white:true, vars:true */
 
@@ -99,7 +99,6 @@ var HproseRawReader, HproseReader, HproseWriter;
     // private static members
     var hproseTags = HproseTags;
     var hproseClassManager = HproseClassManager;
-    var HException = HproseException;
 
     function getter(str) {
         var obj = global;
@@ -189,12 +188,12 @@ var HproseRawReader, HproseReader, HproseWriter;
 
     function unexpectedTag(tag, expectTags) {
         if (tag && expectTags) {
-            throw new HException('Tag "' + expectTags + '" expected, but "' + tag + '" found in stream');
+            throw new Error('Tag "' + expectTags + '" expected, but "' + tag + '" found in stream');
         }
         if (tag) {
-            throw new HException('Unexpected serialize tag "' + tag + '" in stream');
+            throw new Error('Unexpected serialize tag "' + tag + '" in stream');
         }
-        throw new HException('No byte found in stream');
+        throw new Error('No byte found in stream');
     }
 
     // public class
@@ -370,7 +369,7 @@ var HproseRawReader, HproseReader, HproseWriter;
             case hproseTags.TagClass: readClass(); return readObject();
             case hproseTags.TagObject: return readObjectWithoutTag();
             case hproseTags.TagRef: return readRef();
-            case hproseTags.TagError: throw new HException(readString());
+            case hproseTags.TagError: throw new Error(readString());
             default: unexpectedTag(tag);
             }
         }
