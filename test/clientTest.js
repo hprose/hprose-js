@@ -48,7 +48,7 @@ describe('hprose', function(){
                 'Thursday': 'Thu',
                 'Friday': 'Fri',
                 'Saturday': 'Sat',
-                'Sunday': 'Sun',
+                'Sunday': 'Sun'
             };
             client.swapKeyAndValue(weeks, function(result, args) {
                 assert(result.Mon === 'Monday');
