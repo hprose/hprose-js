@@ -179,13 +179,13 @@
     else if (global.MessageChannel) {
         attachTo.setImmediate = polifill.messageChannel();
     }
-    // For non-IE10 modern browsers
-    else if (doc && 'postMessage' in global && 'addEventListener' in global) {
-        attachTo.setImmediate = polifill.postMessage();
-    }
-    // For IE 6–8
+    // For IE 6–9
     else if (doc && ('onreadystatechange' in doc.createElement('script'))) {
         attachTo.setImmediate = polifill.readyStateChange();
+    }
+    // For non-IE modern browsers
+    else if (doc && 'postMessage' in global && 'addEventListener' in global) {
+        attachTo.setImmediate = polifill.postMessage();
     }
     // For older browsers
     else {
