@@ -35,6 +35,7 @@
     // }
 
     var doc = global.document;
+    var MutationObserver = global.MutationObserver || global.WebKitMutationObserver || global.MozMutationOvserver;
     var polifill = {};
     var nextId = 1;
     var tasks = {};
@@ -67,7 +68,7 @@
         return nextId++;
     }
 
-    polifill.mutationObserver = function(MutationObserver) {
+    polifill.mutationObserver = function() {
         var queue = [],
             node = doc.createTextNode(''),
             observer = new MutationObserver(function (mutations) {
@@ -162,7 +163,6 @@
     // If supported, we should attach to the prototype of global, since that is where setTimeout et al. live.
     var attachTo = Object.getPrototypeOf && Object.getPrototypeOf(global);
     attachTo = (attachTo && attachTo.setTimeout ? attachTo : global);
-    var MutationObserver = global.MutationObserver || global.WebKitMutationObserver || global.MozMutationOvserver;
 
     // Don't get fooled by e.g. browserify environments.
     // For Node.js before 0.9
@@ -173,7 +173,7 @@
     }
     // For MutationObserver, where supported
     else if (doc && MutationObserver) {
-        attachTo.setImmediate = polifill.mutationObserver(MutationObserver);
+        attachTo.setImmediate = polifill.mutationObserver();
     }
     // For web workers, where supported
     else if (global.MessageChannel) {
