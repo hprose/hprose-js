@@ -73,26 +73,6 @@ function HproseStringOutputStream(str) {
     };
 }
 
-var HproseClassManager = (function () {
-    'use strict';
-    var classCache = {};
-    var aliasCache = new WeakMap();
-    var cm = {
-        register: function (cls, alias) {
-            aliasCache.set(cls, alias);
-            classCache[alias] = cls;
-        },
-        getClassAlias: function (cls) {
-            return aliasCache.get(cls);
-        },
-        getClass: function (alias) {
-            return classCache[alias];
-        }
-    };
-    cm.register(Object, 'Object');
-    return cm;
-})();
-
 var HproseRawReader, HproseReader, HproseWriter;
 (function (global) {
     'use strict';
