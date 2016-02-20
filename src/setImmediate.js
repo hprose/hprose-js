@@ -23,17 +23,6 @@
     'use strict';
     if (global.setImmediate) return;
 
-    // // @see http://codeforhire.com/2013/09/21/setimmediate-and-messagechannel-broken-on-internet-explorer-10/
-    // var notUseNative = (global.navigator && /Trident/.test(global.navigator.userAgent));
-    //
-    // if (!notUseNative && (global.msSetImmediate || global.setImmediate)) {
-    //     if (!global.setImmediate) {
-    //         global.setImmediate = global.msSetImmediate;
-    //         global.clearImmediate = global.msClearImmediate;
-    //     }
-    //     return;
-    // }
-
     var doc = global.document;
     var MutationObserver = global.MutationObserver || global.WebKitMutationObserver || global.MozMutationOvserver;
     var polifill = {};
@@ -71,7 +60,7 @@
     polifill.mutationObserver = function() {
         var queue = [],
             node = doc.createTextNode(''),
-            observer = new MutationObserver(function (mutations) {
+            observer = new MutationObserver(function() {
                 while (queue.length > 0) {
                     run(queue.shift());
                 }
@@ -110,20 +99,18 @@
     };
 
     polifill.postMessage = function() {
-        var queue = [],
-            iframe = doc.createElement('iframe');
-            iframe.style.display = 'none';
-            doc.documentElement.appendChild(iframe);
-
+        var iframe = doc.createElement('iframe');
+        iframe.style.display = 'none';
+        doc.documentElement.appendChild(iframe);
         var iwin = iframe.contentWindow;
-            iwin.document.write('<script>window.onmessage=function(){parent.postMessage(1, "*");};</script>');
-            iwin.document.close();
-
-            window.addEventListener('message', function () {
-                while (queue.length > 0) {
-                    run(queue.shift());
-                }
-            });
+        iwin.document.write('<script>window.onmessage=function(){parent.postMessage(1, "*");};</script>');
+        iwin.document.close();
+        var queue = [];
+        window.addEventListener('message', function() {
+            while (queue.length > 0) {
+                run(queue.shift());
+            }
+        });
         return function() {
             var handleId = create(arguments);
             queue.push(handleId);
@@ -192,10 +179,7 @@
         attachTo.setImmediate = polifill.setTimeout();
     }
 
-    attachTo.msSetImmediate = attachTo.setImmediate;
-
     attachTo.clearImmediate = clear;
-    attachTo.msClearImmediate = clear;
 }(function() {
     return this || (1, eval)('this');
 }()));
