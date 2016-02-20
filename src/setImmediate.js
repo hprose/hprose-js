@@ -54,7 +54,8 @@
         if (lock) {
             // Delay by doing a setTimeout. setImmediate was tried instead, but in Firefox 7 it generated a "too much recursion" error.
             global.setTimeout(wrap(run, handleId), 0);
-        } else {
+        }
+        else {
             var task = tasks[handleId];
             if (task) {
                 lock = true;
@@ -111,7 +112,8 @@
         if (global.addEventListener) {
             global.addEventListener('message', onGlobalMessage, false);
 
-        } else {
+        }
+        else {
             global.attachEvent('onmessage', onGlobalMessage);
         }
 
@@ -169,26 +171,28 @@
 
     if (notUseNative) {
         attachTo.setImmediate = polifill.setTimeout();
-
+    }
     // Don't get fooled by e.g. browserify environments.
     // For Node.js before 0.9
-    } else if ({}.toString.call(global.process) === '[object process]') {
+    else if (global.process !== undefined &&
+            {}.toString.call(global.process) === '[object process]' &&
+            !global.process.browser) {
         attachTo.setImmediate = polifill.nextTick();
-
+    }
     // For non-IE10 modern browsers
-    } else if (canUsePostMessage()) {
-        attachTo.setImmediate = polifill.postMessage();
-
+    // else if (canUsePostMessage()) {
+    //     attachTo.setImmediate = polifill.postMessage();
+    // }
     // For web workers, where supported
-    } else if (global.MessageChannel) {
+    else if (global.MessageChannel) {
         attachTo.setImmediate = polifill.messageChannel();
-
+    }
     // For IE 6–8
-    } else if (doc && ('onreadystatechange' in doc.createElement('script'))) {
+    else if (doc && ('onreadystatechange' in doc.createElement('script'))) {
         attachTo.setImmediate = polifill.readyStateChange();
-
+    }
     // For older browsers
-    } else {
+    else {
         attachTo.setImmediate = polifill.setTimeout();
     }
 
