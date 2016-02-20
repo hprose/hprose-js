@@ -2184,7 +2184,11 @@ function checkStrict() {
     return (this === undefined);
 }
 
-if (checkStrict()) {
+function checkSloppy() {
+    return (this === global);
+}
+
+if (checkStrict() && checkSloppy()) {
     describe("2.2.5 `onFulfilled` and `onRejected` must be called as functions (i.e. with no `this` value).", function () {
         describe("strict mode", function () {
             specify("fulfilled", function (done) {
@@ -3512,13 +3516,13 @@ describe("2.3.3: Otherwise, if `x` is an object or function,", function () {
                         savedResolvePromise(dummy);
                         savedRejectPromise(dummy);
                         savedRejectPromise(dummy);
-                    }, 50);
+                    }, 100);
 
                     setTimeout(function () {
                         assert.strictEqual(timesFulfilled, 1);
                         assert.strictEqual(timesRejected, 0);
                         done();
-                    }, 100);
+                    }, 200);
                 });
             });
         });
