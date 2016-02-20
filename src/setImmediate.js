@@ -171,6 +171,10 @@
         !global.process.browser) {
         attachTo.setImmediate = polifill.nextTick();
     }
+    // For IE 6–9
+    else if (doc && ('onreadystatechange' in doc.createElement('script'))) {
+        attachTo.setImmediate = polifill.readyStateChange();
+    }
     // For MutationObserver, where supported
     else if (doc && MutationObserver) {
         attachTo.setImmediate = polifill.mutationObserver();
@@ -178,10 +182,6 @@
     // For web workers, where supported
     else if (global.MessageChannel) {
         attachTo.setImmediate = polifill.messageChannel();
-    }
-    // For IE 6–9
-    else if (doc && ('onreadystatechange' in doc.createElement('script'))) {
-        attachTo.setImmediate = polifill.readyStateChange();
     }
     // For non-IE modern browsers
     else if (doc && 'postMessage' in global && 'addEventListener' in global) {
