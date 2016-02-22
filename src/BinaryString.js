@@ -38,7 +38,19 @@
         }
     }
 
-    BinaryString.prototype = createObject(String.prototype);
+    var methods = {};
+
+    ['quote', 'substring', 'toLowerCase', 'toUpperCase',
+     'charAt', 'charCodeAt', 'indexOf', 'lastIndexOf',
+     'include', 'startsWith', 'endsWith', 'repeat',
+     'trim', 'trimLeft', 'trimRight',
+     'toLocaleLowerCase', 'toLocaleUpperCase',
+     'match', 'search', 'replace', 'split',
+     'substr', 'concat', 'slice'].forEach(function(name) {
+         methods[name] = { value: String.prototype[name] };
+    });
+
+    BinaryString.prototype = createObject(null, methods);
     BinaryString.prototype.constructor = BinaryString;
 
     global.hprose.BinaryString = BinaryString;

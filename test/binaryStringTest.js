@@ -34,12 +34,7 @@ describe('BinaryString', function(){
         var bs = new BinaryString("Hello World");
         assert(bs.length === 11);
     });
-    it('prototype test', function() {
-        var bs = new BinaryString("Hello World");
-        assert(bs instanceof BinaryString);
-        assert(bs instanceof String);
-    });
-    it('prototype method test', function() {
+    it('method of string test', function() {
         var bs = new BinaryString("Hello World");
         assert(bs.substr(0, 5) === "Hello");
     });

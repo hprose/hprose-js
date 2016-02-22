@@ -13,7 +13,7 @@
  *                                                        *
  * Polyfill for JavaScript.                               *
  *                                                        *
- * LastModified: Feb 20, 2016                             *
+ * LastModified: Feb 22, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -269,6 +269,77 @@
         };
     }
     /* String */
+    if (!String.prototype.startsWith) {
+        String.prototype.startsWith = function(searchString, position){
+          position = position || 0;
+          return this.substr(position, searchString.length) === searchString;
+      };
+    }
+    if (!String.prototype.endsWith) {
+      String.prototype.endsWith = function(searchString, position) {
+          var subjectString = this.toString();
+          if (typeof position !== 'number' || !isFinite(position) || Math.floor(position) !== position || position > subjectString.length) {
+            position = subjectString.length;
+          }
+          position -= searchString.length;
+          var lastIndex = subjectString.indexOf(searchString, position);
+          return lastIndex !== -1 && lastIndex === position;
+      };
+    }
+    if (!String.prototype.includes) {
+        String.prototype.includes = function() {
+            if (typeof arguments[1] === "number") {
+                if (this.length < arguments[0].length + arguments[1].length) {
+                    return false;
+                }
+                else {
+                    return this.substr(arguments[1], arguments[0].length) === arguments[0];
+                }
+            }
+            else {
+                return String.prototype.indexOf.apply(this, arguments) !== -1;
+            }
+        };
+    }
+    if (!String.prototype.repeat) {
+        String.prototype.repeat = function(count) {
+            var str = this.toString();
+            count = +count;
+            if (count !== count) {
+                count = 0;
+            }
+            if (count < 0) {
+                throw new RangeError('repeat count must be non-negative');
+            }
+            if (count === Infinity) {
+                throw new RangeError('repeat count must be less than infinity');
+            }
+            count = Math.floor(count);
+            if (str.length === 0 || count === 0) {
+                return '';
+            }
+            // Ensuring count is a 31-bit integer allows us to heavily optimize the
+            // main part. But anyway, most current (August 2014) browsers can't handle
+            // strings 1 << 28 chars or longer, so:
+            if (str.length * count >= 1 << 28) {
+              throw new RangeError('repeat count must not overflow maximum string size');
+            }
+            var rpt = '';
+            for (;;) {
+                if ((count & 1) === 1) {
+                    rpt += str;
+                }
+                count >>>= 1;
+                if (count === 0) {
+                    break;
+                }
+                str += str;
+            }
+            // Could we try:
+            // return Array(count + 1).join(this);
+            return rpt;
+        };
+    }
     if (!String.prototype.trim) {
         String.prototype.trim = function() {
             return this.toString().replace(/^[\s\xa0]+|[\s\xa0]+$/g, '');
@@ -371,43 +442,33 @@
         "map",
         "some",
         "reduce",
-        "reduceRight",
+        "reduceRight"
     ]);
     genericMethods(String, [
-        "charAt",
-        "charCodeAt",
-        "concat",
-        "indexOf",
-        "lastIndexOf",
-        "localeCompare",
-        "match",
-        "quote",
-        "replace",
-        "search",
-        "slice",
-        "split",
-        "substr",
-        "substring",
-        "toLocaleLowerCase",
-        "toLocaleUpperCase",
-        "toLowerCase",
-        "toUpperCase",
-        "trim",
-        "trimLeft",
-        "trimRight",
-        "anchor",
-        "big",
-        "blink",
-        "bold",
-        "fixed",
-        "fontcolor",
-        "fontsize",
-        "italics",
-        "link",
-        "small",
-        "strike",
-        "sub",
-        "sup",
+        'quote',
+        'substring',
+        'toLowerCase',
+        'toUpperCase',
+        'charAt',
+        'charCodeAt',
+        'indexOf',
+        'lastIndexOf',
+        'include',
+        'startsWith',
+        'endsWith',
+        'repeat',
+        'trim',
+        'trimLeft',
+        'trimRight',
+        'toLocaleLowerCase',
+        'toLocaleUpperCase',
+        'match',
+        'search',
+        'replace',
+        'split',
+        'substr',
+        'concat',
+        'slice'
     ]);
 }(function() {
     return this || (1, eval)('this');

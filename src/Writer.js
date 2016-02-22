@@ -195,10 +195,10 @@
 
     function writeDouble(writer, n) {
         var stream = writer.stream;
-        if (isNaN(n)) {
+        if (n !== n) {
             stream.write(Tags.TagNaN);
         }
-        else if (isFinite(n)) {
+        else if (n !== Infinity && n !== -Infinity) {
             stream.write(Tags.TagDouble);
             stream.write(n);
             stream.write(Tags.TagSemicolon);
