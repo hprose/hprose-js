@@ -51,6 +51,9 @@ module.exports = function (grunt) {
     browserName: 'iphone',
     version: '6.0'
   }, {
+    browserName: 'iphone',
+    version: '5.1'
+  }, {
     browserName: 'chrome',
     platform: 'Linux'
   }, {
