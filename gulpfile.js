@@ -16,6 +16,7 @@ gulp.task('compress', ['clear'], function() {
                      'src/TimeoutError.js',
                      'src/setImmediate.js',
                      'src/Future.js',
+                     'src/StringIO.js',
                      'src/Tags.js',
                      'src/ClassManager.js',
                      'src/hproseIO.js',
