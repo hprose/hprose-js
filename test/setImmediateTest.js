@@ -9,16 +9,15 @@
 
 /**********************************************************\
  *                                                        *
- * serializeTest.js                                       *
+ * setImmediateTest.js                                    *
  *                                                        *
- * hprose serialize test for JavaScript.                  *
+ * setImmediate test for JavaScript.                      *
  *                                                        *
- * LastModified: Feb 19, 2016                             *
+ * LastModified: Feb 21, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-/*global HproseFormatter, HproseClassManager */
 /*jshint eqeqeq:true, devel:true */
 
 describe('setImmediate', function(){

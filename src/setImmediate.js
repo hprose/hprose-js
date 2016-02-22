@@ -13,7 +13,7 @@
  *                                                        *
  * setImmediate for JavaScript.                           *
  *                                                        *
- * LastModified: Feb 20, 2016                             *
+ * LastModified: Feb 21, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -30,7 +30,7 @@
     var tasks = {};
 
     function wrap(handler) {
-        var args = [].slice.call(arguments, 1);
+        var args = Array.prototype.slice.call(arguments, 1);
         return function() {
             handler.apply(undefined, args);
         };
@@ -154,7 +154,7 @@
     // Don't get fooled by e.g. browserify environments.
     // For Node.js before 0.9
     if (typeof(global.process) !== 'undefined' &&
-        {}.toString.call(global.process) === '[object process]' &&
+        Object.prototype.toString.call(global.process) === '[object process]' &&
         !global.process.browser) {
         attachTo.setImmediate = polifill.nextTick();
     }
