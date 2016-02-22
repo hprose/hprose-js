@@ -13,7 +13,7 @@
  *                                                        *
  * Harmony Maps for JavaScript.                           *
  *                                                        *
- * LastModified: Feb 22, 2016                             *
+ * LastModified: Feb 23, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -53,7 +53,7 @@
                 return baseValueOf.apply(this, arguments);
             }
         };
-        if ('defineProperty' in Object) {
+        if (hasObject_create && 'defineProperty' in Object) {
             Object.defineProperty(obj, 'valueOf', {
                 value: valueOf,
                 writable: true,
