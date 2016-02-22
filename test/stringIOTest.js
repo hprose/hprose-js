@@ -267,5 +267,28 @@ describe('StringIO', function(){
         s.trunc();
         assert(s.toString() === "World Hello");
     });
-
+    it('utf8Encode() test', function() {
+        assert(StringIO.utf8Encode("Hello World") === "Hello World");
+        assert(StringIO.utf8Encode("你好") === "\xE4\xBD\xA0\xE5\xA5\xBD");
+    });
+    it('utf8Decode() test', function() {
+        assert(StringIO.utf8Decode("Hello World") === "Hello World");
+        assert(StringIO.utf8Decode("\xE4\xBD\xA0\xE5\xA5\xBD") === "你好");
+    });
+    it('utf8Length() test', function() {
+        assert(StringIO.utf8Length("Hello World") === 11);
+        assert(StringIO.utf8Length("你好") === 6);
+        assert(StringIO.utf8Length("Hello World, 你好") === 19);
+    });
+    it('utf16Length() test', function() {
+        assert(StringIO.utf16Length("Hello World") === 11);
+        assert(StringIO.utf16Length("\xE4\xBD\xA0\xE5\xA5\xBD") === 2);
+        assert(StringIO.utf16Length("Hello World, \xE4\xBD\xA0\xE5\xA5\xBD") === 15);
+    });
+    it('isUTF8() test', function() {
+        assert(StringIO.isUTF8("Hello World"));
+        assert(StringIO.isUTF8("\xE4\xBD\xA0\xE5\xA5\xBD"));
+        assert(!StringIO.isUTF8("你好"));
+        assert(!StringIO.isUTF8("\xE4\xBDHello\xA0\xE5\xA5\xBD"));
+    });
 });

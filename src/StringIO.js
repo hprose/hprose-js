@@ -241,7 +241,7 @@
     // s is an UTF16 encode string
     function utf8Length(s) {
         var n = s.length;
-        if (/^[\x00-\x7f]*$/.test(str)) {
+        if (/^[\x00-\x7f]*$/.test(s)) {
             return n;
         }
         var length = 0;
@@ -308,7 +308,7 @@
                 }
                 break;
             case 15:
-                if (i + 2 < len) {
+                if (i + 2 < n) {
                     var rune = (((unit & 0x07) << 18) |
                                 ((bs.charCodeAt(i++) & 0x3F) << 12) |
                                 ((bs.charCodeAt(i++) & 0x3F) << 6) |
@@ -329,6 +329,63 @@
             }
         }
         return length;
+    }
+
+    function isUTF8(bs) {
+        if (/^[\x00-\x7f]*$/.test(bs)) {
+            return true;
+        }
+        if (!(/^[\x00-\xff]*$/.test(bs))) {
+            return false;
+        }
+        for (var i = 0, n = bs.length; i < n; ++i) {
+            var unit = bs.charCodeAt(i);
+            switch (unit >> 4) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+                break;
+            case 12:
+            case 13:
+                if (i < n) {
+                    ++i;
+                }
+                else {
+                    return false;
+                }
+                break;
+            case 14:
+                if (i + 1 < n) {
+                    i += 2;
+                }
+                else {
+                    return false;
+                }
+                break;
+            case 15:
+                if (i + 2 < n) {
+                    var rune = (((unit & 0x07) << 18) |
+                                ((bs.charCodeAt(i++) & 0x3F) << 12) |
+                                ((bs.charCodeAt(i++) & 0x3F) << 6) |
+                                (bs.charCodeAt(i++) & 0x3F)) - 0x10000;
+                    if (!(0 <= rune && rune <= 0xFFFFF)) {
+                        return false;
+                    }
+                }
+                else {
+                    return false;
+                }
+                break;
+            default:
+                return false;
+            }
+        }
+        return true;
     }
 
     function StringIO() {
@@ -568,7 +625,8 @@
         utf8Encode: { value: utf8Encode },
         utf8Decode: { value: utf8Decode },
         utf8Length: { value: utf8Length },
-        utf16Length: { value: utf16Length }
+        utf16Length: { value: utf16Length },
+        isUTF8: { value: isUTF8 }
     });
 
     global.hprose.StringIO = StringIO;
