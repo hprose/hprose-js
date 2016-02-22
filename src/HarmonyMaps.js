@@ -13,7 +13,7 @@
  *                                                        *
  * Harmony Maps for JavaScript.                           *
  *                                                        *
- * LastModified: Feb 19, 2016                             *
+ * LastModified: Feb 22, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -42,36 +42,27 @@
     var reDefineValueOf = function (obj) {
         var privates = createNPO();
         var baseValueOf = obj.valueOf;
-        if (hasObject_create) {
+        var valueOf = function (namespace, n) {
+            if ((this === obj) &&
+                (n in namespaces) &&
+                (namespaces[n] === namespace)) {
+                if (!(n in privates)) privates[n] = createNPO();
+                return privates[n];
+            }
+            else {
+                return baseValueOf.apply(this, arguments);
+            }
+        };
+        if ('defineProperty' in Object) {
             Object.defineProperty(obj, 'valueOf', {
-                value: function (namespace, n) {
-                        if ((this === obj) &&
-                            (n in namespaces) &&
-                            (namespaces[n] === namespace)) {
-                            if (!(n in privates)) privates[n] = createNPO();
-                            return privates[n];
-                        }
-                        else {
-                            return baseValueOf.apply(this, arguments);
-                        }
-                    },
+                value: valueOf,
                 writable: true,
                 configurable: true,
                 enumerable: false
             });
         }
         else {
-            obj.valueOf = function (namespace, n) {
-                if ((this === obj) &&
-                    (n in namespaces) &&
-                    (namespaces[n] === namespace)) {
-                    if (!(n in privates)) privates[n] = createNPO();
-                    return privates[n];
-                }
-                else {
-                    return baseValueOf.apply(this, arguments);
-                }
-            };
+            obj.valueOf = valueOf;
         }
     };
 
@@ -197,10 +188,10 @@
             var stringMap = function () {
                 var map = {};
                 return {
-                    get: function (key) { return map['str_' + key]; },
-                    set: function (key, value) { map['str_' + key] = value; },
-                    has: function (key) { return ('str_' + key) in map; },
-                    'delete': function (key) { return delete map['str_' + key]; },
+                    get: function (key) { return map['!' + key]; },
+                    set: function (key, value) { map['!' + key] = value; },
+                    has: function (key) { return ('!' + key) in map; },
+                    'delete': function (key) { return delete map['!' + key]; },
                     clear: function () { map = {}; }
                 };
             };
@@ -208,8 +199,7 @@
         global.Map = function Map() {
             var map = {
                 'number': scalarMap(),
-                'string': scalarMap(),
-                //'string': hasObject_create ? scalarMap() : stringMap(),
+                'string': hasObject_create ? scalarMap() : stringMap(),
                 'boolean': scalarMap(),
                 'object': objectMap(),
                 'function': objectMap(),
