@@ -30,7 +30,12 @@
             defineProperties(this, {
                 length: { value: bs.length },
                 toString: { value: function() { return bs; } },
-                valueOf: { value: function() { return bs; } }
+                valueOf: {
+                    value: function() { return bs; },
+                    writable: true,
+                    configurable: true,
+                    enumerable: false
+                }
             });
         }
         else {
