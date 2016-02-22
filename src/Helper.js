@@ -13,7 +13,7 @@
  *                                                        *
  * Polyfill for JavaScript.                               *
  *                                                        *
- * LastModified: Feb 20, 2016                             *
+ * LastModified: Feb 22, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -31,6 +31,19 @@
 
     var defineProperties = (typeof Object.defineProperties !== 'function' ?
         function(obj, properties) {
+            var buildinMethod = ['toString',
+                                 'toLocaleString',
+                                 'valueOf',
+                                 'hasOwnProperty',
+                                 'isPrototypeOf',
+                                 'propertyIsEnumerable',
+                                 'constructor'];
+            buildinMethod.forEach(function(name) {
+                var prop = properties[name];
+                if ('value' in prop) {
+                    obj[name] = prop.value;
+                }
+            });
             for (var name in properties) {
                 var prop = properties[name];
                 obj[name] = undefined;
