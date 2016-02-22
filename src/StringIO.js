@@ -13,7 +13,7 @@
  *                                                        *
  * hprose StringIO for JavaScript.                        *
  *                                                        *
- * LastModified: Feb 21, 2016                             *
+ * LastModified: Feb 22, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -21,6 +21,8 @@
 /* jshint -W067 */
 (function (global, undefined) {
     'use strict';
+
+    var defineProperties = global.hprose.defineProperties;
 
     // i is a int32 number
     function int32BE(i) {
@@ -406,8 +408,6 @@
         }
         this.mark();
     }
-
-    var defineProperties = global.hprose.defineProperties;
 
     defineProperties(StringIO.prototype, {
         _buffer: { writable: true },

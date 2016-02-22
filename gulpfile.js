@@ -16,14 +16,16 @@ gulp.task('compress', ['clear'], function() {
                      'src/TimeoutError.js',
                      'src/setImmediate.js',
                      'src/Future.js',
+                     'src/BinaryString.js',
                      'src/StringIO.js',
                      'src/Tags.js',
                      'src/ClassManager.js',
-                     'src/hproseIO.js',
+                     'src/Writer.js',
                      'src/ResultMode.js',
-                     'src/hproseHttpRequest.js',
-                     'src/hproseHttpClient.js',
-                     'src/JSONRPCClientFilter.js',
+                    //  'src/hproseIO.js',
+                    //  'src/hproseHttpRequest.js',
+                    //  'src/hproseHttpClient.js',
+                    //  'src/JSONRPCClientFilter.js',
                      'src/Loader.js'])
         .pipe(jshint())
         .pipe(jshint.reporter())
