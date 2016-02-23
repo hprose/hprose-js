@@ -236,6 +236,70 @@
     }
 
     // bs is an UTF8 encode binary string
+    // n is UTF16 length
+    function readUTF8(bs, n) {
+        if (n === undefined || n === null || (n < 0)) n = bs.length;
+        if (n === 0) return '';
+        if (/^[\x00-\x7f]*$/.test(bs)) {
+            if (n === bs.length) return bs;
+            return bs.substr(0, n);
+        }
+        if  (!(/^[\x00-\xff]*$/.test(bs))) {
+            throw new Error("The first argument must be an UTF8 encode binary string.");
+        }
+        var i = 0, off = 0;
+        for (var len = bs.length; i < n && off < len; i++) {
+            var unit = bs.charCodeAt(off++);
+            switch (unit >> 4) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+                break;
+            case 12:
+            case 13:
+                if (off < len) {
+                    ++off;
+                }
+                else {
+                    throw new Error('Unfinished UTF-8 octet sequence');
+                }
+                break;
+            case 14:
+                if (off + 1 < len) {
+                    off += 2;
+                }
+                else {
+                    throw new Error('Unfinished UTF-8 octet sequence');
+                }
+                break;
+            case 15:
+                if (off + 2 < len) {
+                    var rune = (((unit & 0x07) << 18) |
+                                ((bs.charCodeAt(off++) & 0x3F) << 12) |
+                                ((bs.charCodeAt(off++) & 0x3F) << 6) |
+                                (bs.charCodeAt(off++) & 0x3F)) - 0x10000;
+                    if (0 <= rune && rune <= 0xFFFFF) {
+                        break;
+                    }
+                    throw new Error('Character outside valid Unicode range: 0x' + rune.toString(16));
+                }
+                else {
+                    throw new Error('Unfinished UTF-8 octet sequence');
+                }
+                break;
+            default:
+                throw new Error('Bad UTF-8 encoding 0x' + unit.toString(16));
+            }
+        }
+        return bs.substr(0, off);
+    }
+
+    // bs is an UTF8 encode binary string
     function utf8Decode(bs) {
         return readString(bs)[0];
     }
@@ -591,6 +655,13 @@
                 this._off = pos + 1;
             }
             return buf;
+        } },
+        // n is the UTF16 length
+        readUTF8: { value: function(n) {
+            var len = this.length();
+            var r = readUTF8(this._buffer[0].substring(this._off, len), n);
+            this._off += r.length;
+            return r;
         } },
         // n is the UTF16 length
         readUTF8AsUTF16: { value: function(n) {

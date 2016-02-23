@@ -236,6 +236,12 @@ describe('StringIO', function(){
         assert(s.readUntil(',') === "\xE4\xBD\xA0\xE5\xA5\xBD");
         assert(s.readUntil(',') === "你好");
     });
+    it('#readUTF8() test', function() {
+        var s = new StringIO();
+        s.writeUTF16AsUTF8("Hello World, ");
+        s.writeUTF16AsUTF8("你好");
+        assert(s.readUTF8(15) === "Hello World, \xE4\xBD\xA0\xE5\xA5\xBD");
+    });
     it('#readUTF8AsUTF16() test', function() {
         var s = new StringIO();
         s.writeUTF16AsUTF8("Hello World, ");
