@@ -12,12 +12,11 @@
  *                                                        *
  * hprose tags enum for JavaScript.                       *
  *                                                        *
- * LastModified: Feb 19, 2016                             *
+ * LastModified: Feb 23, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-/* jshint -W067 */
 (function (global) {
     'use strict';
     global.HproseTags =
@@ -60,6 +59,4 @@
         TagError        : 'E',
         TagEnd          : 'z'
     };
-}(function() {
-    return this || (1, eval)('this');
-}()));
+})(this);

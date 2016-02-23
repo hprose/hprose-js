@@ -13,12 +13,11 @@
  *                                                        *
  * Polyfill for JavaScript.                               *
  *                                                        *
- * LastModified: Feb 22, 2016                             *
+ * LastModified: Feb 23, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-/* jshint -W067 */
 (function (global, undefined) {
     'use strict';
     /* Function */
@@ -470,6 +469,4 @@
         'concat',
         'slice'
     ]);
-}(function() {
-    return this || (1, eval)('this');
-}()));
+})(this);

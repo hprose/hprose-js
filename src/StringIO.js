@@ -13,12 +13,11 @@
  *                                                        *
  * hprose StringIO for JavaScript.                        *
  *                                                        *
- * LastModified: Feb 22, 2016                             *
+ * LastModified: Feb 23, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-/* jshint -W067 */
 (function (global, undefined) {
     'use strict';
 
@@ -659,14 +658,14 @@
         // n is the UTF16 length
         readUTF8: { value: function(n) {
             var len = this.length();
-            var r = readUTF8(this._buffer[0].substring(this._off, len), n);
+            var r = readUTF8(this._buffer[0].substring(this._off, Math.min(this._off + n * 3, len)), n);
             this._off += r.length;
             return r;
         } },
         // n is the UTF16 length
         readUTF8AsUTF16: { value: function(n) {
             var len = this.length();
-            var r = readString(this._buffer[0].substring(this._off, len), n);
+            var r = readString(this._buffer[0].substring(this._off, Math.min(this._off + n * 3, len)), n);
             this._off += r[1];
             return r[0];
         } },
@@ -702,6 +701,4 @@
 
     global.hprose.StringIO = StringIO;
 
-}(function() {
-    return this || (1, eval)('this');
-}()));
+})(this);

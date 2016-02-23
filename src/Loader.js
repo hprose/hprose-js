@@ -13,12 +13,11 @@
  *                                                        *
  * hprose CommonJS/AMD/CMD loader for JavaScript.         *
  *                                                        *
- * LastModified: Feb 19, 2016                             *
+ * LastModified: Feb 23, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-/* jshint -W067 */
 (function (global) {
     'use strict';
 
@@ -61,6 +60,4 @@
     if (typeof module === 'object' && typeof module.exports === 'object') {
         module.exports = global.hprose;
     }
-}(function() {
-    return this || (1, eval)('this');
-}()));
+})(this);

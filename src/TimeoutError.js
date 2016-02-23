@@ -13,7 +13,7 @@
  *                                                        *
  * TimeoutError for JavaScript.                           *
  *                                                        *
- * LastModified: Jul 17, 2015                             *
+ * LastModified: Feb 23, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/

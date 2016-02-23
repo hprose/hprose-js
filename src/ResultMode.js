@@ -13,12 +13,11 @@
  *                                                        *
  * hprose ResultMode for JavaScript.                      *
  *                                                        *
- * LastModified: Feb 19, 2016                             *
+ * LastModified: Feb 23, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-/* jshint -W067 */
 (function (global) {
     'use strict';
 
@@ -34,6 +33,4 @@
     global.hprose.Raw           = global.hprose.ResultMode.Raw;
     global.hprose.RawWithEndTag = global.hprose.ResultMode.RawWithEndTag;
 
-}(function() {
-    return this || (1, eval)('this');
-}()));
+})(this);
