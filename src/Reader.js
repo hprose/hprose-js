@@ -514,7 +514,7 @@
     }
     function readUTF8CharWithoutTag(reader) {
         if (reader.binary) {
-            return reader.stream.readUTF8(1);
+            return reader.stream.readUTF8AsUTF16(1);
         }
         return reader.stream.read(1);
     }
@@ -523,7 +523,7 @@
         var count = readInt(stream, Tags.TagQuote);
         var s;
         if (reader.binary) {
-            s = stream.readUTF8(count);
+            s = stream.readUTF8AsUTF16(count);
         }
         else {
             s = stream.read(count);
