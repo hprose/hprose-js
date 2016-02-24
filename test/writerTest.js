@@ -13,12 +13,12 @@
  *                                                        *
  * hprose writer test for JavaScript.                     *
  *                                                        *
- * LastModified: Feb 22, 2016                             *
+ * LastModified: Feb 24, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-/*global HproseWriter, HproseClassManager */
+/*global hprose */
 /*jshint eqeqeq:true, devel:true */
 
 describe('hprose.Writer', function() {
@@ -299,7 +299,7 @@ describe('hprose.Writer', function() {
         });
         it('serialize(user) should return c4"User"3{s4"name"s3"age"s4"self"}o0{s2"张三"i28;r3;}', function(){
             function User() {}
-            HproseClassManager.register(User, 'User');
+            hprose.ClassManager.register(User, 'User');
             var user = new User();
             user.name = '张三';
             user.age = 28;
