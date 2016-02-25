@@ -22,6 +22,7 @@ gulp.task('compress', ['clear'], function() {
                      'src/ClassManager.js',
                      'src/Writer.js',
                      'src/Reader.js',
+                     'src/Formatter.js',
                      'src/ResultMode.js',
                     //  'src/hproseIO.js',
                     //  'src/hproseHttpRequest.js',

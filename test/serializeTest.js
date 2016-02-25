@@ -13,24 +13,25 @@
  *                                                        *
  * hprose serialize test for JavaScript.                  *
  *                                                        *
- * LastModified: Feb 18, 2016                             *
+ * LastModified: Feb 25, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-/*global HproseFormatter, HproseClassManager */
+/*global hprose */
 /*jshint eqeqeq:true, devel:true */
 
 describe('hprose', function(){
     describe('#serialize()', function(){
-        var serialize = HproseFormatter.serialize;
+        var BinaryString = hprose.BinaryString;
+        var serialize = hprose.Formatter.serialize;
         it('serialize(0) should return 0', function(){
             var result = serialize(0);
             assert(result === '0', 'serialize(0): ' + result);
         });
-        it('serialize(-0) should return i-0;', function(){
+        it('serialize(-0) should return 0', function(){
             var result = serialize(-0);
-            assert(result === 'i-0;', 'serialize(-0): ' + result);
+            assert(result === '0', 'serialize(-0): ' + result);
         });
         it('serialize(1) should return 1', function(){
             var result = serialize(1);
@@ -108,6 +109,10 @@ describe('hprose', function(){
             var result = serialize("我");
             assert(result === 'u我', 'serialize("我"): ' + result);
         });
+        it('serialize("我", true, true) should return u\\xE6\\x88\\x91', function(){
+            var result = serialize("我", true, true);
+            assert(result === 'u\xE6\x88\x91', 'serialize("我", true, true): ' + result);
+        });
         it('serialize("#") should return u#', function(){
             var result = serialize("#");
             assert(result === 'u#', 'serialize("#"): ' + result);
@@ -116,9 +121,17 @@ describe('hprose', function(){
             var result = serialize("Hello");
             assert(result === 's5"Hello"', 'serialize("Hello"): ' + result);
         });
+        it('serialize(new BinaryString("Hello"), true, true) should return b5"Hello"', function(){
+            var result = serialize(new BinaryString("Hello"), true, true);
+            assert(result === 'b5"Hello"', 'serialize(new BinaryString("Hello"), true, true): ' + result);
+        });
         it('serialize("我爱你") should return s3"我爱你"', function(){
             var result = serialize("我爱你");
             assert(result === 's3"我爱你"', 'serialize("我爱你"): ' + result);
+        });
+        it('serialize("你好", true, true) should return s2"\\xE4\\xBD\\xA0\\xE5\\xA5\\xBD"', function(){
+            var result = serialize("你好", true, true);
+            assert(result === 's2"\xE4\xBD\xA0\xE5\xA5\xBD"', 'serialize("你好", true, true): ' + result);
         });
         it('serialize([]) should return a{}', function(){
             var result = serialize([]);
@@ -158,7 +171,7 @@ describe('hprose', function(){
         });
         it('serialize(user) should return c4"User"3{s4"name"s3"age"s4"self"}o0{s2"张三"i28;r3;}', function(){
             function User() {}
-            HproseClassManager.register(User, 'User');
+            hprose.ClassManager.register(User, 'User');
             var user = new User();
             user.name = '张三';
             user.age = 28;

@@ -13,17 +13,17 @@
  *                                                        *
  * hprose unserialize test for JavaScript.                *
  *                                                        *
- * LastModified: Feb 18, 2016                             *
+ * LastModified: Feb 25, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-/*global HproseFormatter, HproseClassManager */
+/*global hprose */
 /*jshint eqeqeq:true, devel:true */
 
 describe('hprose', function(){
     describe('#unserialize()', function(){
-        var unserialize = HproseFormatter.unserialize;
+        var unserialize = hprose.Formatter.unserialize;
         it('unserialize("0") should return 0', function(){
             var result = unserialize('0');
             assert(result === 0);
@@ -176,7 +176,7 @@ describe('hprose', function(){
         });
         it('unserialize(\'c4"User"3{s4"name"s3"age"s4"self"}o0{s2"张三"i28;r3;}\') should return an User object', function(){
             function User() {}
-            HproseClassManager.register(User, 'User');
+            hprose.ClassManager.register(User, 'User');
             var result = unserialize('c4"User"3{s4"name"s3"age"s4"self"}o0{s2"张三"i28;r3;}');
             assert(result instanceof User);
             assert(result.name === "张三");
@@ -185,7 +185,7 @@ describe('hprose', function(){
         });
         it('unserialize(\'c4"User"3{s4"name"s3"age"s4"self"}o0{s2"张三"i28;r3;}\') should return an User object', function(){
             var result = unserialize('c4"User"3{s4"name"s3"age"s4"self"}o0{s2"张三"i28;r3;}');
-            assert(result instanceof HproseClassManager.getClass("User"));
+            assert(result instanceof hprose.ClassManager.getClass("User"));
             assert(result.name === "张三");
             assert(result.age === 28);
             assert(result.self === result);
