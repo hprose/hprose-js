@@ -25,6 +25,7 @@ gulp.task('compress', ['clear'], function() {
                      'src/Formatter.js',
                      'src/ResultMode.js',
                      'src/Client.js',
+                     'src/XHRClient.js',
                     //  'src/hproseIO.js',
                     //  'src/hproseHttpRequest.js',
                     //  'src/hproseHttpClient.js',
@@ -33,7 +34,7 @@ gulp.task('compress', ['clear'], function() {
         .pipe(jshint())
         .pipe(jshint.reporter())
         .pipe(concat('hprose.js'))
-        .pipe(uglify())
+        //.pipe(uglify())
         .pipe(gulp.dest('dist'));
 });
 

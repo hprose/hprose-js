@@ -57,7 +57,6 @@
             _lock                   = false,
             _tasks                  = [],
             _useHarmonyMap          = false,
-            _onerror                = noop,
             _filters                = [],
             _batch                  = false,
             _batches                = [],
@@ -342,8 +341,8 @@
                 if (context.onerror) {
                     context.onerror(name, error);
                 }
-                else {
-                    _onerror(name, error);
+                else if (self.onerror) {
+                    self.onerror(name, error);
                 }
                 reject(error);
             }
@@ -356,7 +355,7 @@
             var request = encode(name, args, context);
             request.write(Tags.TagEnd);
             return Future.promise(function(resolve, reject) {
-                sendAndReceive(request.bytes, context, function(response) {
+                sendAndReceive(request.toString(), context, function(response) {
                     if (context.oneway) {
                         resolve();
                         return;
@@ -401,6 +400,7 @@
                     catch (e) {
                         error = e;
                     }
+                    console.log(error);
                     if (error) {
                         reject(error);
                     }
@@ -648,14 +648,6 @@
             return promise;
         }
 
-        function getOnError() {
-            return _onerror;
-        }
-        function setOnError(value) {
-            if (typeof(value) === s_function) {
-                _onerror = value;
-            }
-        }
         function getUri() {
             return _uri;
         }
@@ -1074,8 +1066,7 @@
         });
         defineProperties(this, {
             '#': { value: autoId },
-            onError: { get: getOnError, set: setOnError },
-            onerror: { get: getOnError, set: setOnError },
+            onerror: { value: null, writable: true },
             uri: { get: getUri },
             id: { get: getId },
             binary: { get: getBinary, set: setBinary },

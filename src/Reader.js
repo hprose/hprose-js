@@ -419,10 +419,10 @@
             if (tag === Tags.TagPoint) {
                 millisecond = parseInt(stream.read(3), 10);
                 tag = stream.readChar();
-                if ((tag >= 48) && (tag <= 57)) {
+                if ((tag >= '0') && (tag <= '9')) {
                     stream.skip(2);
                     tag = stream.readChar();
-                    if ((tag >= 48) && (tag <= 57)) {
+                    if ((tag >= '0') && (tag <= '9')) {
                         stream.skip(2);
                         tag = stream.readChar();
                     }
@@ -464,10 +464,10 @@
         if (tag === Tags.TagPoint) {
             millisecond = parseInt(stream.read(3), 10);
             tag = stream.readChar();
-            if ((tag >= 48) && (tag <= 57)) {
+            if ((tag >= '0') && (tag <= '9')) {
                 stream.skip(2);
                 tag = stream.readChar();
-                if ((tag >= 48) && (tag <= 57)) {
+                if ((tag >= '0') && (tag <= '9')) {
                     stream.skip(2);
                     tag = stream.readChar();
                 }
