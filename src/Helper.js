@@ -13,20 +13,13 @@
  *                                                        *
  * Polyfill for JavaScript.                               *
  *                                                        *
- * LastModified: Feb 23, 2016                             *
+ * LastModified: Feb 25, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
 (function (global, undefined) {
     'use strict';
-
-    function setterName(name) {
-        if ((name.length > 2) && (name.substr(0, 2) === "is")) {
-            return 'set' + name.substr(2);
-        }
-        return 'set' + name.charAt(0).toUpperCase() + name.substr(1);
-    }
 
     var defineProperties = (typeof Object.defineProperties !== 'function' ?
         function(obj, properties) {
@@ -50,11 +43,21 @@
                     obj[name] = prop.value;
                 }
                 else {
-                    if ('get' in prop) {
+                    if ('get' in prop && 'set' in prop) {
+                        obj[name] = (function(prop) {
+                            return function() {
+                                if (arguments.length === 0) {
+                                    return prop.get();
+                                }
+                                prop.set(arguments[0]);
+                            };
+                        })(prop);
+                    }
+                    else if ('get' in prop) {
                         obj[name] = prop.get;
                     }
-                    if ('set' in prop) {
-                        obj[setterName(name)] = prop.set;
+                    else if ('set' in prop) {
+                        obj[name] = prop.set;
                     }
                 }
             }
@@ -63,11 +66,21 @@
         function(obj, properties) {
             for (var name in properties) {
                 var prop = properties[name];
-                if ('get' in prop) {
+                if ('get' in prop && 'set' in prop) {
+                    properties[name] = { value: (function(prop) {
+                        return function() {
+                            if (arguments.length === 0) {
+                                return prop.get();
+                            }
+                            prop.set(arguments[0]);
+                        };
+                    })(prop) };
+                }
+                else if ('get' in prop) {
                     properties[name] = { value: prop.get };
                 }
-                if ('set' in prop) {
-                    properties[setterName(name)] = { value: prop.set };
+                else if ('set' in prop) {
+                    properties[name] = { value: prop.set };
                 }
             }
             Object.defineProperties(obj, properties);
@@ -95,11 +108,21 @@
             if (properties) {
                 for (var name in properties) {
                     var prop = properties[name];
-                    if ('get' in prop) {
+                    if ('get' in prop && 'set' in prop) {
+                        properties[name] = { value: (function(prop) {
+                            return function() {
+                                if (arguments.length === 0) {
+                                    return prop.get();
+                                }
+                                prop.set(arguments[0]);
+                            };
+                        })(prop) };
+                    }
+                    else if ('get' in prop) {
                         properties[name] = { value: prop.get };
                     }
-                    if ('set' in prop) {
-                        properties[setterName(name)] = { value: prop.set };
+                    else if ('set' in prop) {
+                        properties[name] = { value: prop.set };
                     }
                 }
                 return Object.create(prototype, properties);
