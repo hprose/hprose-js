@@ -23,9 +23,9 @@
 
 // some times when the network can't work, this test will fail.
 describe('hprose', function(){
-    describe('hprose.XHRClient', function(){
+    describe('hprose.HttpClient', function(){
         var methodList = ['hello', 'sum', 'swapKeyAndValue', 'getUserList'];
-        var client = new hprose.XHRClient('http://hprose.com/example/', methodList);
+        var client = new hprose.HttpClient('http://hprose.com/example/', methodList);
         client.onerror = function(name, err) {
             assert(false, name + ':' + err);
         };

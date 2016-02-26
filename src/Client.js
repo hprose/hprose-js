@@ -400,7 +400,6 @@
                     catch (e) {
                         error = e;
                     }
-                    console.log(error);
                     if (error) {
                         reject(error);
                     }

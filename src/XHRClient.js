@@ -104,10 +104,6 @@
             xhr.onerror = function() {
                 future.reject(new Error('error'));
             };
-            if (xhr.upload !== undefined) {
-                xhr.upload.onprogress = self.onRequestProgress || self.onprogress || noop;
-            }
-            xhr.onprogress = self.onResponseProgress || self.onprogress || noop;
             xhr.send(request);
             return xhr;
         }
@@ -140,40 +136,10 @@
             }
         }
         defineProperties(this, {
-            onprogress: { value: null, writable: true },
-            onRequestProgress: { value: null, writable: true },
-            onResponseProgress: { value: null, writable: true },
             setHeader: { value: setHeader },
             sendAndReceive: { value: sendAndReceive }
         });
     }
-
-    function checkuri(uri) {
-        var parser = document.createElement('a');
-        parser.href = uri;
-        if (parser.protocol === 'http:' ||
-            parser.protocol === 'https:') {
-            return;
-        }
-        throw new Error('This client desn\'t support ' + parser.protocol + ' scheme.');
-    }
-
-    function create(uri, functions, settings) {
-        if (typeof uri === 'string') {
-            checkuri(uri);
-        }
-        else if (Array.isArray(uri)) {
-            uri.forEach(function(uri) { checkuri(uri); });
-        }
-        else {
-            return new Error('You should set server uri first!');
-        }
-        return new XHRClient(uri, functions, settings);
-    }
-
-    defineProperties(XHRClient, {
-        'create': { value: create }
-    });
 
     global.hprose.XHRClient = XHRClient;
 
