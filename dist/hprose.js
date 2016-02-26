@@ -1301,7 +1301,7 @@ if (typeof TimeoutError !== 'function') {
  *                                                        *
  * hprose Future for JavaScript.                          *
  *                                                        *
- * LastModified: Feb 23, 2016                             *
+ * LastModified: Feb 26, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -1326,7 +1326,7 @@ if (typeof TimeoutError !== 'function') {
         defineProperties(self, {
             _subscribers: { value: [] },
             resolve: { value: this.resolve.bind(self) },
-            reject: { value: this.reject.bind(self) },
+            reject: { value: this.reject.bind(self) }
         });
         if (typeof computation === 'function') {
             setImmediate(function() {
@@ -1917,7 +1917,7 @@ if (typeof TimeoutError !== 'function') {
         return createObject(null, {
             promise: { value: self },
             resolve: { value: self.resolve },
-            reject: { value: self.reject },
+            reject: { value: self.reject }
         });
     };
 
@@ -4150,7 +4150,7 @@ if (typeof TimeoutError !== 'function') {
 
     global.hprose.Formatter = createObject(null, {
         serialize: { value: serialize },
-        unserialize: { value: unserialize },
+        unserialize: { value: unserialize }
     });
 
     global.hprose.serialize = serialize;

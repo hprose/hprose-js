@@ -43,7 +43,7 @@
 
     global.hprose.Formatter = createObject(null, {
         serialize: { value: serialize },
-        unserialize: { value: unserialize },
+        unserialize: { value: unserialize }
     });
 
     global.hprose.serialize = serialize;
