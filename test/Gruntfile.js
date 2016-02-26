@@ -188,7 +188,7 @@ module.exports = function (grunt) {
           testname: 'hprose-js tests',
           throttled: 3,
           statusCheckAttempts: -1,
-          maxRetries: 3,
+          pollInterval: 5000,
           sauceConfig: {
             'video-upload-on-pass': false
           }
