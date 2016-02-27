@@ -37,6 +37,14 @@
     var TimeoutError = global.TimeoutError;
     var FlashHttpRequest = global.FlashHttpRequest;
 
+    var XMLHttpRequest = global.XMLHttpRequest;
+
+    if (typeof(plus) !== "undefined" &&
+        typeof(plus.net) !== "undefined" &&
+        typeof(plus.net.XMLHttpRequest) !== "undefined") {
+        XMLHttpRequest = plus.net.XMLHttpRequest;
+    }
+
     var localfile = (global.location !== undefined && global.location.protocol === 'file:');
     var nativeXHR = (typeof(XMLHttpRequest) !== 'undefined');
     var corsSupport = (!localfile && nativeXHR && 'withCredentials' in new XMLHttpRequest());
@@ -209,6 +217,26 @@
             return future;
         }
 
+        function apiPost(request, env) {
+            var future = new Future();
+            api.ajax({
+                url: self.uri(),
+                method: 'post',
+                data: { body: request },
+                timeout: env.timeout,
+                dataType: 'text',
+                headers: _header,
+                certificate: self.certificate
+            }, function(ret, err) {
+                if (ret) {
+                    future.resolve(ret.body);
+                }
+                else {
+                    future.reject(new Error(err.msg));
+                }
+            });
+        }
+
         function isCrossDomain() {
             if (global.location === undefined) {
                 return true;
@@ -228,7 +256,11 @@
             var fhr = (FlashHttpRequest.flashSupport() &&
                       !localfile && !corsSupport &&
                       (env.binary || isCrossDomain()));
-            var future = fhr ? fhrPost(request, env) : xhrPost(request, env);
+            var apicloud = (typeof(global.api) !== "undefined" &&
+                           typeof(global.api.ajax) !== "undefined");
+            var future = fhr ?      fhrPost(request, env) :
+                         apicloud ? apiPost(request, env) :
+                                    xhrPost(request, env);
             if (env.oneway) future.resolve();
             return future;
         }
@@ -244,6 +276,7 @@
             }
         }
         defineProperties(this, {
+            certificate: { value: null, writable: true },
             setHeader: { value: setHeader },
             sendAndReceive: { value: sendAndReceive }
         });
