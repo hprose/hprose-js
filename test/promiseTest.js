@@ -3520,9 +3520,8 @@ describe("2.3.3: Otherwise, if `x` is an object or function,", function () {
                     }, 100);
                 });
             });
-*/
-
         });
+*/
 
         describe("2.3.3.3.4: If calling `then` throws an exception `e`,", function () {
             describe("2.3.3.3.4.1: If `resolvePromise` or `rejectPromise` have been called, ignore it.", function () {
