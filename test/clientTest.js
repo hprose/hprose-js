@@ -24,7 +24,7 @@
 // some times when the network can't work, this test will fail.
 describe('hprose', function(){
     describe('hprose.HttpClient', function(){
-        var methodList = ['hello', 'sum', 'swapKeyAndValue', 'getUserList'];
+        var methodList = ['hello', 'sum', 'swapKeyAndValue', 'getUserList', 'print_r'];
         var client = new hprose.HttpClient('http://hprose.com/example/', methodList);
         client.onerror = function(name, err) {
             assert(false, name + ':' + err);
@@ -34,6 +34,17 @@ describe('hprose', function(){
                 assert(result === "Hello World");
                 done();
             });
+        });
+        it('print_r(binstr, true) should return binstr', function(done){
+            var a = [];
+            for (var i = 0; i < 256; i++) {
+                a.push(String.fromCharCode(i));
+            }
+            var bs = hprose.binary(a.join(''));
+            client.print_r(bs, true, function(result) {
+                assert(result.toString() === bs.toString());
+                done();
+            }, {binary: true});
         });
         it('sum(1,2,3,4,5) should return 15', function(done){
             client.sum(1,2,3,4,5, function(result) {

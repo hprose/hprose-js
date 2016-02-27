@@ -26,8 +26,6 @@ gulp.task('compress', ['clear'], function() {
                      'src/ResultMode.js',
                      'src/Client.js',
                      'src/FlashHttpRequest.js',
-                     'src/FHRClient.js',
-                     'src/XHRClient.js',
                      'src/HttpClient.js',
                     //  'src/hproseIO.js',
                     //  'src/hproseHttpRequest.js',
@@ -37,7 +35,7 @@ gulp.task('compress', ['clear'], function() {
         .pipe(jshint())
         .pipe(jshint.reporter())
         .pipe(concat('hprose.js'))
-        .pipe(uglify())
+        //.pipe(uglify())
         .pipe(gulp.dest('dist'));
 });
 
