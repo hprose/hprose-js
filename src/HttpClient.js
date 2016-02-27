@@ -225,7 +225,9 @@
         }
 
         function sendAndReceive(request, env) {
-            var fhr = (FlashHttpRequest.flashSupport && !localfile && !corsSupport && (env.binary || isCrossDomain()));
+            var fhr = (FlashHttpRequest.flashSupport() &&
+                      !localfile && !corsSupport &&
+                      (env.binary || isCrossDomain()));
             var future = fhr ? fhrPost(request, env) : xhrPost(request, env);
             if (env.oneway) future.resolve();
             return future;

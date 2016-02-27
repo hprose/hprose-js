@@ -30,8 +30,8 @@ describe('hprose', function(){
             assert(false, name + ':' + err);
         };
         it('hello("world") should return "Hello World"', function(done){
-            client.hello('World', function(result) {
-                assert(result === "Hello World");
+            client.hello('\\World', function(result) {
+                assert(result === "Hello \\World");
                 done();
             });
         });
