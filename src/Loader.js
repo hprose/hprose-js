@@ -13,7 +13,7 @@
  *                                                        *
  * hprose CommonJS/AMD/CMD loader for JavaScript.         *
  *                                                        *
- * LastModified: Feb 23, 2016                             *
+ * LastModified: Feb 27, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -21,7 +21,6 @@
 (function (global) {
     'use strict';
 
-/*
     global.hprose.common = {
         Completer: global.hprose.Completer,
         Future: global.hprose.Future,
@@ -29,7 +28,7 @@
     };
 
     global.hprose.io = {
-        BytesIO: global.hprose.BytesIO,
+        StringIO: global.hprose.StringIO,
         ClassManager: global.hprose.ClassManager,
         Tags: global.hprose.Tags,
         RawReader: global.hprose.RawReader,
@@ -40,14 +39,8 @@
 
     global.hprose.client = {
         Client: global.hprose.Client,
-        HttpClient: global.hprose.HttpClient,
-        WebSocketClient: global.hprose.WebSocketClient
+        HttpClient: global.hprose.HttpClient
     };
-
-    global.hprose.filter = {
-        JSONRPCClientFilter: global.hprose.JSONRPCClientFilter
-    };
-*/
 
     if (typeof define === 'function') {
         if (define.cmd) {

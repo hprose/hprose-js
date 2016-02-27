@@ -27,10 +27,6 @@ gulp.task('compress', ['clear'], function() {
                      'src/Client.js',
                      'src/FlashHttpRequest.js',
                      'src/HttpClient.js',
-                    //  'src/hproseIO.js',
-                    //  'src/hproseHttpRequest.js',
-                    //  'src/hproseHttpClient.js',
-                    //  'src/JSONRPCClientFilter.js',
                      'src/Loader.js'])
         .pipe(jshint())
         .pipe(jshint.reporter())
