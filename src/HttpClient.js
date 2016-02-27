@@ -235,6 +235,7 @@
                     future.reject(new Error(err.msg));
                 }
             });
+            return future;
         }
 
         function isCrossDomain() {
