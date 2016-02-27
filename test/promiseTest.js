@@ -2179,53 +2179,51 @@ var rejected = adapter.rejected;
 
 var dummy = { dummy: "dummy" }; // we fulfill or reject with this when we don't intend to test against it
 
-function checkStrict() {
+function strictThis() {
     "use strict";
-    return (this === undefined);
+    return this;
 }
 
-function checkSloppy() {
-    return (this === global);
+function sloppyThis() {
+    return this;
 }
 
-if (checkStrict() && checkSloppy()) {
-    describe("2.2.5 `onFulfilled` and `onRejected` must be called as functions (i.e. with no `this` value).", function () {
-        describe("strict mode", function () {
-            specify("fulfilled", function (done) {
-                resolved(dummy).then(function onFulfilled() {
-                    "use strict";
-                    assert.strictEqual(this, undefined);
-                    done();
-                });
-            });
-
-            specify("rejected", function (done) {
-                rejected(dummy).then(null, function onRejected() {
-                    "use strict";
-
-                    assert.strictEqual(this, undefined);
-                    done();
-                });
+describe("2.2.5 `onFulfilled` and `onRejected` must be called as functions (i.e. with no `this` value).", function () {
+    describe("strict mode", function () {
+        specify("fulfilled", function (done) {
+            resolved(dummy).then(function onFulfilled() {
+                "use strict";
+                assert.strictEqual(this, strictThis());
+                done();
             });
         });
 
-        describe("sloppy mode", function () {
-            specify("fulfilled", function (done) {
-                resolved(dummy).then(function onFulfilled() {
-                    assert.strictEqual(this, global);
-                    done();
-                });
-            });
+        specify("rejected", function (done) {
+            rejected(dummy).then(null, function onRejected() {
+                "use strict";
 
-            specify("rejected", function (done) {
-                rejected(dummy).then(null, function onRejected() {
-                    assert.strictEqual(this, global);
-                    done();
-                });
+                assert.strictEqual(this, strictThis());
+                done();
             });
         });
     });
-}
+
+    describe("sloppy mode", function () {
+        specify("fulfilled", function (done) {
+            resolved(dummy).then(function onFulfilled() {
+                assert.strictEqual(this, sloppyThis());
+                done();
+            });
+        });
+
+        specify("rejected", function (done) {
+            rejected(dummy).then(null, function onRejected() {
+                assert.strictEqual(this, sloppyThis());
+                done();
+            });
+        });
+    });
+});
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"assert":3}],19:[function(require,module,exports){
