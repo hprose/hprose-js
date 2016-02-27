@@ -5510,71 +5510,71 @@ if (typeof TimeoutError !== 'function') {
         }
     }
 
-    function detach() {
-        if (document.addEventListener) {
-            document.removeEventListener('DOMContentLoaded', completed, false);
-            global.removeEventListener('load', completed, false);
-
-        } else {
-            document.detachEvent('onreadystatechange', completed);
-            global.detachEvent('onload', completed);
-        }
-    }
-
-    function completed(event) {
-        if (document.addEventListener || event.type === 'load' || document.readyState === 'complete') {
-            detach();
-            setJsReady();
-        }
-    }
-
-    function init() {
-        if (document.readyState === 'complete') {
-            setTimeout(setJsReady, 0);
-        }
-        else if (document.addEventListener) {
-            document.addEventListener('DOMContentLoaded', completed, false);
-            global.addEventListener('load', completed, false);
-            if (/WebKit/i.test(navigator.userAgent)) {
-                var timer = setInterval( function () {
-                    if (/loaded|complete/.test(document.readyState)) {
-                        clearInterval(timer);
-                        completed();
-                    }
-                }, 10);
-            }
-        }
-        else if (document.attachEvent) {
-            document.attachEvent('onreadystatechange', completed);
-            global.attachEvent('onload', completed);
-            var top = false;
-            try {
-                top = window.frameElement === null && document.documentElement;
-            }
-            catch(e) {}
-            if (top && top.doScroll) {
-                (function doScrollCheck() {
-                    if (!jsReady) {
-                        try {
-                            top.doScroll('left');
-                        }
-                        catch(e) {
-                            return setTimeout(doScrollCheck, 15);
-                        }
-                        detach();
-                        setJsReady();
-                    }
-                })();
-            }
-        }
-        else if (/MSIE/i.test(navigator.userAgent) &&
-                /Windows CE/i.test(navigator.userAgent)) {
-            setJsReady();
-        }
-        else {
-            global.onload = setJsReady;
-        }
-    }
+    // function detach() {
+    //     if (document.addEventListener) {
+    //         document.removeEventListener('DOMContentLoaded', completed, false);
+    //         global.removeEventListener('load', completed, false);
+    //
+    //     } else {
+    //         document.detachEvent('onreadystatechange', completed);
+    //         global.detachEvent('onload', completed);
+    //     }
+    // }
+    //
+    // function completed(event) {
+    //     if (document.addEventListener || event.type === 'load' || document.readyState === 'complete') {
+    //         detach();
+    //         setJsReady();
+    //     }
+    // }
+    //
+    // function init() {
+    //     if (document.readyState === 'complete') {
+    //         setTimeout(setJsReady, 0);
+    //     }
+    //     else if (document.addEventListener) {
+    //         document.addEventListener('DOMContentLoaded', completed, false);
+    //         global.addEventListener('load', completed, false);
+    //         if (/WebKit/i.test(navigator.userAgent)) {
+    //             var timer = setInterval( function () {
+    //                 if (/loaded|complete/.test(document.readyState)) {
+    //                     clearInterval(timer);
+    //                     completed();
+    //                 }
+    //             }, 10);
+    //         }
+    //     }
+    //     else if (document.attachEvent) {
+    //         document.attachEvent('onreadystatechange', completed);
+    //         global.attachEvent('onload', completed);
+    //         var top = false;
+    //         try {
+    //             top = window.frameElement === null && document.documentElement;
+    //         }
+    //         catch(e) {}
+    //         if (top && top.doScroll) {
+    //             (function doScrollCheck() {
+    //                 if (!jsReady) {
+    //                     try {
+    //                         top.doScroll('left');
+    //                     }
+    //                     catch(e) {
+    //                         return setTimeout(doScrollCheck, 15);
+    //                     }
+    //                     detach();
+    //                     setJsReady();
+    //                 }
+    //             })();
+    //         }
+    //     }
+    //     else if (/MSIE/i.test(navigator.userAgent) &&
+    //             /Windows CE/i.test(navigator.userAgent)) {
+    //         setJsReady();
+    //     }
+    //     else {
+    //         global.onload = setJsReady;
+    //     }
+    // }
 
     function post(url, header, data, callbackid, timeout, binary) {
         if (swfReady) {
@@ -5639,8 +5639,8 @@ if (typeof TimeoutError !== 'function') {
 
     global.FlashHttpRequest = FlashHttpRequest;
 
-    init();
-    //setJsReady();
+    //init();
+    setJsReady();
 
 })(this);
 
@@ -5665,6 +5665,15 @@ if (typeof TimeoutError !== 'function') {
 
 (function (global, undefined) {
     'use strict';
+
+    var arrayLikeObjectArgumentsEnabled = true;
+
+    try {
+        String.fromCharCode.apply(String, new Uint8Array([1]));
+    }
+    catch (e) {
+        arrayLikeObjectArgumentsEnabled = false;
+    }
 
     var Client = global.hprose.Client;
     var Future = global.hprose.Future;
@@ -5728,21 +5737,46 @@ if (typeof TimeoutError !== 'function') {
         };
     }
 
-    function toBinaryString(charCodes) {
-        var n = charCodes.length;
-        if (n < 100000) {
-            return String.fromCharCode.apply(String, charCodes);
-        }
-        var remain = n & 0xFFFF;
-        var count = n >> 16;
-        var a = new Array(remain ? count + 1 : count);
-        for (var i = 0; i < count; ++i) {
-            a[i] = String.fromCharCode.apply(String, charCodes.subarray(i << 16, (i + 1) << 16));
-        }
-        if (remain) {
-            a[count] = String.fromCharCode.apply(String, charCodes.subarray(count << 16, n));
-        }
-        return a.join('');
+    var toBinaryString;
+    if (arrayLikeObjectArgumentsEnabled) {
+        toBinaryString = function(charCodes) {
+            var n = charCodes.length;
+            if (n < 100000) {
+                return String.fromCharCode.apply(String, charCodes);
+            }
+            var remain = n & 0xFFFF;
+            var count = n >> 16;
+            var a = new Array(remain ? count + 1 : count);
+            for (var i = 0; i < count; ++i) {
+                a[i] = String.fromCharCode.apply(String, charCodes.subarray(i << 16, (i + 1) << 16));
+            }
+            if (remain) {
+                a[count] = String.fromCharCode.apply(String, charCodes.subarray(count << 16, n));
+            }
+            return a.join('');
+        };
+    }
+    else {
+        toBinaryString = function(bytes) {
+            var n = bytes.length;
+            var charCodes = new Array(bytes.length);
+            for (var i = 0; i < n; ++i) {
+                charCodes[i] = bytes[i];
+            }
+            if (n < 100000) {
+                return String.fromCharCode.apply(String, charCodes);
+            }
+            var remain = n & 0xFFFF;
+            var count = n >> 16;
+            var a = new Array(remain ? count + 1 : count);
+            for (i = 0; i < count; ++i) {
+                a[i] = String.fromCharCode.apply(String, charCodes.slice(i << 16, (i + 1) << 16));
+            }
+            if (remain) {
+                a[count] = String.fromCharCode.apply(String, charCodes.slice(count << 16, n));
+            }
+            return a.join('');
+        };
     }
 
     function HttpClient(uri, functions, settings) {
@@ -5761,6 +5795,9 @@ if (typeof TimeoutError !== 'function') {
             }
             for (var name in _header) {
                 xhr.setRequestHeader(name, _header[name]);
+            }
+            if (!env.binary) {
+                xhr.setRequestHeader("Content-Type", "text/plain; charset=UTF-8");
             }
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
