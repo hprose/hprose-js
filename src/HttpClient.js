@@ -12,7 +12,7 @@
  *                                                        *
  * hprose http client for JavaScript.                     *
  *                                                        *
- * LastModified: Feb 27, 2016                             *
+ * LastModified: Feb 28, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -20,19 +20,12 @@
 (function (global, undefined) {
     'use strict';
 
-    var arrayLikeObjectArgumentsEnabled = true;
-
-    try {
-        String.fromCharCode.apply(String, new Uint8Array([1]));
-    }
-    catch (e) {
-        arrayLikeObjectArgumentsEnabled = false;
-    }
-
     var Client = global.hprose.Client;
     var Future = global.hprose.Future;
     var createObject = global.hprose.createObject;
     var defineProperties = global.hprose.defineProperties;
+    var toBinaryString = global.hprose.toBinaryString;
+    var toUint8Array = global.hprose.toUint8Array;
 
     var TimeoutError = global.TimeoutError;
     var FlashHttpRequest = global.FlashHttpRequest;
@@ -91,53 +84,8 @@
 
     if (nativeXHR && typeof(Uint8Array) !== 'undefined' && !XMLHttpRequest.prototype.sendAsBinary) {
         XMLHttpRequest.prototype.sendAsBinary = function(bs) {
-            var n = bs.length, data = new Uint8Array(n);
-            for (var i = 0; i < n; i++) {
-                data[i] = bs.charCodeAt(i) & 0xFF;
-            }
+            var data = toUint8Array(bs);
             this.send(ArrayBuffer.isView ? data : data.buffer);
-        };
-    }
-
-    var toBinaryString;
-    if (arrayLikeObjectArgumentsEnabled) {
-        toBinaryString = function(charCodes) {
-            var n = charCodes.length;
-            if (n < 100000) {
-                return String.fromCharCode.apply(String, charCodes);
-            }
-            var remain = n & 0xFFFF;
-            var count = n >> 16;
-            var a = new Array(remain ? count + 1 : count);
-            for (var i = 0; i < count; ++i) {
-                a[i] = String.fromCharCode.apply(String, charCodes.subarray(i << 16, (i + 1) << 16));
-            }
-            if (remain) {
-                a[count] = String.fromCharCode.apply(String, charCodes.subarray(count << 16, n));
-            }
-            return a.join('');
-        };
-    }
-    else {
-        toBinaryString = function(bytes) {
-            var n = bytes.length;
-            var charCodes = new Array(bytes.length);
-            for (var i = 0; i < n; ++i) {
-                charCodes[i] = bytes[i];
-            }
-            if (n < 100000) {
-                return String.fromCharCode.apply(String, charCodes);
-            }
-            var remain = n & 0xFFFF;
-            var count = n >> 16;
-            var a = new Array(remain ? count + 1 : count);
-            for (i = 0; i < count; ++i) {
-                a[i] = String.fromCharCode.apply(String, charCodes.slice(i << 16, (i + 1) << 16));
-            }
-            if (remain) {
-                a[count] = String.fromCharCode.apply(String, charCodes.slice(count << 16, n));
-            }
-            return a.join('');
         };
     }
 
