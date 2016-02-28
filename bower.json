@@ -51,7 +51,7 @@
         "dist/FlashHttpRequest.swf"
     ],
     "ignore": [
-        "test", "src", "*.md"
+        "example", "test", "src", "*.md"
     ],
     "license": "MIT"
 }

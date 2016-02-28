@@ -27,6 +27,7 @@ gulp.task('compress', ['clear'], function() {
                      'src/Client.js',
                      'src/FlashHttpRequest.js',
                      'src/HttpClient.js',
+                     'src/WebSocketClient.js',
                      'src/Loader.js'])
         .pipe(jshint())
         .pipe(jshint.reporter())
@@ -39,5 +40,6 @@ gulp.task('default', ['compress'], function() {
     return gulp.src(['src/CopyRight.js', 'dist/hprose.js'])
            .pipe(concat('hprose.js'))
            .pipe(gulp.dest('dist'))
+           .pipe(gulp.dest('example'))
            .pipe(gulp.dest('test'));
 });

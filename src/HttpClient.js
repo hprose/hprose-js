@@ -249,7 +249,7 @@
             uri.forEach(function(uri) { checkuri(uri); });
         }
         else {
-            return new Error('You should set server uri first!');
+            throw new Error('You should set server uri first!');
         }
         return new HttpClient(uri, functions, settings);
     }
