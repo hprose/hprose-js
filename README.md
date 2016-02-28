@@ -1,7 +1,17 @@
+<a href="https://promisesaplus.com/">
+    <img src="https://promisesaplus.com/assets/logo-small.png" alt="Promises/A+ logo"
+         title="Promises/A+ 1.1 compliant" align="right" />
+</a>
+<a href="http://hprose.com/">
+<img align="right" src="http://hprose.com/favicon-96x96.png" />
+</a>
 # Hprose for JavaScript
 
 [![Join the chat at https://gitter.im/hprose/hprose-js](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hprose/hprose-js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/hprose/hprose-js.svg?branch=master)](https://travis-ci.org/hprose/hprose-js)
+[![bower version](https://img.shields.io/bower/v/hprose-js.svg)](http://bower.io/search/?q=hprose-js)
+[![License](https://img.shields.io/github/license/hprose/hprose-js.svg)](http://opensource.org/licenses/MIT)
+
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/hprose-js.svg)](https://saucelabs.com/u/hprose-js)
 
 >---
@@ -62,12 +72,12 @@ This project is the implementation of Hprose for JavaScript.
 * Google Chrome on Android
 * Default Browser on Android
 * Internet Explorer on Windows Phone
+* Opera Mobile
 * Default Browser on WebOS
 * Default Browser on Blackberry
 * Default Browser on N9 MeeGo
 * Mozilla Firefox on N9 MeeGo
 * \*Default Browser on Symbian
-* Opera Mobile
 * \*Opera Mini
 * \*Pocket IE
 * ...
@@ -78,7 +88,7 @@ All of the above browsers (except asterisk marked) support cross-domain invoking
 
 You don't need use the javascript source files. You only need include `hprose.js` in your html.
 
-The file `hproseHttpRequest.swf` you can put it on anywhere, and then specify its load path by setting the `flashpath` attribute in the `script` tag. If you omit this attribute, the default path is current path.
+The file `FlashHttpRequest.swf` you can put it on anywhere, and then specify its load path by setting the `flashpath` attribute in the `script` tag. If you omit this attribute, the default path is current path.
 
 ### Exception Handling
 
@@ -93,7 +103,7 @@ For example:
 </head>
 <body>
 <script type="text/javascript">
-    var client = new HproseHttpClient("http://www.hprose.com/example/", ["hello"]);
+    var client = hprose.Client.create("http://www.hprose.com/example/", ["hello"]);
     client.hello("World!", function(result) {
         alert(result);
     }, function(name, err) {

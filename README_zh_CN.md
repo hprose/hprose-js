@@ -1,7 +1,17 @@
+<a href="https://promisesaplus.com/">
+    <img src="https://promisesaplus.com/assets/logo-small.png" alt="Promises/A+ logo"
+         title="Promises/A+ 1.1 compliant" align="right" />
+</a>
+<a href="http://hprose.com/">
+<img align="right" src="http://hprose.com/favicon-96x96.png" />
+</a>
 # Hprose for JavaScript
 
 [![Join the chat at https://gitter.im/hprose/hprose-js](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hprose/hprose-js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/hprose/hprose-js.svg?branch=master)](https://travis-ci.org/hprose/hprose-js)
+[![bower version](https://img.shields.io/bower/v/hprose-js.svg)](http://bower.io/search/?q=hprose-js)
+[![License](https://img.shields.io/github/license/hprose/hprose-js.svg)](http://opensource.org/licenses/MIT)
+
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/hprose-js.svg)](https://saucelabs.com/u/hprose-js)
 
 >---
@@ -62,12 +72,12 @@
 * Android 上的 Google Chrome
 * Android 的默认浏览器
 * Windows Phone 上的 Internet Explorer
+* Opera Mobile
 * WebOS 的默认浏览器
 * Blackberry 的默认浏览器
 * N9 MeeGo 的默认浏览器
 * N9 MeeGo 上的 Mozilla Firefox
 * \*Symbian^3 的默认浏览器
-* Opera Mobile
 * \*Opera Mini
 * \*Pocket IE
 * ...
@@ -78,7 +88,7 @@
 
 你不需要使用 javascript 的源文件，你只需要在你的 html 中包含 `hprose.js` 就够了。
 
-你可以将文件 `hproseHttpRequest.swf` 放在任何地方, 然后通过在 `script` 标签上设置 `flashpath` 属性来指定它的加载路径就行了。如果你忽略该属性，默认路径是当前路径。
+你可以将文件 `FlashHttpRequest.swf` 放在任何地方, 然后通过在 `script` 标签上设置 `flashpath` 属性来指定它的加载路径就行了。如果你忽略该属性，默认路径是当前路径。
 
 ### 异常处理
 
@@ -93,7 +103,7 @@
 </head>
 <body>
 <script type="text/javascript">
-    var client = new HproseHttpClient("http://www.hprose.com/example/", ["hello"]);
+    var client = hprose.Client.create("http://www.hprose.com/example/", ["hello"]);
     client.hello("World!", function(result) {
         alert(result);
     }, function(name, err) {
