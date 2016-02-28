@@ -32,10 +32,13 @@
 
     var XMLHttpRequest = global.XMLHttpRequest;
 
-    if (typeof(plus) !== "undefined" &&
-        typeof(plus.net) !== "undefined" &&
-        typeof(plus.net.XMLHttpRequest) !== "undefined") {
-        XMLHttpRequest = plus.net.XMLHttpRequest;
+    if (global.plus && global.plus.net && global.plus.net.XMLHttpRequest) {
+        XMLHttpRequest = global.plus.net.XMLHttpRequest;
+    }
+    else if (document.addEventListener) {
+        document.addEventListener("plusready", function() {
+            XMLHttpRequest = plus.net.XMLHttpRequest;
+        }, false);
     }
 
     var localfile = (global.location !== undefined && global.location.protocol === 'file:');
