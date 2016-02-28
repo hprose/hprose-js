@@ -259,43 +259,52 @@ module.exports = function (grunt) {
     version: 'latest-20'
   }, {
     browserName: 'safari',
-    version: 'latest'
+    platform: 'OS X 10.11'
   }, {
     browserName: 'safari',
-    version: 'latest-1'
+    platform: 'OS X 10.10'
   }, {
     browserName: 'safari',
-    version: 'latest-2'
+    platform: 'OS X 10.9'
   }, {
     browserName: 'safari',
-    version: 'latest-3'
+    platform: 'OS X 10.8'
   }, {
     browserName: 'safari',
-    version: 'latest-4'
+    platform: 'Windows 7',
+    version: '5.1'
   }, {
     browserName: 'MicrosoftEdge',
+    platform: 'Windows 10',
     version: '20.10240'
   }, {
     browserName: 'internet explorer',
+    platform: 'Windows 10',
     version: '11.0'
   }, {
     browserName: 'internet explorer',
+    platform: 'Windows 8',
     version: '10.0'
   }, {
     browserName: 'internet explorer',
+    platform: 'Windows 7',
     version: '9.0'
   }, {
     browserName: 'internet explorer',
+    platform: 'Windows 7',
     version: '8.0'
   }, {
     browserName: 'internet explorer',
+    platform: 'Windows XP',
     version: '7.0'
   }, {
     browserName: 'internet explorer',
+    platform: 'Windows XP',
     version: '6.0'
   }, {
     browserName: 'opera',
-    version: '11'
+    platform: 'Windows 7',
+    version: '11.64'
   }];
 
   grunt.initConfig({
