@@ -185,18 +185,19 @@
         var id = entry.id;
         stream.write(toBinaryString(info.data));
         while (true) {
-            if ((dataLength < 0) && (stream.length >= headerLength)) {
+            if ((dataLength < 0) && (stream.length() >= headerLength)) {
                 dataLength = stream.readInt32BE();
                 if ((dataLength & 0x80000000) !== 0) {
                     dataLength &= 0x7fffffff;
                     headerLength = 8;
                 }
             }
-            if ((headerLength === 8) && (id === null) && (stream.length >= headerLength)) {
+            if ((headerLength === 8) && (id === null) && (stream.length() >= headerLength)) {
                 id = stream.readInt32BE();
             }
-            if ((dataLength >= 0) && ((stream.length - headerLength) >= dataLength)) {
-                socket.onreceive(stream.read(dataLength), id);
+            if ((dataLength >= 0) && ((stream.length() - headerLength) >= dataLength)) {
+                var data = stream.read(dataLength);
+                socket.onreceive(data, id);
                 headerLength = 4;
                 id = null;
                 stream.trunc();
@@ -255,7 +256,11 @@
             }
             var conn = new TCPSocket();
             var self = this;
-            conn.connect(address, port, tls, this.client.options);
+            conn.connect(address, port, tls, {
+                persistent: true,
+                noDelay: this.client.noDelay(),
+                keepAlive: this.client.keepAlive()
+            });
             conn.onclose = function() { --self.size; };
             ++this.size;
             return conn;
@@ -313,7 +318,7 @@
         } },
         recycle: { value: function(conn) {
             conn.unref();
-            conn.setTimeout(this.client.poolTimeout, function() {
+            conn.setTimeout(this.client.poolTimeout(), function() {
                  conn.destroy();
             });
         } },
@@ -377,7 +382,7 @@
             if (conn) {
                 this.send(request, future, id, env, conn);
             }
-            else if (this.size < this.client.maxPoolSize) {
+            else if (this.size < this.client.maxPoolSize()) {
                 conn = this.create();
                 conn.onerror = function(e) {
                     future.reject(e);
@@ -416,7 +421,7 @@
         } },
         recycle: { value: function(conn) {
             conn.unref();
-            conn.setTimeout(this.client.poolTimeout, function() {
+            conn.setTimeout(this.client.poolTimeout(), function() {
                  conn.destroy();
             });
             this.pool.push(conn);
@@ -478,7 +483,7 @@
             if (conn) {
                 this.send(request, future, env, conn);
             }
-            else if (this.size < this.client.maxPoolSize) {
+            else if (this.size < this.client.maxPoolSize()) {
                 conn = this.create();
                 var self = this;
                 conn.onerror = function(e) {

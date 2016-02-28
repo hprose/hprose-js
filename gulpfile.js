@@ -2,13 +2,14 @@ var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     concat = require('gulp-concat'),
     jshint = require("gulp-jshint"),
+    lzmajs = require("gulp-lzmajs"),
     del = require('del');
 
 gulp.task('clear', function(){
     del(['dist/hprose.js']);
 });
 
-gulp.task('compress', ['clear'], function() {
+gulp.task('uglify', ['clear'], function() {
     return gulp.src(['src/Init.js',
                      'src/Helper.js',
                      'src/Polyfill.js',
@@ -33,14 +34,21 @@ gulp.task('compress', ['clear'], function() {
         .pipe(jshint())
         .pipe(jshint.reporter())
         .pipe(concat('hprose.js'))
-        //.pipe(uglify())
+        .pipe(uglify())
+        .pipe(gulp.dest('dist'));
+});
+
+gulp.task('compress', ['uglify'], function() {
+    return gulp.src(['dist/hprose.js'])
+        .pipe(concat('hprose.min.js'))
+        .pipe(lzmajs())
         .pipe(gulp.dest('dist'));
 });
 
 gulp.task('default', ['compress'], function() {
     return gulp.src(['src/CopyRight.js', 'dist/hprose.js'])
-           .pipe(concat('hprose.js'))
-           .pipe(gulp.dest('dist'))
-           .pipe(gulp.dest('example'))
-           .pipe(gulp.dest('test'));
+        .pipe(concat('hprose.js'))
+        .pipe(gulp.dest('dist'))
+        .pipe(gulp.dest('example'))
+        .pipe(gulp.dest('test'));
 });
