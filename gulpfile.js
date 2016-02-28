@@ -28,11 +28,12 @@ gulp.task('compress', ['clear'], function() {
                      'src/FlashHttpRequest.js',
                      'src/HttpClient.js',
                      'src/WebSocketClient.js',
+                     'src/TcpClient.js',
                      'src/Loader.js'])
         .pipe(jshint())
         .pipe(jshint.reporter())
         .pipe(concat('hprose.js'))
-        .pipe(uglify())
+        //.pipe(uglify())
         .pipe(gulp.dest('dist'));
 });
 

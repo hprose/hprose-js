@@ -73,7 +73,7 @@
             _ready.resolve(e);
         }
         function onmessage(e) {
-            var stream = new StringIO(toBinaryString(new Uint8Array(e.data)));
+            var stream = new StringIO(toBinaryString(e.data));
             var id = stream.readInt32BE();
             var future = _futures[id];
             var env = _envs[id];
@@ -81,12 +81,11 @@
             delete _envs[id];
             if (future !== undefined) {
                 --_count;
-                if (env.binary) {
-                    future.resolve(stream.read(stream.length() - 4));
+                var data = stream.read(stream.length() - 4);
+                if (!env.binary) {
+                    data = StringIO.utf8Decode(data);
                 }
-                else {
-                    future.resolve(StringIO.utf8Decode(stream.read(stream.length() - 4)));
-                }
+                future.resolve(data);
             }
             if ((_count < 100) && (_requests.length > 0)) {
                 ++_count;

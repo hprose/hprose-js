@@ -152,6 +152,9 @@
     var toBinaryString;
     if (arrayLikeObjectArgumentsEnabled) {
         toBinaryString = function(charCodes) {
+            if (charCodes instanceof ArrayBuffer) {
+                charCodes = new Uint8Array(charCodes);
+            }
             var n = charCodes.length;
             if (n < 100000) {
                 return String.fromCharCode.apply(String, charCodes);
@@ -170,6 +173,9 @@
     }
     else {
         toBinaryString = function(bytes) {
+            if (bytes instanceof ArrayBuffer) {
+                bytes = new Uint8Array(bytes);
+            }
             var n = bytes.length;
             var charCodes = new Array(bytes.length);
             for (var i = 0; i < n; ++i) {

@@ -118,7 +118,7 @@
                     if (xhr.status) {
                         if (xhr.status === 200) {
                             if (env.binary) {
-                                future.resolve(toBinaryString(new Uint8Array(xhr.response)));
+                                future.resolve(toBinaryString(xhr.response));
                             }
                             else {
                                 future.resolve(xhr.responseText);
