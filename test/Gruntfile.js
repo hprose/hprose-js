@@ -54,130 +54,208 @@ module.exports = function (grunt) {
     browserName: 'iphone',
     version: '5.1'
   }, {
+    browserName: 'ipad',
+    version: '9.2'
+  }, {
+    browserName: 'ipad',
+    version: '9.1'
+  }, {
+    browserName: 'ipad',
+    version: '9.0'
+  }, {
+    browserName: 'ipad',
+    version: '8.4'
+  }, {
+    browserName: 'ipad',
+    version: '8.3'
+  }, {
+    browserName: 'ipad',
+    version: '8.2'
+  }, {
+    browserName: 'ipad',
+    version: '8.1'
+  }, {
+    browserName: 'ipad',
+    version: '8.0'
+  }, {
+    browserName: 'ipad',
+    version: '7.0'
+  }, {
+    browserName: 'ipad',
+    version: '6.1'
+  }, {
+    browserName: 'ipad',
+    version: '6.0'
+  }, {
+    browserName: 'ipad',
+    version: '5.1'
+  }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest'
   }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest-1'
   }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest-2'
   }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest-3'
   }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest-4'
   }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest-5'
   }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest-6'
   }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest-7'
   }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest-8'
   }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest-9'
   }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest-10'
   }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest-11'
   }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest-12'
   }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest-13'
   }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest-14'
   }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest-15'
   }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest-16'
   }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest-17'
   }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest-18'
   }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest-19'
   }, {
     browserName: 'chrome',
+    platform: 'linux',
     version: 'latest-20'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest-1'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest-2'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest-3'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest-4'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest-5'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest-6'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest-7'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest-8'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest-9'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest-10'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest-11'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest-12'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest-13'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest-14'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest-15'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest-16'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest-17'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest-18'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest-19'
   }, {
     browserName: 'firefox',
+    platform: 'linux',
     version: 'latest-20'
   }, {
     browserName: 'safari',
