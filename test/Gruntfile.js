@@ -55,112 +55,168 @@ module.exports = function (grunt) {
     version: '5.1'
   }, {
     browserName: 'chrome',
-    platform: 'Linux'
-  }, {
-    browserName: 'firefox',
-    platform: 'Linux'
+    version: 'latest'
   }, {
     browserName: 'chrome',
-    platform: 'OS X 10.8'
-  }, {
-    browserName: 'safari',
-    platform: 'OS X 10.8'
-  }, {
-    browserName: 'firefox',
-    platform: 'OS X 10.8'
+    version: 'latest-1'
   }, {
     browserName: 'chrome',
-    platform: 'OS X 10.9'
-  }, {
-    browserName: 'safari',
-    platform: 'OS X 10.9'
-  }, {
-    browserName: 'firefox',
-    platform: 'OS X 10.9'
+    version: 'latest-2'
   }, {
     browserName: 'chrome',
-    platform: 'OS X 10.10'
-  }, {
-    browserName: 'safari',
-    platform: 'OS X 10.10'
-  }, {
-    browserName: 'firefox',
-    platform: 'OS X 10.10'
+    version: 'latest-3'
   }, {
     browserName: 'chrome',
-    platform: 'OS X 10.11'
+    version: 'latest-4'
   }, {
-    browserName: 'safari',
-    platform: 'OS X 10.11'
+    browserName: 'chrome',
+    version: 'latest-5'
+  }, {
+    browserName: 'chrome',
+    version: 'latest-6'
+  }, {
+    browserName: 'chrome',
+    version: 'latest-7'
+  }, {
+    browserName: 'chrome',
+    version: 'latest-8'
+  }, {
+    browserName: 'chrome',
+    version: 'latest-9'
+  }, {
+    browserName: 'chrome',
+    version: 'latest-10'
+  }, {
+    browserName: 'chrome',
+    version: 'latest-11'
+  }, {
+    browserName: 'chrome',
+    version: 'latest-12'
+  }, {
+    browserName: 'chrome',
+    version: 'latest-13'
+  }, {
+    browserName: 'chrome',
+    version: 'latest-14'
+  }, {
+    browserName: 'chrome',
+    version: 'latest-15'
+  }, {
+    browserName: 'chrome',
+    version: 'latest-16'
+  }, {
+    browserName: 'chrome',
+    version: 'latest-17'
+  }, {
+    browserName: 'chrome',
+    version: 'latest-18'
+  }, {
+    browserName: 'chrome',
+    version: 'latest-19'
+  }, {
+    browserName: 'chrome',
+    version: 'latest-20'
   }, {
     browserName: 'firefox',
-    platform: 'OS X 10.11'
+    version: 'latest'
+  }, {
+    browserName: 'firefox',
+    version: 'latest-1'
+  }, {
+    browserName: 'firefox',
+    version: 'latest-2'
+  }, {
+    browserName: 'firefox',
+    version: 'latest-3'
+  }, {
+    browserName: 'firefox',
+    version: 'latest-4'
+  }, {
+    browserName: 'firefox',
+    version: 'latest-5'
+  }, {
+    browserName: 'firefox',
+    version: 'latest-6'
+  }, {
+    browserName: 'firefox',
+    version: 'latest-7'
+  }, {
+    browserName: 'firefox',
+    version: 'latest-8'
+  }, {
+    browserName: 'firefox',
+    version: 'latest-9'
+  }, {
+    browserName: 'firefox',
+    version: 'latest-10'
+  }, {
+    browserName: 'firefox',
+    version: 'latest-11'
+  }, {
+    browserName: 'firefox',
+    version: 'latest-12'
+  }, {
+    browserName: 'firefox',
+    version: 'latest-13'
+  }, {
+    browserName: 'firefox',
+    version: 'latest-14'
+  }, {
+    browserName: 'firefox',
+    version: 'latest-15'
+  }, {
+    browserName: 'firefox',
+    version: 'latest-16'
+  }, {
+    browserName: 'firefox',
+    version: 'latest-17'
+  }, {
+    browserName: 'firefox',
+    version: 'latest-18'
+  }, {
+    browserName: 'firefox',
+    version: 'latest-19'
+  }, {
+    browserName: 'firefox',
+    version: 'latest-20'
+  }, {
+    browserName: 'safari',
+    version: 'latest'
+  }, {
+    browserName: 'safari',
+    version: 'latest-1'
+  }, {
+    browserName: 'safari',
+    version: 'latest-2'
+  }, {
+    browserName: 'safari',
+    version: 'latest-3'
+  }, {
+    browserName: 'safari',
+    version: 'latest-4'
   }, {
     browserName: 'MicrosoftEdge',
-    platform: 'Windows 10',
     version: '20.10240'
   }, {
     browserName: 'internet explorer',
-    platform: 'Windows 10',
     version: '11.0'
   }, {
     browserName: 'internet explorer',
-    platform: 'Windows 8.1',
-    version: '11.0'
-  }, {
-    browserName: 'internet explorer',
-    platform: 'Windows 8',
     version: '10.0'
   }, {
     browserName: 'internet explorer',
-    platform: 'Windows 7',
-    version: '11.0'
-  }, {
-    browserName: 'internet explorer',
-    platform: 'Windows 7',
-    version: '10.0'
-  }, {
-    browserName: 'internet explorer',
-    platform: 'Windows 7',
     version: '9.0'
   }, {
     browserName: 'internet explorer',
-    platform: 'Windows 7',
-    version: '8.0'
-  }, {
-    browserName: 'chrome',
-    platform: 'Windows 7'
-  }, {
-    browserName: 'firefox',
-    platform: 'Windows 7'
-  }, {
-    browserName: 'safari',
-    platform: 'Windows 7'
-  }, {
-    browserName: 'opera',
-    platform: 'Windows 7',
-    version: '11'
-  }, {
-    browserName: 'internet explorer',
-    platform: 'Windows XP',
     version: '8.0'
   }, {
     browserName: 'internet explorer',
-    platform: 'Windows XP',
     version: '7.0'
   }, {
     browserName: 'internet explorer',
-    platform: 'Windows XP',
     version: '6.0'
   }, {
-    browserName: 'chrome',
-    platform: 'Windows XP'
-  }, {
-    browserName: 'firefox',
-    platform: 'Windows XP'
-  }, {
     browserName: 'opera',
-    platform: 'Windows XP',
     version: '11'
   }];
 
@@ -188,6 +244,7 @@ module.exports = function (grunt) {
           testname: 'hprose-js tests',
           throttled: 3,
           statusCheckAttempts: -1,
+          pollInterval: 5000,
           maxRetries: 3,
           sauceConfig: {
             'video-upload-on-pass': false
