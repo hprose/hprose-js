@@ -29,6 +29,7 @@ gulp.task('uglify', ['clear'], function() {
                      'src/FlashHttpRequest.js',
                      'src/HttpClient.js',
                      'src/WebSocketClient.js',
+                     'src/ChromeTcpSocket.js',
                      'src/TcpClient.js',
                      'src/Loader.js'])
         .pipe(jshint())

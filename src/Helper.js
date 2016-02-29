@@ -13,13 +13,30 @@
  *                                                        *
  * Polyfill for JavaScript.                               *
  *                                                        *
- * LastModified: Feb 25, 2016                             *
+ * LastModified: Feb 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
 (function (global, undefined) {
     'use strict';
+
+    function propertyToMethod(prop) {
+        if ('get' in prop && 'set' in prop) {
+            return function() {
+                if (arguments.length === 0) {
+                    return prop.get();
+                }
+                prop.set(arguments[0]);
+            };
+        }
+        if ('get' in prop) {
+            return prop.get;
+        }
+        if ('set' in prop) {
+            return prop.set;
+        }
+    }
 
     var defineProperties = (typeof Object.defineProperties !== 'function' ?
         function(obj, properties) {
@@ -42,23 +59,8 @@
                 if ('value' in prop) {
                     obj[name] = prop.value;
                 }
-                else {
-                    if ('get' in prop && 'set' in prop) {
-                        obj[name] = (function(prop) {
-                            return function() {
-                                if (arguments.length === 0) {
-                                    return prop.get();
-                                }
-                                prop.set(arguments[0]);
-                            };
-                        })(prop);
-                    }
-                    else if ('get' in prop) {
-                        obj[name] = prop.get;
-                    }
-                    else if ('set' in prop) {
-                        obj[name] = prop.set;
-                    }
+                else if ('get' in prop || 'set' in prop) {
+                    obj[name] = propertyToMethod(prop);
                 }
             }
         }
@@ -66,21 +68,8 @@
         function(obj, properties) {
             for (var name in properties) {
                 var prop = properties[name];
-                if ('get' in prop && 'set' in prop) {
-                    properties[name] = { value: (function(prop) {
-                        return function() {
-                            if (arguments.length === 0) {
-                                return prop.get();
-                            }
-                            prop.set(arguments[0]);
-                        };
-                    })(prop) };
-                }
-                else if ('get' in prop) {
-                    properties[name] = { value: prop.get };
-                }
-                else if ('set' in prop) {
-                    properties[name] = { value: prop.set };
+                if ('get' in prop || 'set' in prop) {
+                    properties[name] = { value: propertyToMethod(prop) };
                 }
             }
             Object.defineProperties(obj, properties);
@@ -108,21 +97,8 @@
             if (properties) {
                 for (var name in properties) {
                     var prop = properties[name];
-                    if ('get' in prop && 'set' in prop) {
-                        properties[name] = { value: (function(prop) {
-                            return function() {
-                                if (arguments.length === 0) {
-                                    return prop.get();
-                                }
-                                prop.set(arguments[0]);
-                            };
-                        })(prop) };
-                    }
-                    else if ('get' in prop) {
-                        properties[name] = { value: prop.get };
-                    }
-                    else if ('set' in prop) {
-                        properties[name] = { value: prop.set };
+                    if ('get' in prop || 'set' in prop) {
+                        properties[name] = { value: propertyToMethod(prop) };
                     }
                 }
                 return Object.create(prototype, properties);
@@ -149,53 +125,43 @@
         arrayLikeObjectArgumentsEnabled = false;
     }
 
-    var toBinaryString;
-    if (arrayLikeObjectArgumentsEnabled) {
-        toBinaryString = function(charCodes) {
+    function _toBinaryString(charCodes, subarray) {
+        var n = charCodes.length;
+        if (n < 100000) {
+            return String.fromCharCode.apply(String, charCodes);
+        }
+        var remain = n & 0xFFFF;
+        var count = n >> 16;
+        var a = new Array(remain ? count + 1 : count);
+        for (var i = 0; i < count; ++i) {
+            a[i] = String.fromCharCode.apply(String, charCodes[subarray](i << 16, (i + 1) << 16));
+        }
+        if (remain) {
+            a[count] = String.fromCharCode.apply(String, charCodes[subarray](count << 16, n));
+        }
+        return a.join('');
+    }
+
+    var toBinaryString = (arrayLikeObjectArgumentsEnabled ?
+        function(charCodes) {
             if (charCodes instanceof ArrayBuffer) {
                 charCodes = new Uint8Array(charCodes);
             }
-            var n = charCodes.length;
-            if (n < 100000) {
-                return String.fromCharCode.apply(String, charCodes);
-            }
-            var remain = n & 0xFFFF;
-            var count = n >> 16;
-            var a = new Array(remain ? count + 1 : count);
-            for (var i = 0; i < count; ++i) {
-                a[i] = String.fromCharCode.apply(String, charCodes.subarray(i << 16, (i + 1) << 16));
-            }
-            if (remain) {
-                a[count] = String.fromCharCode.apply(String, charCodes.subarray(count << 16, n));
-            }
-            return a.join('');
-        };
-    }
-    else {
-        toBinaryString = function(bytes) {
+            return _toBinaryString(charCodes, 'subarray');
+        }
+        :
+        function(bytes) {
             if (bytes instanceof ArrayBuffer) {
                 bytes = new Uint8Array(bytes);
             }
             var n = bytes.length;
-            var charCodes = new Array(bytes.length);
+            var charCodes = new Array(n);
             for (var i = 0; i < n; ++i) {
                 charCodes[i] = bytes[i];
             }
-            if (n < 100000) {
-                return String.fromCharCode.apply(String, charCodes);
-            }
-            var remain = n & 0xFFFF;
-            var count = n >> 16;
-            var a = new Array(remain ? count + 1 : count);
-            for (i = 0; i < count; ++i) {
-                a[i] = String.fromCharCode.apply(String, charCodes.slice(i << 16, (i + 1) << 16));
-            }
-            if (remain) {
-                a[count] = String.fromCharCode.apply(String, charCodes.slice(count << 16, n));
-            }
-            return a.join('');
-        };
-    }
+            return _toBinaryString(charCodes, 'slice');
+        }
+    );
 
     var toUint8Array = function(bs) {
         var n = bs.length;
