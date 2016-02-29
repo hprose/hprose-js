@@ -180,7 +180,7 @@
                 certificate: self.certificate
             }, function(ret, err) {
                 if (ret) {
-                    future.resolve(ret.body);
+                    future.resolve(ret);
                 }
                 else {
                     future.reject(new Error(err.msg));
