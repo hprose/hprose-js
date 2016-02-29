@@ -111,10 +111,21 @@
             else {
                 throw new Error('Unsupported ' + protocol + ' protocol!');
             }
-            var conn = new ChromeTcpSocket();
+            var conn;
+            if (global.chrome && global.chrome.sockets && global.chrome.sockets.tcp) {
+                conn = new ChromeTcpSocket();
+            }
+            else if (global.api && global.api.require) {
+                conn = new APICloudTcpSocket();
+            }
+            else {
+                throw new Error('TCP Socket is not supported by this browser or platform.');
+            }
             var self = this;
-            conn.connect(address, port, tls, {
+            conn.connect(address, port, {
                 persistent: true,
+                tls: tls,
+                timeout: this.client.timeout(),
                 noDelay: this.client.noDelay(),
                 keepAlive: this.client.keepAlive()
             });

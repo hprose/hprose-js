@@ -27,7 +27,7 @@
     function noop(){}
 
     var socketPool = {};
-    var tcpInit = false;
+    var socketManager = null;
 
     function receiveListener(info) {
         var socket = socketPool[info.socketId];
@@ -41,10 +41,10 @@
     }
 
     function ChromeTcpSocket() {
-        if (!tcpInit) {
-            tcpInit = true;
-            chrome.sockets.tcp.onReceive.addListener(receiveListener);
-            chrome.sockets.tcp.onReceiveError.addListener(receiveErrorListener);
+        if (socketManager === null) {
+            socketManager = chrome.sockets.tcp;
+            socketManager.onReceive.addListener(receiveListener);
+            socketManager.onReceiveError.addListener(receiveErrorListener);
         }
         this.socketId = new Future();
         this.connected = false;
@@ -56,50 +56,50 @@
     }
 
     defineProperties(ChromeTcpSocket.prototype, {
-        connect: { value: function(address, port, tls, options) {
+        connect: { value: function(address, port, options) {
             var self = this;
-            chrome.sockets.tcp.create({ persistent: options && options.persistent }, function(createInfo) {
+            socketManager.create({ persistent: options && options.persistent }, function(createInfo) {
                 if (options) {
                     if ('noDelay' in options) {
-                        chrome.sockets.tcp.setNoDelay(createInfo.socketId, options.noDelay, function(result) {
+                        socketManager.setNoDelay(createInfo.socketId, options.noDelay, function(result) {
                             if (result < 0) {
                                 self.socketId.reject(result);
-                                chrome.sockets.tcp.disconnect(createInfo.socketId);
-                                chrome.sockets.tcp.close(createInfo.socketId);
+                                socketManager.disconnect(createInfo.socketId);
+                                socketManager.close(createInfo.socketId);
                                 self.onclose();
                             }
                         });
                     }
                     if ('keepAlive' in options) {
-                        chrome.sockets.tcp.setKeepAlive(createInfo.socketId, options.keepAlive, function(result) {
+                        socketManager.setKeepAlive(createInfo.socketId, options.keepAlive, function(result) {
                             if (result < 0) {
                                 self.socketId.reject(result);
-                                chrome.sockets.tcp.disconnect(createInfo.socketId);
-                                chrome.sockets.tcp.close(createInfo.socketId);
+                                socketManager.disconnect(createInfo.socketId);
+                                socketManager.close(createInfo.socketId);
                                 self.onclose();
                             }
                         });
                     }
                 }
-                if (tls) {
-                    chrome.sockets.tcp.setPaused(createInfo.socketId, true, function() {
-                        chrome.sockets.tcp.connect(createInfo.socketId, address, port, function(result) {
+                if (options && options.tls) {
+                    socketManager.setPaused(createInfo.socketId, true, function() {
+                        socketManager.connect(createInfo.socketId, address, port, function(result) {
                             if (result < 0) {
                                 self.socketId.reject(result);
-                                chrome.sockets.tcp.disconnect(createInfo.socketId);
-                                chrome.sockets.tcp.close(createInfo.socketId);
+                                socketManager.disconnect(createInfo.socketId);
+                                socketManager.close(createInfo.socketId);
                                 self.onclose();
                             }
                             else {
-                                chrome.sockets.tcp.secure(createInfo.socketId, function(secureResult) {
+                                socketManager.secure(createInfo.socketId, function(secureResult) {
                                     if (secureResult !== 0) {
                                         self.socketId.reject(result);
-                                        chrome.sockets.tcp.disconnect(createInfo.socketId);
-                                        chrome.sockets.tcp.close(createInfo.socketId);
+                                        socketManager.disconnect(createInfo.socketId);
+                                        socketManager.close(createInfo.socketId);
                                         self.onclose();
                                     }
                                     else {
-                                        chrome.sockets.tcp.setPaused(createInfo.socketId, false, function() {
+                                        socketManager.setPaused(createInfo.socketId, false, function() {
                                             self.socketId.resolve(createInfo.socketId);
                                         });
                                     }
@@ -109,11 +109,11 @@
                     });
                 }
                 else {
-                    chrome.sockets.tcp.connect(createInfo.socketId, address, port, function(result) {
+                    socketManager.connect(createInfo.socketId, address, port, function(result) {
                         if (result < 0) {
                             self.socketId.reject(result);
-                            chrome.sockets.tcp.disconnect(createInfo.socketId);
-                            chrome.sockets.tcp.close(createInfo.socketId);
+                            socketManager.disconnect(createInfo.socketId);
+                            socketManager.close(createInfo.socketId);
                             self.onclose();
                         }
                         else {
@@ -134,7 +134,7 @@
             var self = this;
             var promise = new Future();
             this.socketId.then(function(socketId) {
-                chrome.sockets.tcp.send(socketId, data, function(sendInfo) {
+                socketManager.send(socketId, data, function(sendInfo) {
                     if (sendInfo.resultCode < 0) {
                         self.onerror(sendInfo.resultCode);
                         promise.reject(sendInfo.resultCode);
@@ -151,21 +151,20 @@
             var self = this;
             this.connected = false;
             this.socketId.then(function(socketId) {
-                chrome.sockets.tcp.disconnect(socketId);
-                chrome.sockets.tcp.close(socketId);
+                socketManager.disconnect(socketId);
+                socketManager.close(socketId);
                 delete socketPool[socketId];
-                delete receivePool[socketId];
                 self.onclose();
             });
         } },
         ref: { value: function() {
             this.socketId.then(function(socketId) {
-                chrome.sockets.tcp.setPaused(socketId, false);
+                socketManager.setPaused(socketId, false);
             });
         } },
         unref: { value: function() {
             this.socketId.then(function(socketId) {
-                chrome.sockets.tcp.setPaused(socketId, true);
+                socketManager.setPaused(socketId, true);
             });
         } },
         clearTimeout: { value: function() {

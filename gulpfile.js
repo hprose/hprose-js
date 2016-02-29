@@ -11,6 +11,7 @@ gulp.task('clear', function(){
 
 gulp.task('uglify', ['clear'], function() {
     return gulp.src(['src/Init.js',
+                     'src/Base64.js',
                      'src/Helper.js',
                      'src/Polyfill.js',
                      'src/HarmonyMaps.js',
@@ -30,6 +31,7 @@ gulp.task('uglify', ['clear'], function() {
                      'src/HttpClient.js',
                      'src/WebSocketClient.js',
                      'src/ChromeTcpSocket.js',
+                     'src/APICloudTcpSocket.js',
                      'src/TcpClient.js',
                      'src/Loader.js'])
         .pipe(jshint())
