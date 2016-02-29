@@ -10,7 +10,7 @@
  *                                                        *
  * ChromeTcpSocket.js                                     *
  *                                                        *
- * chrome tcp client for JavaScript.                      *
+ * chrome tcp socket for JavaScript.                      *
  *                                                        *
  * LastModified: Feb 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
