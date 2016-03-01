@@ -12,7 +12,7 @@
  *                                                        *
  * chrome tcp socket for JavaScript.                      *
  *                                                        *
- * LastModified: Feb 29, 2016                             *
+ * LastModified: Mar 1, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -23,6 +23,8 @@
     var Future = global.hprose.Future;
     var createObject = global.hprose.createObject;
     var defineProperties = global.hprose.defineProperties;
+    var toUint8Array = global.hprose.toUint8Array;
+    var toBinaryString = global.hprose.toBinaryString;
 
     function noop(){}
 
@@ -31,7 +33,7 @@
 
     function receiveListener(info) {
         var socket = socketPool[info.socketId];
-        socket.onreceive(info.data);
+        socket.onreceive(toBinaryString(info.data));
     }
 
     function receiveErrorListener(info) {
@@ -131,6 +133,7 @@
             });
         } },
         send: { value: function(data) {
+            data = toUint8Array(data).buffer;
             var self = this;
             var promise = new Future();
             this.socketId.then(function(socketId) {

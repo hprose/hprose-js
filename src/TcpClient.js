@@ -12,7 +12,7 @@
  *                                                        *
  * hprose tcp client for JavaScript.                      *
  *                                                        *
- * LastModified: Feb 29, 2016                             *
+ * LastModified: Mar 1, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -21,13 +21,12 @@
     'use strict';
 
     var ChromeTcpSocket = global.hprose.ChromeTcpSocket;
+    var APICloudTcpSocket = global.hprose.APICloudTcpSocket;
     var Client = global.hprose.Client;
     var StringIO = global.hprose.StringIO;
     var Future = global.hprose.Future;
     var createObject = global.hprose.createObject;
     var defineProperties = global.hprose.defineProperties;
-    var toBinaryString = global.hprose.toBinaryString;
-    var toUint8Array = global.hprose.toUint8Array;
 
     function noop(){}
 
@@ -46,7 +45,7 @@
             var headerLength = entry.headerLength;
             var dataLength = entry.dataLength;
             var id = entry.id;
-            stream.write(toBinaryString(data));
+            stream.write(data);
             while (true) {
                 if ((dataLength < 0) && (stream.length() >= headerLength)) {
                     dataLength = stream.readInt32BE();
@@ -237,7 +236,7 @@
             else {
                 buf.writeUTF16AsUTF8(request);
             }
-            conn.send(toUint8Array(buf.take()).buffer).then(function(result) {
+            conn.send(buf.take()).then(function(result) {
                 self.sendNext(conn);
             });
         } },
@@ -344,7 +343,7 @@
             else {
                 buf.writeUTF16AsUTF8(request);
             }
-            conn.send(toUint8Array(buf.take()).buffer);
+            conn.send(buf.take());
         } },
         sendAndReceive: { value: function(request, future, env) {
             var conn = this.fetch();

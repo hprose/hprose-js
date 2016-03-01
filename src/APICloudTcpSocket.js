@@ -12,7 +12,7 @@
  *                                                        *
  * APICloud tcp socket for JavaScript.                    *
  *                                                        *
- * LastModified: Feb 29, 2016                             *
+ * LastModified: Mar 1, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -51,7 +51,7 @@
                 type: 'tcp',
                 host: address,
                 port: port,
-                timeout: option.timeout,
+                timeout: options.timeout,
                 returnBase64: true
             },
             function(ret, err) {
@@ -59,7 +59,7 @@
                     switch(ret.state) {
                         case 101: break;
                         case 102: self.socketId.resolve(ret.sid); break;
-                        case 103: self.onreceive(atob(ret.data)); break;
+                        case 103: self.onreceive(btoa(ret.data)); break;
                         case 201: self.socketId.reject(new Error('Create TCP socket failed')); break;
                         case 202: self.socketId.reject(new Error('TCP connection failed')); break;
                         case 203: self.onclose(); self.onerror(new Error('Abnormal disconnect connection')); break;
