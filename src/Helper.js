@@ -9,11 +9,11 @@
 
 /**********************************************************\
  *                                                        *
- * Polyfill.js                                            *
+ * Helper.js                                              *
  *                                                        *
- * Polyfill for JavaScript.                               *
+ * hprose helper for JavaScript.                          *
  *                                                        *
- * LastModified: Feb 29, 2016                             *
+ * LastModified: Mar 2, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -125,43 +125,36 @@
         arrayLikeObjectArgumentsEnabled = false;
     }
 
-    function _toBinaryString(charCodes, subarray) {
-        var n = charCodes.length;
+    function toArray(arrayLikeObject) {
+        var n = arrayLikeObject.length;
+        var a = new Array(n);
+        for (var i = 0; i < n; ++i) {
+            a[i] = arrayLikeObject[i];
+        }
+        return a;
+    }
+
+    var getCharCodes = arrayLikeObjectArgumentsEnabled ? function(bytes) { return bytes; } : toArray;
+
+    function toBinaryString(bytes) {
+        if (bytes instanceof ArrayBuffer) {
+            bytes = new Uint8Array(bytes);
+        }
+        var n = bytes.length;
         if (n < 100000) {
-            return String.fromCharCode.apply(String, charCodes);
+            return String.fromCharCode.apply(String, getCharCodes(bytes));
         }
         var remain = n & 0xFFFF;
         var count = n >> 16;
         var a = new Array(remain ? count + 1 : count);
         for (var i = 0; i < count; ++i) {
-            a[i] = String.fromCharCode.apply(String, charCodes[subarray](i << 16, (i + 1) << 16));
+            a[i] = String.fromCharCode.apply(String, getCharCodes(bytes.subarray(i << 16, (i + 1) << 16)));
         }
         if (remain) {
-            a[count] = String.fromCharCode.apply(String, charCodes[subarray](count << 16, n));
+            a[count] = String.fromCharCode.apply(String, getCharCodes(bytes.subarray(count << 16, n)));
         }
         return a.join('');
     }
-
-    var toBinaryString = (arrayLikeObjectArgumentsEnabled ?
-        function(charCodes) {
-            if (charCodes instanceof ArrayBuffer) {
-                charCodes = new Uint8Array(charCodes);
-            }
-            return _toBinaryString(charCodes, 'subarray');
-        }
-        :
-        function(bytes) {
-            if (bytes instanceof ArrayBuffer) {
-                bytes = new Uint8Array(bytes);
-            }
-            var n = bytes.length;
-            var charCodes = new Array(n);
-            for (var i = 0; i < n; ++i) {
-                charCodes[i] = bytes[i];
-            }
-            return _toBinaryString(charCodes, 'slice');
-        }
-    );
 
     var toUint8Array = function(bs) {
         var n = bs.length;
@@ -177,5 +170,6 @@
     global.hprose.generic = generic;
     global.hprose.toBinaryString = toBinaryString;
     global.hprose.toUint8Array = toUint8Array;
+    global.hprose.toArray = toArray;
 
 })(this);
