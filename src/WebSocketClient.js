@@ -12,7 +12,7 @@
  *                                                        *
  * hprose websocket client for JavaScript.                *
  *                                                        *
- * LastModified: Feb 28, 2016                             *
+ * LastModified: Mar 2, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -23,8 +23,8 @@
     var StringIO = global.hprose.StringIO;
     var Client = global.hprose.Client;
     var Future = global.hprose.Future;
+    var TimeoutError = global.TimeoutError;
 
-    var createObject = global.hprose.createObject;
     var defineProperties = global.hprose.defineProperties;
     var toBinaryString = global.hprose.toBinaryString;
     var toUint8Array = global.hprose.toUint8Array;
@@ -35,7 +35,9 @@
         if (typeof(WebSocket) === "undefined") {
             throw new Error('WebSocket is not supported by this browser.');
         }
-        if (this.constructor !== WebSocketClient) return new WebSocketClient(uri, functions, settings);
+        if (this.constructor !== WebSocketClient) {
+            return new WebSocketClient(uri, functions, settings);
+        }
 
         Client.call(this, uri, functions, settings);
 
@@ -92,9 +94,7 @@
                 var request = _requests.shift();
                 _ready.then(function() { send(request[0], request[1]); });
             }
-            if (_count === 0) {
-                if (!self.keepAlive()) close();
-            }
+            if (_count === 0 && !self.keepAlive()) { close(); }
         }
         function onclose(e) {
             _futures.forEach(function(future, id) {
@@ -140,7 +140,7 @@
             else {
                 _requests.push([id, request]);
             }
-            if (env.oneway) future.resolve();
+            if (env.oneway) { future.resolve(); }
             return future;
         }
         function close() {

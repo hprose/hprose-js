@@ -1,3 +1,4 @@
+/* jshint node:true */
 var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     concat = require('gulp-concat'),
@@ -37,6 +38,8 @@ gulp.task('uglify', ['clear'], function() {
         .pipe(jshint())
         .pipe(jshint.reporter())
         .pipe(concat('hprose.js'))
+        .pipe(jshint())
+        .pipe(jshint.reporter())
         .pipe(uglify())
         .pipe(gulp.dest('dist'));
 });

@@ -32,6 +32,7 @@
     var setImmediate = global.setImmediate;
     var setTimeout = global.setTimeout;
     var clearTimeout = global.clearTimeout;
+    var TimeoutError = global.TimeoutError;
 
     function Future(computation) {
         var self = this;
@@ -116,7 +117,7 @@
             var n = array.length;
             var count = arraysize(array);
             var result = new Array(n);
-            if (count === 0) return value(result);
+            if (count === 0) { return value(result); }
             var future = new Future();
             Array.forEach(array, function(element, index) {
                 var f = (isPromise(element) ? element : value(element));
@@ -177,7 +178,7 @@
             var n = array.length;
             var count = arraysize(array);
             var result = new Array(n);
-            if (count === 0) return value(result);
+            if (count === 0) { return value(result); }
             var future = new Future();
             Array.forEach(array, function(element, index) {
                 var f = (isPromise(element) ? element : value(element));
@@ -476,8 +477,8 @@
             }
         } },
         then: { value: function(onfulfill, onreject) {
-            if (typeof onfulfill !== 'function') onfulfill = null;
-            if (typeof onreject !== 'function') onreject = null;
+            if (typeof onfulfill !== 'function') { onfulfill = null; }
+            if (typeof onreject !== 'function') { onreject = null; }
             if (onfulfill || onreject) {
                 var next = new Future();
                 if (this._state === FULFILLED) {
@@ -535,13 +536,13 @@
             return this.then(
                 function(v) {
                     var f = action();
-                    if (f === undefined) return v;
+                    if (f === undefined) { return v; }
                     f = isPromise(f) ? f : value(f);
                     return f.then(function() { return v; });
                 },
                 function(e) {
                     var f = action();
-                    if (f === undefined) throw e;
+                    if (f === undefined) { throw e; }
                     f = isPromise(f) ? f : value(f);
                     return f.then(function() { throw e; });
                 }
@@ -698,7 +699,7 @@
         });
     };
 
-    if (hasPromise) return;
+    if (hasPromise) { return; }
 
     global.Promise = function(executor) {
         Future.call(this);

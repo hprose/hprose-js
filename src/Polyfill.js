@@ -84,7 +84,7 @@
                 n = 0;
             }
             for (var k = n >= 0 ? Math.min(n, len - 1) : len - Math.abs(n); k >= 0; k--) {
-                if (k in t && t[k] === searchElement) {
+                if (k in o && o[k] === searchElement) {
                     return k;
                 }
             }
@@ -265,18 +265,18 @@
     if (!Array.prototype.includes) {
         Array.prototype.includes = function(searchElement /*, fromIndex*/ ) {
             var O = Object(this);
-            var len = parseInt(O.length) || 0;
+            var len = parseInt(O.length, 10) || 0;
             if (len === 0) {
                 return false;
             }
-            var n = parseInt(arguments[1]) || 0;
+            var n = parseInt(arguments[1], 10) || 0;
             var k;
             if (n >= 0) {
                 k = n;
             }
             else {
                 k = len + n;
-                if (k < 0) k = 0;
+                if (k < 0) { k = 0; }
             }
             var currentElement;
             while (k < len) {
@@ -345,9 +345,9 @@
             var k = relativeStart < 0 ? Math.max(len + relativeStart, 0) : Math.min(relativeStart, len);
             var end = arguments[2];
             var relativeEnd = end === undefined ? len : end >> 0;
-            var final = relativeEnd < 0 ? Math.max(len + relativeEnd, 0) : Math.min(relativeEnd, len);
+            var f = relativeEnd < 0 ? Math.max(len + relativeEnd, 0) : Math.min(relativeEnd, len);
 
-            while (k < final) {
+            while (k < f) {
                 O[k] = value;
                 k++;
             }
@@ -367,8 +367,8 @@
             var from = relativeStart < 0 ? Math.max(len + relativeStart, 0) : Math.min(relativeStart, len);
             var end = arguments[2];
             var relativeEnd = end === undefined ? len : end >> 0;
-            var final = relativeEnd < 0 ? Math.max(len + relativeEnd, 0) : Math.min(relativeEnd, len);
-            var count = Math.min(final - from, len - to);
+            var f = relativeEnd < 0 ? Math.max(len + relativeEnd, 0) : Math.min(relativeEnd, len);
+            var count = Math.min(f - from, len - to);
             var direction = 1;
             if (from < to && to < (from + count)) {
                 direction = -1;

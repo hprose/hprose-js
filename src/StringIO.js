@@ -13,7 +13,7 @@
  *                                                        *
  * hprose StringIO for JavaScript.                        *
  *                                                        *
- * LastModified: Feb 23, 2016                             *
+ * LastModified: Mar 2, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -223,10 +223,10 @@
     // bs is an UTF8 encode binary string
     // n is UTF16 length
     function readString(bs, n) {
-        if (n === undefined || n === null || (n < 0)) n = bs.length;
-        if (n === 0) return ['', 0];
+        if (n === undefined || n === null || (n < 0)) { n = bs.length; }
+        if (n === 0) { return ['', 0]; }
         if (/^[\x00-\x7f]*$/.test(bs) || !(/^[\x00-\xff]*$/.test(bs))) {
-            if (n === bs.length) return [bs, n];
+            if (n === bs.length) { return [bs, n]; }
             return [bs.substr(0, n), n];
         }
         return ((n < 100000) ?
@@ -237,13 +237,13 @@
     // bs is an UTF8 encode binary string
     // n is UTF16 length
     function readUTF8(bs, n) {
-        if (n === undefined || n === null || (n < 0)) n = bs.length;
-        if (n === 0) return '';
+        if (n === undefined || n === null || (n < 0)) { n = bs.length; }
+        if (n === 0) { return ''; }
         if (/^[\x00-\x7f]*$/.test(bs)) {
-            if (n === bs.length) return bs;
+            if (n === bs.length) { return bs; }
             return bs.substr(0, n);
         }
-        if  (!(/^[\x00-\xff]*$/.test(bs))) {
+        if (!(/^[\x00-\xff]*$/.test(bs))) {
             throw new Error("The first argument must be an UTF8 encode binary string.");
         }
         var i = 0, off = 0;
@@ -603,7 +603,7 @@
             if (off + n > len) {
                 n = len - off;
             }
-            if (n === 0) return '';
+            if (n === 0) { return ''; }
             this._off = off + n;
             return this._buffer[0].substring(off, this._off);
         } },

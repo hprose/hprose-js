@@ -37,13 +37,14 @@
     }
     else if (document.addEventListener) {
         document.addEventListener("plusready", function() {
-            XMLHttpRequest = plus.net.XMLHttpRequest;
+            XMLHttpRequest = global.plus.net.XMLHttpRequest;
         }, false);
     }
 
     var localfile = (global.location !== undefined && global.location.protocol === 'file:');
     var nativeXHR = (typeof(XMLHttpRequest) !== 'undefined');
     var corsSupport = (!localfile && nativeXHR && 'withCredentials' in new XMLHttpRequest());
+    var ActiveXObject = global.ActiveXObject;
 
     var XMLHttpNameCache = null;
 
@@ -78,8 +79,11 @@
         if (nativeXHR) {
             return new XMLHttpRequest();
         }
-        else {
+        else if (ActiveXObject) {
             return createMSXMLHttp();
+        }
+        else {
+            throw new Error("XMLHttpRequest is not supported by this browser.");
         }
     }
 
@@ -93,7 +97,9 @@
     }
 
     function HttpClient(uri, functions, settings) {
-        if (this.constructor !== HttpClient) return new HttpClient(uri, functions, settings);
+        if (this.constructor !== HttpClient) {
+            return new HttpClient(uri, functions, settings);
+        }
         Client.call(this, uri, functions, settings);
         var _header = createObject(null);
 
@@ -170,7 +176,7 @@
 
         function apiPost(request, env) {
             var future = new Future();
-            api.ajax({
+            global.api.ajax({
                 url: self.uri(),
                 method: 'post',
                 data: { body: request },
@@ -213,7 +219,7 @@
             var future = fhr ?      fhrPost(request, env) :
                          apicloud ? apiPost(request, env) :
                                     xhrPost(request, env);
-            if (env.oneway) future.resolve();
+            if (env.oneway) { future.resolve(); }
             return future;
         }
 

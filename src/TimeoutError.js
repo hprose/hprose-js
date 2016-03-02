@@ -13,21 +13,22 @@
  *                                                        *
  * TimeoutError for JavaScript.                           *
  *                                                        *
- * LastModified: Feb 23, 2016                             *
+ * LastModified: Mar 2, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-if (typeof TimeoutError !== 'function') {
-    var TimeoutError = function TimeoutError(message) {
-        Error.call(this);
-        this.message = message;
-        this.name = TimeoutError.name;
-        if (typeof Error.captureStackTrace === 'function') {
-            Error.captureStackTrace(this, TimeoutError);
+(function(global) {
+    if (typeof global.TimeoutError !== 'function') {
+        var TimeoutError = function(message) {
+            Error.call(this);
+            this.message = message;
+            this.name = TimeoutError.name;
+            if (typeof Error.captureStackTrace === 'function') {
+                Error.captureStackTrace(this, TimeoutError);
+            }
         }
-    };
-
-    TimeoutError.prototype = hprose.createObject(Error.prototype);
-    TimeoutError.prototype.constructor = TimeoutError;
-}
+        TimeoutError.prototype = global.hprose.createObject(Error.prototype);
+        TimeoutError.prototype.constructor = TimeoutError;
+    }
+})(this);

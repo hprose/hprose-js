@@ -12,7 +12,7 @@
  *                                                        *
  * hprose tcp client for JavaScript.                      *
  *                                                        *
- * LastModified: Mar 1, 2016                              *
+ * LastModified: Mar 2, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -25,6 +25,7 @@
     var Client = global.hprose.Client;
     var StringIO = global.hprose.StringIO;
     var Future = global.hprose.Future;
+    var TimeoutError = global.TimeoutError;
     var createObject = global.hprose.createObject;
     var defineProperties = global.hprose.defineProperties;
 
@@ -94,7 +95,7 @@
             // replace to HTTP can be correctly resolved.
             parser.protocol = "http:";
             var address = parser.hostname;
-            var port = parseInt(parser.port);
+            var port = parseInt(parser.port, 10);
             var tls;
             if (protocol === 'tcp:' ||
                 protocol === 'tcp4:' ||
@@ -236,7 +237,7 @@
             else {
                 buf.writeUTF16AsUTF8(request);
             }
-            conn.send(buf.take()).then(function(result) {
+            conn.send(buf.take()).then(function() {
                 self.sendNext(conn);
             });
         } },
@@ -441,7 +442,7 @@
                 }
                 hdtrans.sendAndReceive(request, future, env);
             }
-            if (env.oneway) future.resolve();
+            if (env.oneway) { future.resolve(); }
             return future;
         }
 

@@ -82,7 +82,7 @@
         function(prototype, properties) {
             if (typeof prototype != 'object' &&
                 typeof prototype != 'function') {
-              throw TypeError('prototype must be an object or function');
+              throw new TypeError('prototype must be an object or function');
             }
             Temp.prototype = prototype;
             var result = new Temp();

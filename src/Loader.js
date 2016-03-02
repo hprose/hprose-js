@@ -13,11 +13,12 @@
  *                                                        *
  * hprose CommonJS/AMD/CMD loader for JavaScript.         *
  *                                                        *
- * LastModified: Feb 27, 2016                             *
+ * LastModified: Feb 2, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
+/* global define, module */
 (function (global) {
     'use strict';
 

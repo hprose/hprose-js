@@ -13,7 +13,7 @@
  *                                                        *
  * hprose Writer for JavaScript.                          *
  *                                                        *
- * LastModified: Feb 23, 2016                             *
+ * LastModified: Mar 2, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -33,7 +33,7 @@
     function getClassName(obj) {
         var cls = obj.constructor;
         var classname = ClassManager.getClassAlias(cls);
-        if (classname) return classname;
+        if (classname) { return classname; }
         if (cls.name) {
             classname = cls.name;
         }
@@ -298,9 +298,14 @@
         var stream = writer.stream;
         stream.write(Tags.TagBytes);
         var n = bs.length;
-        if (n > 0) stream.write(n);
-        stream.write(Tags.TagQuote);
-        if (n > 0) stream.write(bs);
+        if (n > 0) {
+            stream.write(n);
+            stream.write(Tags.TagQuote);
+            stream.write(bs);
+        }
+        else {
+            stream.write(Tags.TagQuote);
+        }
         stream.write(Tags.TagQuote);
     }
 
@@ -309,9 +314,14 @@
         var stream = writer.stream;
         var n = str.length;
         stream.write(Tags.TagString);
-        if (n > 0) stream.write(n);
-        stream.write(Tags.TagQuote);
-        if (n > 0) stream.write(writer.binary ? utf8Encode(str) : str);
+        if (n > 0) {
+            stream.write(n);
+            stream.write(Tags.TagQuote);
+            stream.write(writer.binary ? utf8Encode(str) : str);
+        }
+        else {
+            stream.write(Tags.TagQuote);
+        }
         stream.write(Tags.TagQuote);
     }
 
@@ -320,10 +330,15 @@
         var stream = writer.stream;
         var n = array.length;
         stream.write(Tags.TagList);
-        if (n > 0) stream.write(n);
-        stream.write(Tags.TagOpenbrace);
-        for (var i = 0; i < n; i++) {
-            serialize(writer, array[i]);
+        if (n > 0) {
+            stream.write(n);
+            stream.write(Tags.TagOpenbrace);
+            for (var i = 0; i < n; i++) {
+                serialize(writer, array[i]);
+            }
+        }
+        else {
+            stream.write(Tags.TagOpenbrace);
         }
         stream.write(Tags.TagClosebrace);
     }
@@ -340,11 +355,16 @@
         }
         var n = fields.length;
         stream.write(Tags.TagMap);
-        if (n > 0) stream.write(n);
-        stream.write(Tags.TagOpenbrace);
-        for (var i = 0; i < n; i++) {
-            serialize(writer, fields[i]);
-            serialize(writer, map[fields[i]]);
+        if (n > 0) {
+            stream.write(n);
+            stream.write(Tags.TagOpenbrace);
+            for (var i = 0; i < n; i++) {
+                serialize(writer, fields[i]);
+                serialize(writer, map[fields[i]]);
+            }
+        }
+        else {
+            stream.write(Tags.TagOpenbrace);
         }
         stream.write(Tags.TagClosebrace);
     }
@@ -354,12 +374,17 @@
         var stream = writer.stream;
         var n = map.size;
         stream.write(Tags.TagMap);
-        if (n > 0) stream.write(n);
-        stream.write(Tags.TagOpenbrace);
-        map.forEach(function(value, key) {
-            serialize(writer, key);
-            serialize(writer, value);
-        });
+        if (n > 0) {
+            stream.write(n);
+            stream.write(Tags.TagOpenbrace);
+            map.forEach(function(value, key) {
+                serialize(writer, key);
+                serialize(writer, value);
+            });
+        }
+        else {
+            stream.write(Tags.TagOpenbrace);
+        }
         stream.write(Tags.TagClosebrace);
     }
 
@@ -400,10 +425,15 @@
         stream.write(Tags.TagQuote);
         stream.write(writer.binary ? utf8Encode(classname) : classname);
         stream.write(Tags.TagQuote);
-        if (n > 0) stream.write(n);
-        stream.write(Tags.TagOpenbrace);
-        for (var i = 0; i < n; i++) {
-            writeString(writer, fields[i]);
+        if (n > 0) {
+            stream.write(n);
+            stream.write(Tags.TagOpenbrace);
+            for (var i = 0; i < n; i++) {
+                writeString(writer, fields[i]);
+            }
+        }
+        else {
+            stream.write(Tags.TagOpenbrace);
         }
         stream.write(Tags.TagClosebrace);
         var index = writer._fieldsref.length;

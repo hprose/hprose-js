@@ -13,7 +13,7 @@
  *                                                        *
  * hprose Formatter for JavaScript.                       *
  *                                                        *
- * LastModified: Feb 25, 2016                             *
+ * LastModified: Mar 2, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -21,7 +21,6 @@
 (function (global) {
     'use strict';
 
-    var BinaryString = global.hprose.BinaryString;
     var StringIO = global.hprose.StringIO;
     var Writer = global.hprose.Writer;
     var Reader = global.hprose.Reader;

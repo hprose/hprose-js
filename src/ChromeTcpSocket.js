@@ -21,7 +21,6 @@
     'use strict';
 
     var Future = global.hprose.Future;
-    var createObject = global.hprose.createObject;
     var defineProperties = global.hprose.defineProperties;
     var toUint8Array = global.hprose.toUint8Array;
     var toBinaryString = global.hprose.toBinaryString;
@@ -44,7 +43,7 @@
 
     function ChromeTcpSocket() {
         if (socketManager === null) {
-            socketManager = chrome.sockets.tcp;
+            socketManager = global.chrome.sockets.tcp;
             socketManager.onReceive.addListener(receiveListener);
             socketManager.onReceiveError.addListener(receiveErrorListener);
         }

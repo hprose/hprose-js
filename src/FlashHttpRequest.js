@@ -13,7 +13,7 @@
  *                                                        *
  * POST data to HTTP Server (using Flash).                *
  *                                                        *
- * LastModified: Feb 27, 2016                             *
+ * LastModified: Mar 2, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -85,7 +85,7 @@
         else if (global.ActiveXObject) {
             try {
                 ie = true;
-                var ax = new ActiveXObject(flashax);
+                var ax = new global.ActiveXObject(flashax);
                 if (ax) {
                     version = ax.GetVariable('$version');
                     if (version) {
@@ -136,8 +136,8 @@
     }
 
     function setJsReady() {
-        if (jsReady) return;
-        if (!localfile && !corsSupport) setFlash();
+        if (jsReady) { return; }
+        if (!localfile && !corsSupport) { setFlash(); }
         jsReady = true;
         while (jsTaskQueue.length > 0) {
             var task = jsTaskQueue.shift();
@@ -275,7 +275,7 @@
         };
         while (swfTaskQueue.length > 0) {
             var task = swfTaskQueue.shift();
-            if (typeof(task) === 'function') task();
+            if (typeof(task) === 'function') { task(); }
         }
     };
 
