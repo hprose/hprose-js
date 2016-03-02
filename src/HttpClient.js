@@ -264,7 +264,7 @@
     }
 
     defineProperties(HttpClient, {
-        'create': { value: create }
+        create: { value: create }
     });
 
     global.HproseHttpClient = global.hprose.HttpClient = HttpClient;

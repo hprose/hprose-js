@@ -1160,7 +1160,7 @@
     }
 
     defineProperties(Client, {
-        'create': { value: create }
+        create: { value: create }
     });
 
     global.HproseClient = global.hprose.Client = Client;

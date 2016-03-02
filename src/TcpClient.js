@@ -485,7 +485,7 @@
     }
 
     defineProperties(TcpClient, {
-        'create': { value: create }
+        create: { value: create }
     });
 
     global.HproseTcpClient =

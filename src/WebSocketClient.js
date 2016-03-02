@@ -182,7 +182,7 @@
     }
 
     defineProperties(WebSocketClient, {
-        'create': { value: create }
+        create: { value: create }
     });
 
     global.HproseWebSocketClient =

@@ -13,7 +13,7 @@
  *                                                        *
  * jsonrpc client filter for JavaScript.                  *
  *                                                        *
- * LastModified: Feb 27, 2016                             *
+ * LastModified: Mar 2, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -25,6 +25,7 @@
     var StringIO = global.hprose.StringIO;
     var Writer = global.hprose.Writer;
     var Reader = global.hprose.Reader;
+    var JSON = global.JSON;
 
     var s_id = 1;
 
@@ -32,7 +33,7 @@
         this.version = version || '2.0';
     }
 
-    JSONRPCClientFilter.prototype.inputFilter = function inputFilter(data, context) {
+    JSONRPCClientFilter.prototype.inputFilter = function inputFilter(data/*, context*/) {
         if (data.charAt(0) === '{') {
             data = '[' + data + ']';
         }
@@ -54,7 +55,7 @@
         return stream.take();
     };
 
-    JSONRPCClientFilter.prototype.outputFilter = function outputFilter(data, context) {
+    JSONRPCClientFilter.prototype.outputFilter = function outputFilter(data/*, context*/) {
         var requests = [];
         var stream = new StringIO(data);
         var reader = new Reader(stream, false, false);
