@@ -12,7 +12,7 @@
  *                                                        *
  * hprose client for JavaScript.                          *
  *                                                        *
- * LastModified: Feb 25, 2016                             *
+ * LastModified: Mar 2, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -749,6 +749,9 @@
             _filters.splice(i, 1);
             return true;
         }
+        function filters() {
+            return _filters;
+        }
         function useService(uri, functions, create) {
             if (create === undefined) {
                 if (typeof(functions) === s_boolean) {
@@ -1080,6 +1083,7 @@
             filter: { get: getFilter, set: setFilter },
             addFilter: { value: addFilter },
             removeFilter: { value: removeFilter },
+            filters: { get: filters },
             useService: { value: useService },
             invoke: { value: invoke },
             ready: { value: ready },
