@@ -104,9 +104,10 @@
 <body>
 <script type="text/javascript">
     var client = hprose.Client.create("http://www.hprose.com/example/", ["hello"]);
-    client.hello("World!", function(result) {
+    client.hello("World!")
+    .then(function(result) {
         alert(result);
-    }, function(name, err) {
+    }, function(err) {
         alert(err);
     });
 </script>
