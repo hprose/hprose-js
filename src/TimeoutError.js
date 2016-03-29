@@ -13,7 +13,7 @@
  *                                                        *
  * TimeoutError for JavaScript.                           *
  *                                                        *
- * LastModified: Mar 2, 2016                              *
+ * LastModified: Mar 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -30,5 +30,6 @@
         }
         TimeoutError.prototype = global.hprose.createObject(Error.prototype);
         TimeoutError.prototype.constructor = TimeoutError;
+        global.TimeoutError = TimeoutError;
     }
 })(this);
