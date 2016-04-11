@@ -13,7 +13,7 @@
  *                                                        *
  * hprose Future for JavaScript.                          *
  *                                                        *
- * LastModified: Mar 28, 2016                             *
+ * LastModified: Apr 11, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -59,6 +59,10 @@
 
     function isPromise(obj) {
         return isFuture(obj) || (hasPromise && (obj instanceof global.Promise) && (typeof (obj.then === 'function')));
+    }
+
+    function toPromise(obj) {
+        return (isPromise(obj) ? obj : value(obj));
     }
 
     function delayed(duration, value) {
@@ -120,8 +124,7 @@
             if (count === 0) { return value(result); }
             var future = new Future();
             Array.forEach(array, function(element, index) {
-                var f = (isPromise(element) ? element : value(element));
-                f.then(function(value) {
+                toPromise(element).then(function(value) {
                     result[index] = value;
                     if (--count === 0) {
                         future.resolve(result);
@@ -142,8 +145,7 @@
         return array.then(function(array) {
             var future = new Future();
             Array.forEach(array, function(element) {
-                var f = (isPromise(element) ? element : value(element));
-                f.then(future.resolve, future.reject);
+                toPromise(element).fill(future);
             });
             return future;
         });
@@ -160,8 +162,7 @@
             var reasons = new Array(n);
             var future = new Future();
             Array.forEach(array, function(element, index) {
-                var f = (isPromise(element) ? element : value(element));
-                f.then(future.resolve, function(e) {
+                toPromise(element).then(future.resolve, function(e) {
                     reasons[index] = e;
                     if (--count === 0) {
                         future.reject(reasons);
@@ -181,7 +182,7 @@
             if (count === 0) { return value(result); }
             var future = new Future();
             Array.forEach(array, function(element, index) {
-                var f = (isPromise(element) ? element : value(element));
+                var f = toPromise(element);
                 f.whenComplete(function() {
                     result[index] = f.inspect();
                     if (--count === 0) {
@@ -337,6 +338,7 @@
         promise: { value: promise },
         isFuture: { value: isFuture },
         isPromise: { value: isPromise },
+        toPromise: { value: toPromise },
         join: { value: join },
         any: { value: any },
         settle: { value: settle },
@@ -557,13 +559,16 @@
         always: { value: function(oncomplete) {
            this.done(oncomplete, oncomplete);
         } },
+        fill: { value: function(future) {
+           this.then(future.resolve, future.reject);
+        } },
         timeout: { value: function(duration, reason) {
             var future = new Future();
             var timeoutId = setTimeout(function() {
                 future.reject(reason || new TimeoutError('timeout'));
             }, duration);
             this.whenComplete(function() { clearTimeout(timeoutId); })
-                .then(future.resolve, future.reject);
+                .fill(future);
             return future;
         } },
         delay: { value: function(duration) {
