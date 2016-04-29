@@ -12,7 +12,7 @@
  *                                                        *
  * hprose websocket client for JavaScript.                *
  *                                                        *
- * LastModified: Mar 2, 2016                              *
+ * LastModified: Apr 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -75,7 +75,13 @@
             _ready.resolve(e);
         }
         function onmessage(e) {
-            var stream = new StringIO(toBinaryString(e.data));
+            var stream;
+            if (typeof e.data === "string") {
+                stream = new StringIO(StringIO.utf8Encode(e.data));
+            }
+            else {
+                stream = new StringIO(toBinaryString(e.data));
+            }
             var id = stream.readInt32BE();
             var future = _futures[id];
             var env = _envs[id];

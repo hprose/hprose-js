@@ -13,7 +13,7 @@
  *                                                        *
  * hprose StringIO for JavaScript.                        *
  *                                                        *
- * LastModified: Mar 2, 2016                              *
+ * LastModified: Apr 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -45,9 +45,9 @@
 
     // s is an UTF16 encode string
     function utf8Encode(s) {
-        if (/^[\x00-\x7f]*$/.test(s)) {
-            return s;
-        }
+        // if (/^[\x00-\x7f]*$/.test(s)) {
+        //     return s;
+        // }
         var buf = [];
         var n = s.length;
         for (var i = 0, j = 0; i < n; ++i, ++j) {
@@ -225,10 +225,10 @@
     function readString(bs, n) {
         if (n === undefined || n === null || (n < 0)) { n = bs.length; }
         if (n === 0) { return ['', 0]; }
-        if (/^[\x00-\x7f]*$/.test(bs) || !(/^[\x00-\xff]*$/.test(bs))) {
-            if (n === bs.length) { return [bs, n]; }
-            return [bs.substr(0, n), n];
-        }
+        // if (/^[\x00-\x7f]*$/.test(bs) || !(/^[\x00-\xff]*$/.test(bs))) {
+        //     if (n === bs.length) { return [bs, n]; }
+        //     return [bs.substr(0, n), n];
+        // }
         return ((n < 100000) ?
                 readShortString(bs, n) :
                 readLongString(bs, n));
@@ -239,13 +239,13 @@
     function readUTF8(bs, n) {
         if (n === undefined || n === null || (n < 0)) { n = bs.length; }
         if (n === 0) { return ''; }
-        if (/^[\x00-\x7f]*$/.test(bs)) {
-            if (n === bs.length) { return bs; }
-            return bs.substr(0, n);
-        }
-        if (!(/^[\x00-\xff]*$/.test(bs))) {
-            throw new Error("The first argument must be an UTF8 encode binary string.");
-        }
+        // if (/^[\x00-\x7f]*$/.test(bs)) {
+        //     if (n === bs.length) { return bs; }
+        //     return bs.substr(0, n);
+        // }
+        // if (!(/^[\x00-\xff]*$/.test(bs))) {
+        //     throw new Error("The first argument must be an UTF8 encode binary string.");
+        // }
         var i = 0, off = 0;
         for (var len = bs.length; i < n && off < len; i++) {
             var unit = bs.charCodeAt(off++);
@@ -306,9 +306,9 @@
     // s is an UTF16 encode string
     function utf8Length(s) {
         var n = s.length;
-        if (/^[\x00-\x7f]*$/.test(s)) {
-            return n;
-        }
+        // if (/^[\x00-\x7f]*$/.test(s)) {
+        //     return n;
+        // }
         var length = 0;
         for (var i = 0; i < n; ++i) {
             var codeUnit = s.charCodeAt(i);
@@ -339,9 +339,9 @@
     // bs is an UTF8 encode binary string
     function utf16Length(bs) {
         var n = bs.length;
-        if (/^[\x00-\x7f]*$/.test(bs) || !(/^[\x00-\xff]*$/.test(bs))) {
-            return n;
-        }
+        // if (/^[\x00-\x7f]*$/.test(bs) || !(/^[\x00-\xff]*$/.test(bs))) {
+        //     return n;
+        // }
         var length = 0;
         for (var i = 0; i < n; ++i, ++length) {
             var unit = bs.charCodeAt(i);
@@ -397,12 +397,12 @@
     }
 
     function isUTF8(bs) {
-        if (/^[\x00-\x7f]*$/.test(bs)) {
-            return true;
-        }
-        if (!(/^[\x00-\xff]*$/.test(bs))) {
-            return false;
-        }
+        // if (/^[\x00-\x7f]*$/.test(bs)) {
+        //     return true;
+        // }
+        // if (!(/^[\x00-\xff]*$/.test(bs))) {
+        //     return false;
+        // }
         for (var i = 0, n = bs.length; i < n; ++i) {
             var unit = bs.charCodeAt(i);
             switch (unit >> 4) {
