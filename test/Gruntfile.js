@@ -334,10 +334,7 @@ module.exports = function (grunt) {
           pollInterval: 5000,
           maxRetries: 3,
           sauceConfig: {
-            'video-upload-on-pass': false,
-            "seleniumVersion": "2.53.0",
-            "chromedriverVersion": "2.21",
-            "iedriverVersion": "2.53.1"
+            'video-upload-on-pass': false
           }
         }
       }
