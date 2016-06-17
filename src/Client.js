@@ -563,7 +563,7 @@
                                 if (mode === ResultMode.RawWithEndTag) {
                                     result.write(Tags.TagEnd);
                                 }
-                                batches[i].result = result.bytes;
+                                batches[i].result = result.toString();
                             }
                             else {
                                 batches[i].result = result;
