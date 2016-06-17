@@ -366,7 +366,7 @@
                             result = response;
                         }
                         else if (context.mode === ResultMode.Raw) {
-                            result = response.substring(0, response.byteLength - 1);
+                            result = response.substring(0, response.length - 1);
                         }
                         else {
                             var stream = new StringIO(response);
