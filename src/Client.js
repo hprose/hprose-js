@@ -12,7 +12,7 @@
  *                                                        *
  * hprose client for JavaScript.                          *
  *                                                        *
- * LastModified: Apr 1, 2016                              *
+ * LastModified: Jul 4, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -982,14 +982,9 @@
             _invokeHandler = _invokeHandlers.reduceRight(
             function(next, handler) {
                 return function(name, args, context) {
-                    try {
-                        var result = handler(name, args, context, next);
-                        if (Future.isFuture(result)) { return result; }
-                        return Future.value(result);
-                    }
-                    catch (e) {
-                        return Future.error(e);
-                    }
+                    return Future.sync(function() {
+                        return handler(name, args, context, next);
+                    });
                 };
             }, invokeHandler);
         }
@@ -998,14 +993,9 @@
             _batchInvokeHandler = _batchInvokeHandlers.reduceRight(
             function(next, handler) {
                 return function(batches, context) {
-                    try {
-                        var result = handler(batches, context, next);
-                        if (Future.isFuture(result)) { return result; }
-                        return Future.value(result);
-                    }
-                    catch (e) {
-                        return Future.error(e);
-                    }
+                    return Future.sync(function() {
+                        return handler(batches, context, next);
+                    });
                 };
             }, batchInvokeHandler);
         }
@@ -1014,14 +1004,9 @@
             _beforeFilterHandler = _beforeFilterHandlers.reduceRight(
             function(next, handler) {
                 return function(request, context) {
-                    try {
-                        var response = handler(request, context, next);
-                        if (Future.isFuture(response)) { return response; }
-                        return Future.value(response);
-                    }
-                    catch (e) {
-                        return Future.error(e);
-                    }
+                    return Future.sync(function() {
+                        return handler(request, context, next);
+                    });
                 };
             }, beforeFilterHandler);
         }
@@ -1030,14 +1015,9 @@
             _afterFilterHandler = _afterFilterHandlers.reduceRight(
             function(next, handler) {
                 return function(request, context) {
-                    try {
-                        var response = handler(request, context, next);
-                        if (Future.isFuture(response)) { return response; }
-                        return Future.value(response);
-                    }
-                    catch (e) {
-                        return Future.error(e);
-                    }
+                    return Future.sync(function() {
+                        return handler(request, context, next);
+                    });
                 };
             }, afterFilterHandler);
         }

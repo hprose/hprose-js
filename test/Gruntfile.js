@@ -19,6 +19,9 @@ module.exports = function (grunt) {
     version: '5.1'
   }, {
     browserName: 'iphone',
+    version: '9.3'
+  }, {
+    browserName: 'iphone',
     version: '9.2'
   }, {
     browserName: 'iphone',
@@ -53,6 +56,9 @@ module.exports = function (grunt) {
   }, {
     browserName: 'iphone',
     version: '5.1'
+  }, {
+    browserName: 'ipad',
+    version: '9.3'
   }, {
     browserName: 'ipad',
     version: '9.2'
@@ -301,6 +307,14 @@ module.exports = function (grunt) {
     browserName: 'internet explorer',
     platform: 'Windows XP',
     version: '6.0'
+  }, {
+    browserName: 'opera',
+    platform: 'Linux',
+    version: '12.12'
+  }, {
+    browserName: 'opera',
+    platform: 'Windows 7',
+    version: '12.12'
   }, {
     browserName: 'opera',
     platform: 'Windows 7',
