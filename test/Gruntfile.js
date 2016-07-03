@@ -336,7 +336,7 @@ module.exports = function (grunt) {
       all: {
         options: {
           username: 'hprose-js',
-          key: '4183a5d8-d54b-4808-9ade-fbe00961392e',
+          key: function() { return '4183a5d8-d54b-4808-9ade-fbe00961392e' },
           urls: [
             'http://127.0.0.1:9999/index.html'
           ],
