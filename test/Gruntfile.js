@@ -291,14 +291,6 @@ module.exports = function (grunt) {
     version: '6.0'
   }, {
     browserName: 'opera',
-    platform: 'Linux',
-    version: '12.12'
-  }, {
-    browserName: 'opera',
-    platform: 'Windows 7',
-    version: '12.12'
-  }, {
-    browserName: 'opera',
     platform: 'Windows 7',
     version: '11.64'
   }];
