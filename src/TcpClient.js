@@ -12,7 +12,7 @@
  *                                                        *
  * hprose tcp client for JavaScript.                      *
  *                                                        *
- * LastModified: Mar 2, 2016                              *
+ * LastModified: Jul 14, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -144,7 +144,7 @@
         fetch: { value: function() {
             var pool = this.pool;
             while (pool.length > 0) {
-                var conn = pool.shift();
+                var conn = pool.pop();
                 if (conn.connected) {
                     if (conn.count === 0) {
                         conn.clearTimeout();
@@ -203,12 +203,14 @@
         sendNext: { value: function(conn) {
             if (conn.count < 10) {
                 if (this.requests.length > 0) {
-                    var request = this.requests.shift();
+                    var request = this.requests.pop();
                     request.push(conn);
                     this.send.apply(this, request);
                 }
                 else {
-                    this.pool.push(conn);
+                    if (this.pool.lastIndexOf(conn) < 0) {
+                        this.pool.push(conn);
+                    }
                 }
             }
         } },
@@ -278,7 +280,7 @@
         fetch: { value: function() {
             var pool = this.pool;
             while (pool.length > 0) {
-                var conn = pool.shift();
+                var conn = pool.pop();
                 if (conn.connected) {
                     conn.clearTimeout();
                     conn.ref();
@@ -288,11 +290,13 @@
             return null;
         } },
         recycle: { value: function(conn) {
-            conn.unref();
-            conn.setTimeout(this.client.poolTimeout(), function() {
-                 conn.destroy();
-            });
-            this.pool.push(conn);
+            if (this.pool.lastIndexOf(conn) < 0) {
+                conn.unref();
+                conn.setTimeout(this.client.poolTimeout(), function() {
+                    conn.destroy();
+                });
+                this.pool.push(conn);
+            }
         } },
         clean: { value: function(conn) {
             conn.onreceive = noop;
@@ -304,7 +308,7 @@
         } },
         sendNext: { value: function(conn) {
             if (this.requests.length > 0) {
-                var request = this.requests.shift();
+                var request = this.requests.pop();
                 request.push(conn);
                 this.send.apply(this, request);
             }
