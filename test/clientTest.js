@@ -13,7 +13,7 @@
  *                                                        *
  * hprose client test for JavaScript.                     *
  *                                                        *
- * LastModified: Feb 25, 2016                             *
+ * LastModified: Jul 26, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -26,6 +26,7 @@ describe('hprose', function(){
     describe('hprose.HttpClient', function(){
         var methodList = ['hello', 'sum', 'swapKeyAndValue', 'getUserList', 'print_r'];
         var client = new hprose.HttpClient('http://hprose.com/example/', methodList);
+        client.idempotent(true);
         client.onerror = function(name, err) {
             assert(false, name + ':' + err);
         };
@@ -79,6 +80,7 @@ describe('hprose', function(){
     describe('hprose.HttpClient with JSONRPCClientFilter', function(){
         var methodList = ['hello', 'sum', 'getUserList'];
         var client = new hprose.HttpClient('http://hprose.com/example/', methodList);
+        client.idempotent(true);
         client.filter(new hprose.JSONRPCClientFilter());
         client.onerror = function(name, err) {
             assert(false, name + ':' + err);
@@ -97,30 +99,3 @@ describe('hprose', function(){
         });
     });
 });
-
-/*
-(function() {
-    'use strict';
-    var methodList = ['hello', 'sum', 'swapKeyAndValue', 'getUserList'];
-    var client = new HproseHttpClient('http://hprose.com/example/', methodList);
-    client.onError = function(name, err) {
-        console.error(name + ':' + err);
-    };
-    client.beginBatch();
-    client.hello('World', function(result) {
-        console.info(result);
-    });
-    client.sum(1,2,3,4,5, function(result) {
-        console.info(result);
-    });
-    client.swapKeyAndValue(weeks, function(result, args) {
-        console.info(weeks);
-        console.info(result);
-        console.info(args[0]);
-    }, true);
-    client.getUserList(function(result) {
-        console.info(result);
-    });
-    client.endBatch();
-})();
-*/
