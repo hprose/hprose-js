@@ -71,7 +71,10 @@ describe('hprose', function(){
         });
         it('getUserList() should get an user list', function(done){
             client.getUserList(function(result) {
-                assert(hprose.Formatter.serialize(result) === 'a4{c4"User"5{s4"name"s3"sex"s8"birthday"s3"age"s7"married"}o0{s3"Amy"2D19831203;i26;t}o0{s3"Bob"1D19890612;i20;f}o0{s5"Chris"0D19800308;i29;t}o0{s4"Alex"3D19920614;i17;f}}');
+                assert(result[0].name == "Amy");
+                assert(result[1].name == "Bob");
+                assert(result[2].name == "Chris");
+                assert(result[3].name == "Alex");
                 done();
             });
         });
