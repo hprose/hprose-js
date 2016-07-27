@@ -92,7 +92,7 @@
 * Chrome extentions (http, tcp, websocket)
 * APICloud (http, tcp*)
 * DCloud (http)
-* AppCan (还不支持)
+* AppCan (http)
 * ... (http, websocket)
 
 在 APICloud 平台上，TCP 只在 iOS 上有效，因为 APICloud 的 Android SDK 有个 bug，但是他们不肯修复，所以我也无能为力。
