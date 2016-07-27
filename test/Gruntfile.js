@@ -49,9 +49,6 @@ module.exports = function (grunt) {
     version: '9.3'
   }, {
     browserName: 'ipad',
-    version: '9.2'
-  }, {
-    browserName: 'ipad',
     version: '9.1'
   }, {
     browserName: 'ipad',
