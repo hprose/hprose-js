@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.8
+// Hprose for JavaScript v2.0.9
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -4646,7 +4646,7 @@
  *                                                        *
  * hprose client for JavaScript.                          *
  *                                                        *
- * LastModified: Jul 26, 2016                             *
+ * LastModified: Aug 24, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -5476,9 +5476,9 @@
             }
             return null;
         }
-        // subscribe(name, callback, timeout)
-        // subscribe(name, id, callback, timeout)
-        function subscribe(name, id, callback, timeout) {
+        // subscribe(name, callback, timeout, failswitch)
+        // subscribe(name, id, callback, timeout, failswitch)
+        function subscribe(name, id, callback, timeout, failswitch) {
             if (typeof name !== s_string) {
                 throw new TypeError('topic name must be a string.');
             }
@@ -5497,7 +5497,7 @@
                     _id = autoId();
                 }
                 _id.then(function(id) {
-                    subscribe(name, id, callback, timeout);
+                    subscribe(name, id, callback, timeout, failswitch);
                 });
                 return;
             }
@@ -5506,7 +5506,7 @@
             }
             if (Future.isPromise(id)) {
                 id.then(function(id) {
-                    subscribe(name, id, callback, timeout);
+                    subscribe(name, id, callback, timeout, failswitch);
                 });
                 return;
             }
@@ -5516,7 +5516,7 @@
                 var cb = function() {
                     _invoke(self, name, [id, topic.handler, cb, {
                         idempotent: true,
-                        failswitch: false,
+                        failswitch: failswitch,
                         timeout: timeout
                     }], false);
                 };
