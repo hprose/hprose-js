@@ -27,6 +27,7 @@
     var toBinaryString = global.hprose.toBinaryString;
     var toUint8Array = global.hprose.toUint8Array;
     var parseuri = global.hprose.parseuri;
+    var cookieManager = global.hprose.cookieManager;
 
     var TimeoutError = global.TimeoutError;
     var FlashHttpRequest = global.FlashHttpRequest;
@@ -184,6 +185,10 @@
 
         function apiPost(request, env) {
             var future = new Future();
+            var cookie = cookieManager.getCookie(self.uri());
+            if (cookie !== '') {
+                _header['Cookie'] = cookie;
+            }
             global.api.ajax({
                 url: self.uri(),
                 method: 'post',
@@ -191,10 +196,17 @@
                 timeout: env.timeout,
                 dataType: 'text',
                 headers: _header,
+                returnAll: true,
                 certificate: self.certificate
             }, function(ret, err) {
                 if (ret) {
-                    future.resolve(ret);
+                    if (ret.statusCode === 200) {
+                        cookieManager.setCookie(ret.headers, self.uri());
+                        future.resolve(ret.body);
+                    }
+                    else {
+                        future.reject(new Error(ret.statusCode+':'+ret.body));
+                    }
                 }
                 else {
                     future.reject(new Error(err.msg));
@@ -214,7 +226,15 @@
             for (var name in _header) {
                 http.setRequestHeader(name, _header[name]);
             }
+            var cookie = cookieManager.getCookie(self.uri());
+            if (cookie !== '') {
+                http.setRequestHeader('Cookie', cookie);
+            }
             http.on("success", function(data) {
+                var cookie = http.getResponseHeader('set-cookie');
+                if (cookie) {
+                    cookieManager.setCookie({'set-cookie': cookie}, self.uri());
+                }
                 future.resolve(data);
             });
             http.on("fail", function(result) {
