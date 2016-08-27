@@ -12,7 +12,7 @@
  *                                                        *
  * hprose client for JavaScript.                          *
  *                                                        *
- * LastModified: Aug 24, 2016                             *
+ * LastModified: Aug 27, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -29,6 +29,7 @@
     var Future = global.hprose.Future;
     var defineProperties = global.hprose.defineProperties;
     var createObject = global.hprose.createObject;
+    var parseuri = global.hprose.parseuri;
 
     var GETFUNCTIONS = Tags.TagEnd;
 
@@ -1106,8 +1107,7 @@
     }
 
     function checkuri(uri) {
-        var parser = document.createElement('a');
-        parser.href = uri;
+        var parser = parseuri(uri);
         var protocol = parser.protocol;
         if (protocol === 'http:' ||
             protocol === 'https:' ||

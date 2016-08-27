@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.9
+// Hprose for JavaScript v2.0.10
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -31,6 +31,63 @@
 
 })(this);
 
+/**********************************************************\
+|                                                          |
+|                          hprose                          |
+|                                                          |
+| Official WebSite: http://www.hprose.com/                 |
+|                   http://www.hprose.org/                 |
+|                                                          |
+\**********************************************************/
+/**********************************************************\
+ *                                                        *
+ * DeviceOne.js                                           *
+ *                                                        *
+ * setTimeout patch for DeviceOne.                        *
+ *                                                        *
+ * LastModified: Aug 27, 2016                             *
+ * Author: Ma Bingyao <andot@hprose.com>                  *
+ *                                                        *
+\**********************************************************/
+
+(function (global) {
+    'use strict';
+    if (typeof global.setTimeout !== "undefined") {
+        return;
+    }
+    if (typeof global.require !== "function") {
+    	return;
+    }
+    var deviceone;
+    try {
+        deviceone = global.require("deviceone");
+    }
+    catch (e) {
+        return;
+    }
+    if (!deviceone) {
+    	return;
+    }
+    global.setTimeout = function(func, delay) {
+    	if (delay <= 0) {
+    		delay = 1;
+    	}
+        var timer = deviceone.mm("do_Timer");
+        timer.delay = delay;
+        timer.interval = delay;
+        timer.on('tick', function() {
+            timer.stop();
+            func();
+        });
+        timer.start();
+        return timer;
+    };
+    global.clearTimeout = function(timer) {
+        if (timer.isStart()) {
+            timer.stop();
+        }
+    };
+})(this);
 /**********************************************************\
 |                                                          |
 |                          hprose                          |
@@ -181,7 +238,7 @@
  *                                                        *
  * hprose helper for JavaScript.                          *
  *                                                        *
- * LastModified: Mar 2, 2016                              *
+ * LastModified: Aug 27, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -189,7 +246,7 @@
 (function (global, undefined) {
     'use strict';
 
-    function propertyToMethod(prop) {
+    var propertyToMethod = function(prop) {
         if ('get' in prop && 'set' in prop) {
             return function() {
                 if (arguments.length === 0) {
@@ -275,7 +332,7 @@
         }
     );
 
-    function generic(method) {
+    var generic = function(method) {
         if (typeof method !== "function") {
             throw new TypeError(method + " is not a function");
         }
@@ -284,45 +341,34 @@
         };
     }
 
-    var arrayLikeObjectArgumentsEnabled = true;
-
-    try {
-        String.fromCharCode.apply(String, new Uint8Array([1]));
-    }
-    catch (e) {
-        arrayLikeObjectArgumentsEnabled = false;
-    }
-
-    function toArray(arrayLikeObject) {
+    var toArray = function(arrayLikeObject) {
         var n = arrayLikeObject.length;
         var a = new Array(n);
         for (var i = 0; i < n; ++i) {
             a[i] = arrayLikeObject[i];
         }
         return a;
-    }
+    };
 
-    var getCharCodes = arrayLikeObjectArgumentsEnabled ? function(bytes) { return bytes; } : toArray;
-
-    function toBinaryString(bytes) {
+    var toBinaryString = function(bytes) {
         if (bytes instanceof ArrayBuffer) {
             bytes = new Uint8Array(bytes);
         }
         var n = bytes.length;
         if (n < 100000) {
-            return String.fromCharCode.apply(String, getCharCodes(bytes));
+            return String.fromCharCode.apply(String, toArray(bytes));
         }
         var remain = n & 0xFFFF;
         var count = n >> 16;
         var a = new Array(remain ? count + 1 : count);
         for (var i = 0; i < count; ++i) {
-            a[i] = String.fromCharCode.apply(String, getCharCodes(bytes.subarray(i << 16, (i + 1) << 16)));
+            a[i] = String.fromCharCode.apply(String, toArray(bytes.subarray(i << 16, (i + 1) << 16)));
         }
         if (remain) {
-            a[count] = String.fromCharCode.apply(String, getCharCodes(bytes.subarray(count << 16, n)));
+            a[count] = String.fromCharCode.apply(String, toArray(bytes.subarray(count << 16, n)));
         }
         return a.join('');
-    }
+    };
 
     var toUint8Array = function(bs) {
         var n = bs.length;
@@ -333,12 +379,28 @@
         return data;
     };
 
+    var parseuri = function(url) {
+        var pattern = new RegExp("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
+        var matches =  url.match(pattern);
+        var host = matches[4].split(':', 2);
+        return {
+            protocol: matches[1],
+            host: matches[4],
+            hostname: host[0],
+            port: parseInt(host[1], 10) || 0,
+            path: matches[5],
+            query: matches[7],
+            fragment: matches[9]
+        };
+    }
+
     global.hprose.defineProperties = defineProperties;
     global.hprose.createObject = createObject;
     global.hprose.generic = generic;
     global.hprose.toBinaryString = toBinaryString;
     global.hprose.toUint8Array = toUint8Array;
     global.hprose.toArray = toArray;
+    global.hprose.parseuri = parseuri;
 
 })(this);
 
@@ -4646,7 +4708,7 @@
  *                                                        *
  * hprose client for JavaScript.                          *
  *                                                        *
- * LastModified: Aug 24, 2016                             *
+ * LastModified: Aug 27, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -4663,6 +4725,7 @@
     var Future = global.hprose.Future;
     var defineProperties = global.hprose.defineProperties;
     var createObject = global.hprose.createObject;
+    var parseuri = global.hprose.parseuri;
 
     var GETFUNCTIONS = Tags.TagEnd;
 
@@ -5740,8 +5803,7 @@
     }
 
     function checkuri(uri) {
-        var parser = document.createElement('a');
-        parser.href = uri;
+        var parser = parseuri(uri);
         var protocol = parser.protocol;
         if (protocol === 'http:' ||
             protocol === 'https:' ||
@@ -5805,7 +5867,7 @@
  *                                                        *
  * POST data to HTTP Server (using Flash).                *
  *                                                        *
- * LastModified: Mar 2, 2016                              *
+ * LastModified: Aug 27, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -5822,6 +5884,12 @@
 /*jshint es3:true, unused:false, eqeqeq:true */
 (function (global) {
     'use strict';
+    if (typeof global.document === "undefined") {
+        global.FlashHttpRequest = {
+            flashSupport: function() { return false; }
+        }
+        return;
+    }
     // get flash path
     var scripts = document.getElementsByTagName('script');
     var flashpath = scripts[scripts.length - 1].getAttribute('flashpath') || '';
@@ -6092,7 +6160,7 @@
  *                                                        *
  * hprose http client for JavaScript.                     *
  *                                                        *
- * LastModified: Feb 28, 2016                             *
+ * LastModified: Aug 27, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -6106,6 +6174,7 @@
     var defineProperties = global.hprose.defineProperties;
     var toBinaryString = global.hprose.toBinaryString;
     var toUint8Array = global.hprose.toUint8Array;
+    var parseuri = global.hprose.parseuri;
 
     var TimeoutError = global.TimeoutError;
     var FlashHttpRequest = global.FlashHttpRequest;
@@ -6115,11 +6184,18 @@
     if (global.plus && global.plus.net && global.plus.net.XMLHttpRequest) {
         XMLHttpRequest = global.plus.net.XMLHttpRequest;
     }
-    else if (document.addEventListener) {
-        document.addEventListener("plusready", function() {
+    else if (global.document && global.document.addEventListener) {
+        global.document.addEventListener("plusready", function() {
             XMLHttpRequest = global.plus.net.XMLHttpRequest;
         }, false);
     }
+
+    var deviceone;
+    
+    try {
+        deviceone = global.require("deviceone");
+    }
+    catch (e) {}
 
     var localfile = (global.location !== undefined && global.location.protocol === 'file:');
     var nativeXHR = (typeof(XMLHttpRequest) !== 'undefined');
@@ -6275,12 +6351,32 @@
             return future;
         }
 
+        function deviceOnePost(request, env) {
+            var future = new Future();
+            var http = deviceone.mm('do_Http');
+            http.method = "POST";
+            http.timeout = env.timeout;
+            http.contextType = "text/plain; charset=UTF-8";
+            http.url = self.uri();
+            http.body = request;
+            for (var name in _header) {
+                http.setRequestHeader(name, _header[name]);
+            }
+            http.on("success", function(data) {
+                future.resolve(data);
+            });
+            http.on("fail", function(result) {
+                future.reject(new Error(result.status + ":" + result.data));
+            });
+            http.request();
+            return future;
+        }
+
         function isCrossDomain() {
             if (global.location === undefined) {
                 return true;
             }
-            var parser = document.createElement('a');
-            parser.href = self.uri();
+            var parser = parseuri(self.uri());
             if (parser.protocol !== global.location.protocol) {
                 return true;
             }
@@ -6298,6 +6394,7 @@
                            typeof(global.api.ajax) !== "undefined");
             var future = fhr ?      fhrPost(request, env) :
                          apicloud ? apiPost(request, env) :
+                         deviceone ? deviceOnePost(request, env) :
                                     xhrPost(request, env);
             if (env.oneway) { future.resolve(); }
             return future;
@@ -6321,8 +6418,7 @@
     }
 
     function checkuri(uri) {
-        var parser = document.createElement('a');
-        parser.href = uri;
+        var parser = parseuri(uri);
         if (parser.protocol === 'http:' ||
             parser.protocol === 'https:') {
             return;
@@ -6365,7 +6461,7 @@
  *                                                        *
  * hprose websocket client for JavaScript.                *
  *                                                        *
- * LastModified: Jul 14, 2016                             *
+ * LastModified: Aug 27, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -6381,6 +6477,7 @@
     var defineProperties = global.hprose.defineProperties;
     var toBinaryString = global.hprose.toBinaryString;
     var toUint8Array = global.hprose.toUint8Array;
+    var parseuri = global.hprose.parseuri;
     var WebSocket = global.WebSocket || global.MozWebSocket;
 
     function noop(){}
@@ -6518,8 +6615,7 @@
     }
 
     function checkuri(uri) {
-        var parser = document.createElement('a');
-        parser.href = uri;
+        var parser = parseuri(uri);
         if (parser.protocol === 'ws:' ||
             parser.protocol === 'wss:') {
             return;
@@ -6881,7 +6977,7 @@
  *                                                        *
  * hprose tcp client for JavaScript.                      *
  *                                                        *
- * LastModified: Jul 14, 2016                             *
+ * LastModified: Aug 27, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -6897,6 +6993,7 @@
     var TimeoutError = global.TimeoutError;
     var createObject = global.hprose.createObject;
     var defineProperties = global.hprose.defineProperties;
+    var parseuri = global.hprose.parseuri;
 
     function noop(){}
 
@@ -6957,8 +7054,7 @@
 
     defineProperties(TcpTransporter.prototype, {
         create: { value: function() {
-            var parser = document.createElement('a');
-            parser.href = this.uri;
+            var parser = parseuri(this.uri);
             var protocol = parser.protocol;
             // HTMLAnchorElement can't parse TCP protocol
             // replace to HTTP can be correctly resolved.
@@ -7329,8 +7425,7 @@
     }
 
     function checkuri(uri) {
-        var parser = document.createElement('a');
-        parser.href = uri;
+        var parser = parseuri(uri);
         var protocol = parser.protocol;
         if (protocol === 'tcp:' ||
             protocol === 'tcp4:'||
@@ -7363,6 +7458,109 @@
 
     global.HproseTcpClient =
     global.hprose.TcpClient = TcpClient;
+
+})(this);
+
+/**********************************************************\
+|                                                          |
+|                          hprose                          |
+|                                                          |
+| Official WebSite: http://www.hprose.com/                 |
+|                   http://www.hprose.org/                 |
+|                                                          |
+\**********************************************************/
+
+/**********************************************************\
+ *                                                        *
+ * JSONRPCClientFilter.js                                 *
+ *                                                        *
+ * jsonrpc client filter for JavaScript.                  *
+ *                                                        *
+ * LastModified: Mar 2, 2016                              *
+ * Author: Ma Bingyao <andot@hprose.com>                  *
+ *                                                        *
+\**********************************************************/
+
+(function (global) {
+    'use strict';
+
+    var Tags = global.hprose.Tags;
+    var StringIO = global.hprose.StringIO;
+    var Writer = global.hprose.Writer;
+    var Reader = global.hprose.Reader;
+    var JSON = global.JSON;
+
+    var s_id = 1;
+
+    function JSONRPCClientFilter(version) {
+        this.version = version || '2.0';
+    }
+
+    JSONRPCClientFilter.prototype.inputFilter = function inputFilter(data/*, context*/) {
+        if (data.charAt(0) === '{') {
+            data = '[' + data + ']';
+        }
+        var responses = JSON.parse(data);
+        var stream = new StringIO();
+        var writer = new Writer(stream, true);
+        for (var i = 0, n = responses.length; i < n; ++i) {
+            var response = responses[i];
+            if (response.error) {
+                stream.write(Tags.TagError);
+                writer.writeString(response.error.message);
+            }
+            else {
+                stream.write(Tags.TagResult);
+                writer.serialize(response.result);
+            }
+        }
+        stream.write(Tags.TagEnd);
+        return stream.take();
+    };
+
+    JSONRPCClientFilter.prototype.outputFilter = function outputFilter(data/*, context*/) {
+        var requests = [];
+        var stream = new StringIO(data);
+        var reader = new Reader(stream, false, false);
+        var tag = stream.readChar();
+        do {
+            var request = {};
+            if (tag === Tags.TagCall) {
+                request.method = reader.readString();
+                tag = stream.readChar();
+                if (tag === Tags.TagList) {
+                    request.params = reader.readListWithoutTag();
+                    tag = stream.readChar();
+                }
+                if (tag === Tags.TagTrue) {
+                    tag = stream.readChar();
+                }
+            }
+            if (this.version === '1.1') {
+                request.version = '1.1';
+            }
+            else if (this.version === '2.0') {
+                request.jsonrpc = '2.0';
+            }
+            request.id = s_id++;
+            requests.push(request);
+        } while (tag === Tags.TagCall);
+        if (requests.length > 1) {
+            return JSON.stringify(requests);
+        }
+        return JSON.stringify(requests[0]);
+    };
+
+    global.hprose.JSONRPCClientFilter = JSONRPCClientFilter;
+
+    if (typeof(global.hprose.filter) === "undefined") {
+        global.hprose.filter = {
+            JSONRPCClientFilter: global.hprose.JSONRPCClientFilter
+        };
+    }
+    else {
+        global.hprose.filter.JSONRPCClientFilter = global.hprose.JSONRPCClientFilter;
+    }
 
 })(this);
 

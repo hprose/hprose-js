@@ -12,7 +12,7 @@
  *                                                        *
  * hprose websocket client for JavaScript.                *
  *                                                        *
- * LastModified: Jul 14, 2016                             *
+ * LastModified: Aug 27, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -28,6 +28,7 @@
     var defineProperties = global.hprose.defineProperties;
     var toBinaryString = global.hprose.toBinaryString;
     var toUint8Array = global.hprose.toUint8Array;
+    var parseuri = global.hprose.parseuri;
     var WebSocket = global.WebSocket || global.MozWebSocket;
 
     function noop(){}
@@ -165,8 +166,7 @@
     }
 
     function checkuri(uri) {
-        var parser = document.createElement('a');
-        parser.href = uri;
+        var parser = parseuri(uri);
         if (parser.protocol === 'ws:' ||
             parser.protocol === 'wss:') {
             return;

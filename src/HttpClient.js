@@ -12,7 +12,7 @@
  *                                                        *
  * hprose http client for JavaScript.                     *
  *                                                        *
- * LastModified: Feb 28, 2016                             *
+ * LastModified: Aug 27, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -26,6 +26,7 @@
     var defineProperties = global.hprose.defineProperties;
     var toBinaryString = global.hprose.toBinaryString;
     var toUint8Array = global.hprose.toUint8Array;
+    var parseuri = global.hprose.parseuri;
 
     var TimeoutError = global.TimeoutError;
     var FlashHttpRequest = global.FlashHttpRequest;
@@ -35,11 +36,18 @@
     if (global.plus && global.plus.net && global.plus.net.XMLHttpRequest) {
         XMLHttpRequest = global.plus.net.XMLHttpRequest;
     }
-    else if (document.addEventListener) {
-        document.addEventListener("plusready", function() {
+    else if (global.document && global.document.addEventListener) {
+        global.document.addEventListener("plusready", function() {
             XMLHttpRequest = global.plus.net.XMLHttpRequest;
         }, false);
     }
+
+    var deviceone;
+    
+    try {
+        deviceone = global.require("deviceone");
+    }
+    catch (e) {}
 
     var localfile = (global.location !== undefined && global.location.protocol === 'file:');
     var nativeXHR = (typeof(XMLHttpRequest) !== 'undefined');
@@ -195,12 +203,32 @@
             return future;
         }
 
+        function deviceOnePost(request, env) {
+            var future = new Future();
+            var http = deviceone.mm('do_Http');
+            http.method = "POST";
+            http.timeout = env.timeout;
+            http.contextType = "text/plain; charset=UTF-8";
+            http.url = self.uri();
+            http.body = request;
+            for (var name in _header) {
+                http.setRequestHeader(name, _header[name]);
+            }
+            http.on("success", function(data) {
+                future.resolve(data);
+            });
+            http.on("fail", function(result) {
+                future.reject(new Error(result.status + ":" + result.data));
+            });
+            http.request();
+            return future;
+        }
+
         function isCrossDomain() {
             if (global.location === undefined) {
                 return true;
             }
-            var parser = document.createElement('a');
-            parser.href = self.uri();
+            var parser = parseuri(self.uri());
             if (parser.protocol !== global.location.protocol) {
                 return true;
             }
@@ -218,6 +246,7 @@
                            typeof(global.api.ajax) !== "undefined");
             var future = fhr ?      fhrPost(request, env) :
                          apicloud ? apiPost(request, env) :
+                         deviceone ? deviceOnePost(request, env) :
                                     xhrPost(request, env);
             if (env.oneway) { future.resolve(); }
             return future;
@@ -241,8 +270,7 @@
     }
 
     function checkuri(uri) {
-        var parser = document.createElement('a');
-        parser.href = uri;
+        var parser = parseuri(uri);
         if (parser.protocol === 'http:' ||
             parser.protocol === 'https:') {
             return;

@@ -13,7 +13,7 @@
  *                                                        *
  * hprose helper for JavaScript.                          *
  *                                                        *
- * LastModified: Mar 2, 2016                              *
+ * LastModified: Aug 27, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -21,7 +21,7 @@
 (function (global, undefined) {
     'use strict';
 
-    function propertyToMethod(prop) {
+    var propertyToMethod = function(prop) {
         if ('get' in prop && 'set' in prop) {
             return function() {
                 if (arguments.length === 0) {
@@ -107,7 +107,7 @@
         }
     );
 
-    function generic(method) {
+    var generic = function(method) {
         if (typeof method !== "function") {
             throw new TypeError(method + " is not a function");
         }
@@ -116,45 +116,34 @@
         };
     }
 
-    var arrayLikeObjectArgumentsEnabled = true;
-
-    try {
-        String.fromCharCode.apply(String, new Uint8Array([1]));
-    }
-    catch (e) {
-        arrayLikeObjectArgumentsEnabled = false;
-    }
-
-    function toArray(arrayLikeObject) {
+    var toArray = function(arrayLikeObject) {
         var n = arrayLikeObject.length;
         var a = new Array(n);
         for (var i = 0; i < n; ++i) {
             a[i] = arrayLikeObject[i];
         }
         return a;
-    }
+    };
 
-    var getCharCodes = arrayLikeObjectArgumentsEnabled ? function(bytes) { return bytes; } : toArray;
-
-    function toBinaryString(bytes) {
+    var toBinaryString = function(bytes) {
         if (bytes instanceof ArrayBuffer) {
             bytes = new Uint8Array(bytes);
         }
         var n = bytes.length;
         if (n < 100000) {
-            return String.fromCharCode.apply(String, getCharCodes(bytes));
+            return String.fromCharCode.apply(String, toArray(bytes));
         }
         var remain = n & 0xFFFF;
         var count = n >> 16;
         var a = new Array(remain ? count + 1 : count);
         for (var i = 0; i < count; ++i) {
-            a[i] = String.fromCharCode.apply(String, getCharCodes(bytes.subarray(i << 16, (i + 1) << 16)));
+            a[i] = String.fromCharCode.apply(String, toArray(bytes.subarray(i << 16, (i + 1) << 16)));
         }
         if (remain) {
-            a[count] = String.fromCharCode.apply(String, getCharCodes(bytes.subarray(count << 16, n)));
+            a[count] = String.fromCharCode.apply(String, toArray(bytes.subarray(count << 16, n)));
         }
         return a.join('');
-    }
+    };
 
     var toUint8Array = function(bs) {
         var n = bs.length;
@@ -165,11 +154,27 @@
         return data;
     };
 
+    var parseuri = function(url) {
+        var pattern = new RegExp("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
+        var matches =  url.match(pattern);
+        var host = matches[4].split(':', 2);
+        return {
+            protocol: matches[1],
+            host: matches[4],
+            hostname: host[0],
+            port: parseInt(host[1], 10) || 0,
+            path: matches[5],
+            query: matches[7],
+            fragment: matches[9]
+        };
+    }
+
     global.hprose.defineProperties = defineProperties;
     global.hprose.createObject = createObject;
     global.hprose.generic = generic;
     global.hprose.toBinaryString = toBinaryString;
     global.hprose.toUint8Array = toUint8Array;
     global.hprose.toArray = toArray;
+    global.hprose.parseuri = parseuri;
 
 })(this);

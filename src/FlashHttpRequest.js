@@ -13,7 +13,7 @@
  *                                                        *
  * POST data to HTTP Server (using Flash).                *
  *                                                        *
- * LastModified: Mar 2, 2016                              *
+ * LastModified: Aug 27, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -30,6 +30,12 @@
 /*jshint es3:true, unused:false, eqeqeq:true */
 (function (global) {
     'use strict';
+    if (typeof global.document === "undefined") {
+        global.FlashHttpRequest = {
+            flashSupport: function() { return false; }
+        }
+        return;
+    }
     // get flash path
     var scripts = document.getElementsByTagName('script');
     var flashpath = scripts[scripts.length - 1].getAttribute('flashpath') || '';

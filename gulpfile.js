@@ -13,6 +13,7 @@ gulp.task('clear', function(){
 gulp.task('concat', ['clear'], function() {
     return gulp.src(['src/CopyRight.js',
                      'src/Init.js',
+                     'src/DeviceOne.js',
                      'src/Base64.js',
                      'src/Helper.js',
                      'src/Polyfill.js',
@@ -35,6 +36,7 @@ gulp.task('concat', ['clear'], function() {
                      'src/ChromeTcpSocket.js',
                      'src/APICloudTcpSocket.js',
                      'src/TcpClient.js',
+                     'src/JSONRPCClientFilter.js',
                      'src/Loader.js'])
         .pipe(jshint())
         .pipe(jshint.reporter())
