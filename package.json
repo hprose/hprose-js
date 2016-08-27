@@ -4,6 +4,7 @@
   "version": "2.0.10",
   "description": "Hprose is a High Performance Remote Object Service Engine.",
   "homepage": "https://github.com/hprose",
+  "license": "MIT",
   "keywords": [
     "hprose",
     "rpc",
@@ -44,24 +45,25 @@
   ],
   "maintainers": [
     {
-      "name" : "Ma Bingyao",
-      "email" : "andot@hprose.com",
+      "name": "Ma Bingyao",
+      "email": "andot@hprose.com",
       "web": "http://hprose.com/"
     }
   ],
-  "repositories": [
-    {
-      "type": "git",
-      "url": "https://github.com/hprose/hprose-js.git"
-    }
-  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hprose/hprose-js.git"
+  },
   "autoupdate": {
     "source": "git",
     "target": "git://github.com/hprose/hprose-js.git",
     "basePath": "dist/",
     "files": [
-        "hprose.js",
-        "FlashHttpRequest.swf"
+      "hprose.js",
+      "FlashHttpRequest.swf"
     ]
+  },
+  "devDependencies": {
+    "gulp-jsmin": "^0.1.5"
   }
 }

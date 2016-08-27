@@ -1,6 +1,6 @@
 /* jshint node:true */
 var gulp = require('gulp'),
-    uglify = require('gulp-uglify'),
+    jsmin = require('gulp-jsmin'),
     concat = require('gulp-concat'),
     jshint = require("gulp-jshint"),
     lzmajs = require("gulp-lzmajs"),
@@ -49,7 +49,7 @@ gulp.task('concat', ['clear'], function() {
 gulp.task('uglify', ['concat'], function() {
     return gulp.src(['dist/hprose.src.js'])
         .pipe(concat('hprose.js'))
-        .pipe(uglify())
+        .pipe(jsmin())
         .pipe(gulp.dest('dist'));
 });
 

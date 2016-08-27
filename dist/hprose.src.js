@@ -5887,7 +5887,7 @@
     if (typeof global.document === "undefined") {
         global.FlashHttpRequest = {
             flashSupport: function() { return false; }
-        }
+        };
         return;
     }
     // get flash path
