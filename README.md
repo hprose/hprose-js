@@ -93,6 +93,7 @@ All of the above browsers (except asterisk marked) support cross-domain invoking
 * APICloud (http, tcp*)
 * DCloud (http)
 * AppCan (http)
+* DeviceOne (http)
 * ... (http, websocket)
 
 TCP is only available on iOS for APICloud, because there is a bug of APICloud Android SDK, and they don't want to fix this bug.
