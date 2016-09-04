@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.10
+// Hprose for JavaScript v2.0.11
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -4708,7 +4708,7 @@
  *                                                        *
  * hprose client for JavaScript.                          *
  *                                                        *
- * LastModified: Aug 27, 2016                             *
+ * LastModified: Sep 4, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -4741,7 +4741,7 @@
 
         // private members
         var _uri,
-            _uris                   = [],
+            _uriList                = [],
             _index                  = -1,
             _binary                 = false,
             _byref                  = false,
@@ -4750,6 +4750,7 @@
             _retry                  = 10,
             _idempotent             = false,
             _failswitch             = false,
+            _failround              = 0,
             _lock                   = false,
             _tasks                  = [],
             _useHarmonyMap          = false,
@@ -4807,14 +4808,21 @@
         }
 
         function failswitch() {
-            var n = _uris.length;
+            var n = _uriList.length;
             if (n > 1) {
-                var i = _index + Math.floor(Math.random() * (n - 1)) + 1;
+                var i = _index + 1;
                 if (i >= n) {
-                    i %= n;
+                    i = 0;
+                    _failround++;
                 }
                 _index = i;
-                _uri = _uris[_index];
+                _uri = _uriList[_index];
+            }
+            else {
+                _failround++;
+            }
+            if (typeof self.onfailswitch === s_function) {
+                self.onfailswitch(self);
             }
         }
 
@@ -4822,14 +4830,23 @@
             if (context.failswitch) {
                 failswitch();
             }
-            if (context.idempotent) {
-                if (--context.retry >= 0) {
-                    var interval = (context.retry >= 10) ? 500 : (10 - context.retry) * 500;
+            if (context.idempotent && (context.retried < context.retry)) {
+                var interval = ++context.retried * 500;
+                if (context.failswitch) {
+                    interval -= (_uriList.length - 1) * 500;
+                }
+                if (interval > 5000) {
+                    interval = 5000;
+                }
+                if (interval > 0) {
                     global.setTimeout(function() {
                         sendAndReceive(data, context, onsuccess, onerror);
                     }, interval);
-                    return true;
                 }
+                else {
+                    sendAndReceive(data, context, onsuccess, onerror);
+                }
+                return true;
             }
             return false;
         }
@@ -4837,6 +4854,7 @@
         function initService(stub) {
             var context = {
                 retry: _retry,
+                retried: 0,
                 idempotent: true,
                 failswitch: true,
                 timeout: _timeout,
@@ -4952,6 +4970,7 @@
                 simple: _simple,
                 timeout: _timeout,
                 retry: _retry,
+                retried: 0,
                 idempotent: _idempotent,
                 failswitch: _failswitch,
                 oneway: false,
@@ -5181,6 +5200,7 @@
                 timeout: _timeout,
                 binary: _binary,
                 retry: _retry,
+                retried: 0,
                 idempotent: _idempotent,
                 failswitch: _failswitch,
                 oneway: false,
@@ -5355,6 +5375,23 @@
         function getUri() {
             return _uri;
         }
+        function getUriList() {
+            return _uriList;
+        }
+        function setUriList(uriList) {
+            if (typeof(uriList) === s_string) {
+                _uriList = [uriList];
+            }
+            else if (Array.isArray(uriList)) {
+                _uriList = uriList.slice(0);
+                _uriList.sort(function() { return Math.random() - 0.5; });
+            }
+            else {
+                return;
+            }
+            _index = 0;
+            _uri = _uriList[_index];
+        }
         function getBinary() {
             return _binary;
         }
@@ -5366,6 +5403,9 @@
         }
         function setFailswitch(value) {
             _failswitch = !!value;
+        }
+        function getFailround() {
+            return _failround;
         }
         function getTimeout() {
             return _timeout;
@@ -5754,10 +5794,13 @@
         defineProperties(this, {
             '#': { value: autoId },
             onerror: { value: null, writable: true },
+            onfailswitch: { value: null, writable: true },
             uri: { get: getUri },
+            uriList: { get: getUriList, set: setUriList },
             id: { get: getId },
             binary: { get: getBinary, set: setBinary },
             failswitch: { get: getFailswitch, set: setFailswitch },
+            failround: { get: getFailround },
             timeout: { get: getTimeout, set: setTimeout },
             retry: { get: getRetry, set: setRetry },
             idempotent: { get: getIdempotent, set: setIdempotent },
@@ -5789,15 +5832,9 @@
                      }
                 });
             }
-            if (typeof(uri) === s_string) {
-                _uris = [uri];
-                _index = 0;
-                useService(uri, functions);
-            }
-            else if (Array.isArray(uri)) {
-                _uris = uri;
-                _index = Math.floor(Math.random() * _uris.length);
-                useService(_uris[_index], functions);
+            if (uri) {
+                setUriList(uri);
+                useService(functions);
             }
         }
     }

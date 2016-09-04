@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.10
+// Hprose for JavaScript v2.0.11
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -527,7 +527,7 @@ unexpectedTag(tag,expectTags);}},unserialize:{value:function(){return unserializ
 function unserialize(stream,simple,useHarmonyMap,binary){if(!(stream instanceof StringIO)){stream=new StringIO(stream);}
 return new Reader(stream,simple,useHarmonyMap,binary).unserialize();}
 global.hprose.Formatter=createObject(null,{serialize:{value:serialize},unserialize:{value:unserialize}});global.hprose.serialize=serialize;global.hprose.unserialize=unserialize;})(this);(function(global){'use strict';global.HproseResultMode=global.hprose.ResultMode={Normal:0,Serialized:1,Raw:2,RawWithEndTag:3};global.hprose.Normal=global.hprose.ResultMode.Normal;global.hprose.Serialized=global.hprose.ResultMode.Serialized;global.hprose.Raw=global.hprose.ResultMode.Raw;global.hprose.RawWithEndTag=global.hprose.ResultMode.RawWithEndTag;})(this);(function(global,undefined){'use strict';var setImmediate=global.setImmediate;var Tags=global.hprose.Tags;var ResultMode=global.hprose.ResultMode;var StringIO=global.hprose.StringIO;var Writer=global.hprose.Writer;var Reader=global.hprose.Reader;var Future=global.hprose.Future;var defineProperties=global.hprose.defineProperties;var createObject=global.hprose.createObject;var parseuri=global.hprose.parseuri;var GETFUNCTIONS=Tags.TagEnd;function noop(){}
-var s_boolean='boolean';var s_string='string';var s_number='number';var s_function='function';var s_object='object';function Client(uri,functions,settings){var _uri,_uris=[],_index=-1,_binary=false,_byref=false,_simple=false,_timeout=30000,_retry=10,_idempotent=false,_failswitch=false,_lock=false,_tasks=[],_useHarmonyMap=false,_filters=[],_batch=false,_batches=[],_ready=new Future(),_topics=createObject(null),_id=null,_keepAlive=true,_invokeHandler=invokeHandler,_batchInvokeHandler=batchInvokeHandler,_beforeFilterHandler=beforeFilterHandler,_afterFilterHandler=afterFilterHandler,_invokeHandlers=[],_batchInvokeHandlers=[],_beforeFilterHandlers=[],_afterFilterHandlers=[],self=this;function outputFilter(request,context){for(var i=0,n=_filters.length;i<n;i++){request=_filters[i].outputFilter(request,context);}
+var s_boolean='boolean';var s_string='string';var s_number='number';var s_function='function';var s_object='object';function Client(uri,functions,settings){var _uri,_uriList=[],_index=-1,_binary=false,_byref=false,_simple=false,_timeout=30000,_retry=10,_idempotent=false,_failswitch=false,_failround=0,_lock=false,_tasks=[],_useHarmonyMap=false,_filters=[],_batch=false,_batches=[],_ready=new Future(),_topics=createObject(null),_id=null,_keepAlive=true,_invokeHandler=invokeHandler,_batchInvokeHandler=batchInvokeHandler,_beforeFilterHandler=beforeFilterHandler,_afterFilterHandler=afterFilterHandler,_invokeHandlers=[],_batchInvokeHandlers=[],_beforeFilterHandlers=[],_afterFilterHandlers=[],self=this;function outputFilter(request,context){for(var i=0,n=_filters.length;i<n;i++){request=_filters[i].outputFilter(request,context);}
 return request;}
 function inputFilter(response,context){for(var i=_filters.length-1;i>=0;i--){response=_filters[i].inputFilter(response,context);}
 return response;}
@@ -536,12 +536,18 @@ return inputFilter(response,context);});}
 function afterFilterHandler(request,context){return self.sendAndReceive(request,context);}
 function sendAndReceive(request,context,onsuccess,onerror){_beforeFilterHandler(request,context).then(onsuccess,function(e){if(retry(request,context,onsuccess,onerror)){return;}
 onerror(e);});}
-function failswitch(){var n=_uris.length;if(n>1){var i=_index+Math.floor(Math.random()*(n-1))+1;if(i>=n){i%=n;}
-_index=i;_uri=_uris[_index];}}
+function failswitch(){var n=_uriList.length;if(n>1){var i=_index+1;if(i>=n){i=0;_failround++;}
+_index=i;_uri=_uriList[_index];}
+else{_failround++;}
+if(typeof self.onfailswitch===s_function){self.onfailswitch(self);}}
 function retry(data,context,onsuccess,onerror){if(context.failswitch){failswitch();}
-if(context.idempotent){if(--context.retry>=0){var interval=(context.retry>=10)?500:(10-context.retry)*500;global.setTimeout(function(){sendAndReceive(data,context,onsuccess,onerror);},interval);return true;}}
+if(context.idempotent&&(context.retried<context.retry)){var interval=++context.retried*500;if(context.failswitch){interval-=(_uriList.length-1)*500;}
+if(interval>5000){interval=5000;}
+if(interval>0){global.setTimeout(function(){sendAndReceive(data,context,onsuccess,onerror);},interval);}
+else{sendAndReceive(data,context,onsuccess,onerror);}
+return true;}
 return false;}
-function initService(stub){var context={retry:_retry,idempotent:true,failswitch:true,timeout:_timeout,client:self,userdata:{}};var onsuccess=function(data){var error=null;try{var stream=new StringIO(data);var reader=new Reader(stream,true);var tag=stream.readChar();switch(tag){case Tags.TagError:error=new Error(reader.readString());break;case Tags.TagFunctions:var functions=reader.readList();reader.checkTag(Tags.TagEnd);setFunctions(stub,functions);break;default:error=new Error('Wrong Response:\r\n'+data);break;}}
+function initService(stub){var context={retry:_retry,retried:0,idempotent:true,failswitch:true,timeout:_timeout,client:self,userdata:{}};var onsuccess=function(data){var error=null;try{var stream=new StringIO(data);var reader=new Reader(stream,true);var tag=stream.readChar();switch(tag){case Tags.TagError:error=new Error(reader.readString());break;case Tags.TagFunctions:var functions=reader.readList();reader.checkTag(Tags.TagEnd);setFunctions(stub,functions);break;default:error=new Error('Wrong Response:\r\n'+data);break;}}
 catch(e){error=e;}
 if(error!==null){_ready.reject(error);}
 else{_ready.resolve(stub);}};sendAndReceive(GETFUNCTIONS,context,onsuccess,_ready.reject);}
@@ -555,7 +561,7 @@ function setFunctions(stub,functions){for(var i=0;i<functions.length;i++){var f=
 else{for(var name in f){setMethods(stub,stub,'',name,f[name]);}}}}
 function copyargs(src,dest){var n=Math.min(src.length,dest.length);for(var i=0;i<n;++i){dest[i]=src[i];}}
 function initContext(batch){if(batch){return{mode:ResultMode.Normal,binary:_binary,byref:_byref,simple:_simple,onsuccess:undefined,onerror:undefined,useHarmonyMap:_useHarmonyMap,client:self,userdata:{}};}
-return{mode:ResultMode.Normal,binary:_binary,byref:_byref,simple:_simple,timeout:_timeout,retry:_retry,idempotent:_idempotent,failswitch:_failswitch,oneway:false,sync:false,onsuccess:undefined,onerror:undefined,useHarmonyMap:_useHarmonyMap,client:self,userdata:{}};}
+return{mode:ResultMode.Normal,binary:_binary,byref:_byref,simple:_simple,timeout:_timeout,retry:_retry,retried:0,idempotent:_idempotent,failswitch:_failswitch,oneway:false,sync:false,onsuccess:undefined,onerror:undefined,useHarmonyMap:_useHarmonyMap,client:self,userdata:{}};}
 function getContext(stub,name,args,batch){var context=initContext(batch);if(name in stub){var method=stub[name];for(var key in method){if(key in context){context[key]=method[key];}}}
 var i=0,n=args.length;for(;i<n;++i){if(typeof args[i]===s_function){break;}}
 if(i===n){return context;}
@@ -592,7 +598,7 @@ reject(e);}}
 resolve(result);}
 catch(e){reject(e);}},function(error){errorHandling(name,error,context,reject);});});promise.whenComplete(unlock(context.sync));return promise;}
 function multicall(name,args,context){return Future.promise(function(resolve,reject){_batches.push({args:args,name:name,context:context,resolve:resolve,reject:reject});});}
-function getBatchContext(settings){var context={timeout:_timeout,binary:_binary,retry:_retry,idempotent:_idempotent,failswitch:_failswitch,oneway:false,sync:false,client:self,userdata:{}};for(var k in settings){if(k in context){context[k]=settings[k];}}
+function getBatchContext(settings){var context={timeout:_timeout,binary:_binary,retry:_retry,retried:0,idempotent:_idempotent,failswitch:_failswitch,oneway:false,sync:false,client:self,userdata:{}};for(var k in settings){if(k in context){context[k]=settings[k];}}
 return context;}
 function batchInvokeHandler(batches,context){var request=batches.reduce(function(stream,item){item.context.binary=context.binary;stream.write(encode(item.name,item.args,item.context));return stream;},new StringIO());request.write(Tags.TagEnd);return Future.promise(function(resolve,reject){sendAndReceive(request.toString(),context,function(response){if(context.oneway){resolve(batches);return;}
 var i=-1;var stream=new StringIO(response);var reader=new Reader(stream,false,false,context.binary);var tag=stream.readChar();try{while(tag!==Tags.TagEnd){var result=null;var error=null;var mode=batches[++i].context.mode;if(mode>=ResultMode.Raw){result=new StringIO();}
@@ -624,10 +630,16 @@ i.resolve(i.result);}
 catch(e){i.reject(e);}}
 delete i.context;delete i.resolve;delete i.reject;});resolve(batches);},function(error){batches.forEach(function(i){if('reject'in i){errorHandling(i.name,error,i.context,i.reject);}});reject(error);});});promise.whenComplete(unlock(context.sync));return promise;}
 function getUri(){return _uri;}
+function getUriList(){return _uriList;}
+function setUriList(uriList){if(typeof(uriList)===s_string){_uriList=[uriList];}
+else if(Array.isArray(uriList)){_uriList=uriList.slice(0);_uriList.sort(function(){return Math.random()-0.5;});}
+else{return;}
+_index=0;_uri=_uriList[_index];}
 function getBinary(){return _binary;}
 function setBinary(value){_binary=!!value;}
 function getFailswitch(){return _failswitch;}
 function setFailswitch(value){_failswitch=!!value;}
+function getFailround(){return _failround;}
 function getTimeout(){return _timeout;}
 function setTimeout(value){if(typeof(value)==='number'){_timeout=value|0;}
 else{_timeout=0;}}
@@ -704,9 +716,8 @@ function addBatchInvokeHandler(handler){_batchInvokeHandlers.push(handler);_batc
 function addBeforeFilterHandler(handler){_beforeFilterHandlers.push(handler);_beforeFilterHandler=_beforeFilterHandlers.reduceRight(function(next,handler){return function(request,context){return Future.sync(function(){return handler(request,context,next);});};},beforeFilterHandler);}
 function addAfterFilterHandler(handler){_afterFilterHandlers.push(handler);_afterFilterHandler=_afterFilterHandlers.reduceRight(function(next,handler){return function(request,context){return Future.sync(function(){return handler(request,context,next);});};},afterFilterHandler);}
 function use(handler){addInvokeHandler(handler);return self;}
-var batch=createObject(null,{begin:{value:beginBatch},end:{value:endBatch},use:{value:function(handler){addBatchInvokeHandler(handler);return batch;}}});var beforeFilter=createObject(null,{use:{value:function(handler){addBeforeFilterHandler(handler);return beforeFilter;}}});var afterFilter=createObject(null,{use:{value:function(handler){addAfterFilterHandler(handler);return afterFilter;}}});defineProperties(this,{'#':{value:autoId},onerror:{value:null,writable:true},uri:{get:getUri},id:{get:getId},binary:{get:getBinary,set:setBinary},failswitch:{get:getFailswitch,set:setFailswitch},timeout:{get:getTimeout,set:setTimeout},retry:{get:getRetry,set:setRetry},idempotent:{get:getIdempotent,set:setIdempotent},keepAlive:{get:getKeepAlive,set:setKeepAlive},byref:{get:getByRef,set:setByRef},simple:{get:getSimpleMode,set:setSimpleMode},useHarmonyMap:{get:getUseHarmonyMap,set:setUseHarmonyMap},filter:{get:getFilter,set:setFilter},addFilter:{value:addFilter},removeFilter:{value:removeFilter},filters:{get:filters},useService:{value:useService},invoke:{value:invoke},ready:{value:ready},subscribe:{value:subscribe},unsubscribe:{value:unsubscribe},use:{value:use},batch:{value:batch},beforeFilter:{value:beforeFilter},afterFilter:{value:afterFilter}});{if((settings)&&(typeof settings===s_object)){['failswitch','timeout','retry','idempotent','keepAlive','byref','simple','useHarmonyMap','filter','binary'].forEach(function(key){if(key in settings){self[key](settings[key]);}});}
-if(typeof(uri)===s_string){_uris=[uri];_index=0;useService(uri,functions);}
-else if(Array.isArray(uri)){_uris=uri;_index=Math.floor(Math.random()*_uris.length);useService(_uris[_index],functions);}}}
+var batch=createObject(null,{begin:{value:beginBatch},end:{value:endBatch},use:{value:function(handler){addBatchInvokeHandler(handler);return batch;}}});var beforeFilter=createObject(null,{use:{value:function(handler){addBeforeFilterHandler(handler);return beforeFilter;}}});var afterFilter=createObject(null,{use:{value:function(handler){addAfterFilterHandler(handler);return afterFilter;}}});defineProperties(this,{'#':{value:autoId},onerror:{value:null,writable:true},onfailswitch:{value:null,writable:true},uri:{get:getUri},uriList:{get:getUriList,set:setUriList},id:{get:getId},binary:{get:getBinary,set:setBinary},failswitch:{get:getFailswitch,set:setFailswitch},failround:{get:getFailround},timeout:{get:getTimeout,set:setTimeout},retry:{get:getRetry,set:setRetry},idempotent:{get:getIdempotent,set:setIdempotent},keepAlive:{get:getKeepAlive,set:setKeepAlive},byref:{get:getByRef,set:setByRef},simple:{get:getSimpleMode,set:setSimpleMode},useHarmonyMap:{get:getUseHarmonyMap,set:setUseHarmonyMap},filter:{get:getFilter,set:setFilter},addFilter:{value:addFilter},removeFilter:{value:removeFilter},filters:{get:filters},useService:{value:useService},invoke:{value:invoke},ready:{value:ready},subscribe:{value:subscribe},unsubscribe:{value:unsubscribe},use:{value:use},batch:{value:batch},beforeFilter:{value:beforeFilter},afterFilter:{value:afterFilter}});{if((settings)&&(typeof settings===s_object)){['failswitch','timeout','retry','idempotent','keepAlive','byref','simple','useHarmonyMap','filter','binary'].forEach(function(key){if(key in settings){self[key](settings[key]);}});}
+if(uri){setUriList(uri);useService(functions);}}}
 function checkuri(uri){var parser=parseuri(uri);var protocol=parser.protocol;if(protocol==='http:'||protocol==='https:'||protocol==='tcp:'||protocol==='tcp4:'||protocol==='tcp6:'||protocol==='tcps:'||protocol==='tcp4s:'||protocol==='tcp6s:'||protocol==='tls:'||protocol==='ws:'||protocol==='wss:'){return;}
 throw new Error('The '+protocol+' client isn\'t implemented.');}
 function create(uri,functions,settings){try{return global.hprose.HttpClient.create(uri,functions,settings);}
