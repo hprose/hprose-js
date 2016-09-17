@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.11
+// Hprose for JavaScript v2.0.12
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -890,7 +890,7 @@ else if(this.size<this.client.maxPoolSize()){conn=this.create();conn.onerror=fun
 else{this.requests.push([request,future,id,env]);}}}});FullDuplexTcpTransporter.prototype.constructor=TcpTransporter;function HalfDuplexTcpTransporter(client){TcpTransporter.call(this,client);}
 HalfDuplexTcpTransporter.prototype=createObject(TcpTransporter.prototype,{fetch:{value:function(){var pool=this.pool;while(pool.length>0){var conn=pool.pop();if(conn.connected){conn.clearTimeout();conn.ref();return conn;}}
 return null;}},recycle:{value:function(conn){if(this.pool.lastIndexOf(conn)<0){conn.unref();conn.setTimeout(this.client.poolTimeout(),function(){conn.destroy();});this.pool.push(conn);}}},clean:{value:function(conn){conn.onreceive=noop;conn.onerror=noop;if(conn.timeoutId!==undefined){global.clearTimeout(conn.timeoutId);delete conn.timeoutId;}}},sendNext:{value:function(conn){if(this.requests.length>0){var request=this.requests.pop();request.push(conn);this.send.apply(this,request);}
-else{this.recycle(conn);}}},send:{value:function(request,future,env,conn){var self=this;var timeout=env.timeout;if(timeout>0){conn.timeoutId=global.setTimeout(function(){self.clean(conn);self.recycle(conn);future.reject(new TimeoutError('timeout'));},timeout);}
+else{this.recycle(conn);}}},send:{value:function(request,future,env,conn){var self=this;var timeout=env.timeout;if(timeout>0){conn.timeoutId=global.setTimeout(function(){self.clean(conn);conn.destroy();future.reject(new TimeoutError('timeout'));},timeout);}
 setReceiveHandler(conn,function(data){self.clean(conn);self.sendNext(conn);if(!env.binary){data=StringIO.utf8Decode(data);}
 future.resolve(data);});conn.onerror=function(e){self.clean(conn);future.reject(e);};var len=request.length;var buf=new StringIO();buf.writeInt32BE(len);if(env.binary){buf.write(request);}
 else{buf.writeUTF16AsUTF8(request);}

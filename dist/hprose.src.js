@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.11
+// Hprose for JavaScript v2.0.12
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -7155,7 +7155,7 @@
  *                                                        *
  * hprose tcp client for JavaScript.                      *
  *                                                        *
- * LastModified: Aug 27, 2016                             *
+ * LastModified: Sep 17, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -7465,7 +7465,7 @@
             if (timeout > 0) {
                 conn.timeoutId = global.setTimeout(function() {
                     self.clean(conn);
-                    self.recycle(conn);
+                    conn.destroy();
                     future.reject(new TimeoutError('timeout'));
                 }, timeout);
             }
