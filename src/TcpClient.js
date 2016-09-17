@@ -91,9 +91,6 @@
         create: { value: function() {
             var parser = parseuri(this.uri);
             var protocol = parser.protocol;
-            // HTMLAnchorElement can't parse TCP protocol
-            // replace to HTTP can be correctly resolved.
-            parser.protocol = "http:";
             var address = parser.hostname;
             var port = parseInt(parser.port, 10);
             var tls;

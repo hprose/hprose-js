@@ -868,7 +868,7 @@ if((dataLength>=0)&&((stream.length()-headerLength)>=dataLength)){onreceive(stre
 else{break;}}
 entry.stream=stream;entry.headerLength=headerLength;entry.dataLength=dataLength;entry.id=id;};}
 function TcpTransporter(client){if(client){this.client=client;this.uri=this.client.uri();this.size=0;this.pool=[];this.requests=[];}}
-defineProperties(TcpTransporter.prototype,{create:{value:function(){var parser=parseuri(this.uri);var protocol=parser.protocol;parser.protocol="http:";var address=parser.hostname;var port=parseInt(parser.port,10);var tls;if(protocol==='tcp:'||protocol==='tcp4:'||protocol==='tcp6:'){tls=false;}
+defineProperties(TcpTransporter.prototype,{create:{value:function(){var parser=parseuri(this.uri);var protocol=parser.protocol;var address=parser.hostname;var port=parseInt(parser.port,10);var tls;if(protocol==='tcp:'||protocol==='tcp4:'||protocol==='tcp6:'){tls=false;}
 else if(protocol==='tcps:'||protocol==='tcp4s:'||protocol==='tcp6s:'||protocol==='tls:'){tls=true;}
 else{throw new Error('Unsupported '+protocol+' protocol!');}
 var conn;if(global.chrome&&global.chrome.sockets&&global.chrome.sockets.tcp){conn=new ChromeTcpSocket();}
