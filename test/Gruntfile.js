@@ -118,50 +118,6 @@ module.exports = function (grunt) {
     platform: 'linux',
     version: 'latest-9'
   }, {
-    browserName: 'chrome',
-    platform: 'linux',
-    version: 'latest-10'
-  }, {
-    browserName: 'chrome',
-    platform: 'linux',
-    version: 'latest-11'
-  }, {
-    browserName: 'chrome',
-    platform: 'linux',
-    version: 'latest-12'
-  }, {
-    browserName: 'chrome',
-    platform: 'linux',
-    version: 'latest-13'
-  }, {
-    browserName: 'chrome',
-    platform: 'linux',
-    version: 'latest-14'
-  }, {
-    browserName: 'chrome',
-    platform: 'linux',
-    version: 'latest-15'
-  }, {
-    browserName: 'chrome',
-    platform: 'linux',
-    version: 'latest-16'
-  }, {
-    browserName: 'chrome',
-    platform: 'linux',
-    version: 'latest-17'
-  }, {
-    browserName: 'chrome',
-    platform: 'linux',
-    version: 'latest-18'
-  }, {
-    browserName: 'chrome',
-    platform: 'linux',
-    version: 'latest-19'
-  }, {
-    browserName: 'chrome',
-    platform: 'linux',
-    version: 'latest-20'
-  }, {
     browserName: 'firefox',
     platform: 'linux',
     version: 'latest'
@@ -202,50 +158,6 @@ module.exports = function (grunt) {
     platform: 'linux',
     version: 'latest-9'
   }, {
-    browserName: 'firefox',
-    platform: 'linux',
-    version: 'latest-10'
-  }, {
-    browserName: 'firefox',
-    platform: 'linux',
-    version: 'latest-11'
-  }, {
-    browserName: 'firefox',
-    platform: 'linux',
-    version: 'latest-12'
-  }, {
-    browserName: 'firefox',
-    platform: 'linux',
-    version: 'latest-13'
-  }, {
-    browserName: 'firefox',
-    platform: 'linux',
-    version: 'latest-14'
-  }, {
-    browserName: 'firefox',
-    platform: 'linux',
-    version: 'latest-15'
-  }, {
-    browserName: 'firefox',
-    platform: 'linux',
-    version: 'latest-16'
-  }, {
-    browserName: 'firefox',
-    platform: 'linux',
-    version: 'latest-17'
-  }, {
-    browserName: 'firefox',
-    platform: 'linux',
-    version: 'latest-18'
-  }, {
-    browserName: 'firefox',
-    platform: 'linux',
-    version: 'latest-19'
-  }, {
-    browserName: 'firefox',
-    platform: 'linux',
-    version: 'latest-20'
-  }, {
     browserName: 'safari',
     platform: 'OS X 10.11'
   }, {
@@ -264,7 +176,7 @@ module.exports = function (grunt) {
   }, {
     browserName: 'MicrosoftEdge',
     platform: 'Windows 10',
-    version: '20.10240'
+    version: 'latest'
   }, {
     browserName: 'internet explorer',
     platform: 'Windows 10',

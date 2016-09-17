@@ -2179,7 +2179,6 @@ var rejected = adapter.rejected;
 
 var dummy = { dummy: "dummy" }; // we fulfill or reject with this when we don't intend to test against it
 
-/*
 // This test can't pass on iOS 5.1 and some special browsers.
 describe("2.2.5 `onFulfilled` and `onRejected` must be called as functions (i.e. with no `this` value).", function () {
     describe("strict mode", function () {
@@ -2217,7 +2216,6 @@ describe("2.2.5 `onFulfilled` and `onRejected` must be called as functions (i.e.
         });
     });
 });
-*/
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"assert":3}],19:[function(require,module,exports){
@@ -3062,7 +3060,7 @@ describe("2.3.3: Otherwise, if `x` is an object or function,", function () {
                 testCallingResolvePromiseFulfillsWith(function () { return sentinel; }, "an object", sentinel);
                 testCallingResolvePromiseFulfillsWith(function () { return sentinelArray; }, "an array", sentinelArray);
             });
-/*
+///*
             // This test has a bug, it can't pass on android 4.4 and some special browsers.
             describe("`y` is a thenable", function () {
                 Object.keys(thenables.fulfilled).forEach(function (stringRepresentation) {
@@ -3111,7 +3109,7 @@ describe("2.3.3: Otherwise, if `x` is an object or function,", function () {
                     });
                 });
             });
-*/
+//*/
         });
 
         describe("2.3.3.3.2: If/when `rejectPromise` is called with reason `r`, reject `promise` with `r`",
@@ -3121,7 +3119,7 @@ describe("2.3.3: Otherwise, if `x` is an object or function,", function () {
             });
         });
 
-/*
+///*
         // This test has a bug, it can't pass on android 4.4 and some special browsers.
 
         describe("2.3.3.3.3: If both `resolvePromise` and `rejectPromise` are called, or multiple calls to the same " +
@@ -3523,7 +3521,7 @@ describe("2.3.3: Otherwise, if `x` is an object or function,", function () {
                 });
             });
         });
-*/
+//*/
 
         describe("2.3.3.3.4: If calling `then` throws an exception `e`,", function () {
             describe("2.3.3.3.4.1: If `resolvePromise` or `rejectPromise` have been called, ignore it.", function () {
