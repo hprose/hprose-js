@@ -9,7 +9,7 @@
 
 [![Join the chat at https://gitter.im/hprose/hprose-js](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hprose/hprose-js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/hprose/hprose-js.svg?branch=master)](https://travis-ci.org/hprose/hprose-js)
-[![Sauce Test Status](https://saucelabs.com/buildstatus/hprose-js.svg?v2.0.12)](https://saucelabs.com/u/hprose-js)
+[![Sauce Test Status](https://saucelabs.com/buildstatus/hprose-js)](https://saucelabs.com/u/hprose-js)
 [![bower version](https://img.shields.io/bower/v/hprose.svg)](http://bower.io/search/?q=hprose)
 [![License](https://img.shields.io/github/license/hprose/hprose-js.svg)](http://opensource.org/licenses/MIT)
 
