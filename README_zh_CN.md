@@ -54,6 +54,8 @@
 
 本项目是 Hprose 的 JavaScript 语言版本实现。
 
+更多 Hprose 2.0 for JavaScript 文档: https://github.com/hprose/hprose-js/wiki 
+
 ### 浏览器支持
 
 #### 桌面浏览器

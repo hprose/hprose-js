@@ -54,6 +54,8 @@ Through *Hprose*, You can conveniently and efficiently intercommunicate between 
 
 This project is the implementation of Hprose for JavaScript.
 
+Hprose 2.0 for JavaScript Documents（中文版）: https://github.com/hprose/hprose-js/wiki 
+
 ### Browser support
 
 #### Desktop browsers
