@@ -37,6 +37,7 @@
         return;
     }
     // get flash path
+    var document = global.document;
     var scripts = document.getElementsByTagName('script');
     var flashpath = scripts[scripts.length - 1].getAttribute('flashpath') || '';
     scripts = null;

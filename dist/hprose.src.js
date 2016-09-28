@@ -5928,6 +5928,7 @@
         return;
     }
     // get flash path
+    var document = global.document;
     var scripts = document.getElementsByTagName('script');
     var flashpath = scripts[scripts.length - 1].getAttribute('flashpath') || '';
     scripts = null;
@@ -7754,7 +7755,7 @@
  *                                                        *
  * hprose CommonJS/AMD/CMD loader for JavaScript.         *
  *                                                        *
- * LastModified: Feb 2, 2016                              *
+ * LastModified: Sep 28, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -7792,7 +7793,7 @@
             define('hprose', [], function() { return global.hprose; });
         }
     }
-    if (typeof module === 'object' && typeof module.exports === 'object') {
+    if (typeof module === 'object') {
         module.exports = global.hprose;
     }
 })(this);
