@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.12
+// Hprose for JavaScript v2.0.13
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -47,9 +47,9 @@ return Object.create(prototype);});var generic=function(method){if(typeof method
 return function(context){return method.apply(context,Array.prototype.slice.call(arguments,1));};}
 var toArray=function(arrayLikeObject){var n=arrayLikeObject.length;var a=new Array(n);for(var i=0;i<n;++i){a[i]=arrayLikeObject[i];}
 return a;};var toBinaryString=function(bytes){if(bytes instanceof ArrayBuffer){bytes=new Uint8Array(bytes);}
-var n=bytes.length;if(n<100000){return String.fromCharCode.apply(String,toArray(bytes));}
-var remain=n&0xFFFF;var count=n>>16;var a=new Array(remain?count+1:count);for(var i=0;i<count;++i){a[i]=String.fromCharCode.apply(String,toArray(bytes.subarray(i<<16,(i+1)<<16)));}
-if(remain){a[count]=String.fromCharCode.apply(String,toArray(bytes.subarray(count<<16,n)));}
+var n=bytes.length;if(n<0xFFFF){return String.fromCharCode.apply(String,toArray(bytes));}
+var remain=n&0x7FFF;var count=n>>15;var a=new Array(remain?count+1:count);for(var i=0;i<count;++i){a[i]=String.fromCharCode.apply(String,toArray(bytes.subarray(i<<15,(i+1)<<15)));}
+if(remain){a[count]=String.fromCharCode.apply(String,toArray(bytes.subarray(count<<15,n)));}
 return a.join('');};var toUint8Array=function(bs){var n=bs.length;var data=new Uint8Array(n);for(var i=0;i<n;i++){data[i]=bs.charCodeAt(i)&0xFF;}
 return data;};var parseuri=function(url){var pattern=new RegExp("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");var matches=url.match(pattern);var host=matches[4].split(':',2);return{protocol:matches[1],host:matches[4],hostname:host[0],port:parseInt(host[1],10)||0,path:matches[5],query:matches[7],fragment:matches[9]};}
 global.hprose.defineProperties=defineProperties;global.hprose.createObject=createObject;global.hprose.generic=generic;global.hprose.toBinaryString=toBinaryString;global.hprose.toUint8Array=toUint8Array;global.hprose.toArray=toArray;global.hprose.parseuri=parseuri;})(this);(function(global,undefined){'use strict';if(!Function.prototype.bind){Function.prototype.bind=function(oThis){if(typeof this!=='function'){throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');}
@@ -298,7 +298,7 @@ else{throw new Error('Unfinished UTF-8 octet sequence');}
 break;default:throw new Error('Bad UTF-8 encoding 0x'+unit.toString(16));}}
 if(i<n){charCodes.length=i;}
 return[String.fromCharCode.apply(String,charCodes),off];}
-function readLongString(bs,n){var buf=[];var charCodes=new Array(0xFFFF);var i=0,off=0;for(var len=bs.length;i<n&&off<len;i++){var unit=bs.charCodeAt(off++);switch(unit>>4){case 0:case 1:case 2:case 3:case 4:case 5:case 6:case 7:charCodes[i]=unit;break;case 12:case 13:if(off<len){charCodes[i]=((unit&0x1F)<<6)|(bs.charCodeAt(off++)&0x3F);}
+function readLongString(bs,n){var buf=[];var charCodes=new Array(0x8000);var i=0,off=0;for(var len=bs.length;i<n&&off<len;i++){var unit=bs.charCodeAt(off++);switch(unit>>4){case 0:case 1:case 2:case 3:case 4:case 5:case 6:case 7:charCodes[i]=unit;break;case 12:case 13:if(off<len){charCodes[i]=((unit&0x1F)<<6)|(bs.charCodeAt(off++)&0x3F);}
 else{throw new Error('Unfinished UTF-8 octet sequence');}
 break;case 14:if(off+1<len){charCodes[i]=((unit&0x0F)<<12)|((bs.charCodeAt(off++)&0x3F)<<6)|(bs.charCodeAt(off++)&0x3F);}
 else{throw new Error('Unfinished UTF-8 octet sequence');}
@@ -306,12 +306,12 @@ break;case 15:if(off+2<len){var rune=(((unit&0x07)<<18)|((bs.charCodeAt(off++)&0
 else{throw new Error('Character outside valid Unicode range: 0x'+rune.toString(16));}}
 else{throw new Error('Unfinished UTF-8 octet sequence');}
 break;default:throw new Error('Bad UTF-8 encoding 0x'+unit.toString(16));}
-if(i>=65534){var size=i+1;charCodes.length=size;buf[buf.length]=String.fromCharCode.apply(String,charCodes);n-=size;i=-1;}}
+if(i>=0x7FFF-1){var size=i+1;charCodes.length=size;buf[buf.length]=String.fromCharCode.apply(String,charCodes);n-=size;i=-1;}}
 if(i>0){charCodes.length=i;buf[buf.length]=String.fromCharCode.apply(String,charCodes);}
 return[buf.join(''),off];}
 function readString(bs,n){if(n===undefined||n===null||(n<0)){n=bs.length;}
 if(n===0){return['',0];}
-return((n<100000)?readShortString(bs,n):readLongString(bs,n));}
+return((n<0xFFFF)?readShortString(bs,n):readLongString(bs,n));}
 function readUTF8(bs,n){if(n===undefined||n===null||(n<0)){n=bs.length;}
 if(n===0){return'';}
 var i=0,off=0;for(var len=bs.length;i<n&&off<len;i++){var unit=bs.charCodeAt(off++);switch(unit>>4){case 0:case 1:case 2:case 3:case 4:case 5:case 6:case 7:break;case 12:case 13:if(off<len){++off;}

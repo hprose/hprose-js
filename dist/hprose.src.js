@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.12
+// Hprose for JavaScript v2.0.13
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -238,7 +238,7 @@
  *                                                        *
  * hprose helper for JavaScript.                          *
  *                                                        *
- * LastModified: Aug 27, 2016                             *
+ * LastModified: Sep 28, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -355,17 +355,17 @@
             bytes = new Uint8Array(bytes);
         }
         var n = bytes.length;
-        if (n < 100000) {
+        if (n < 0xFFFF) {
             return String.fromCharCode.apply(String, toArray(bytes));
         }
-        var remain = n & 0xFFFF;
-        var count = n >> 16;
+        var remain = n & 0x7FFF;
+        var count = n >> 15;
         var a = new Array(remain ? count + 1 : count);
         for (var i = 0; i < count; ++i) {
-            a[i] = String.fromCharCode.apply(String, toArray(bytes.subarray(i << 16, (i + 1) << 16)));
+            a[i] = String.fromCharCode.apply(String, toArray(bytes.subarray(i << 15, (i + 1) << 15)));
         }
         if (remain) {
-            a[count] = String.fromCharCode.apply(String, toArray(bytes.subarray(count << 16, n)));
+            a[count] = String.fromCharCode.apply(String, toArray(bytes.subarray(count << 15, n)));
         }
         return a.join('');
     };
@@ -2488,7 +2488,7 @@
  *                                                        *
  * hprose StringIO for JavaScript.                        *
  *                                                        *
- * LastModified: Apr 29, 2016                             *
+ * LastModified: Sep 28, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -2624,7 +2624,7 @@
 
     function readLongString(bs, n) {
         var buf = [];
-        var charCodes = new Array(0xFFFF);
+        var charCodes = new Array(0x8000);
         var i = 0, off = 0;
         for (var len = bs.length; i < n && off < len; i++) {
             var unit = bs.charCodeAt(off++);
@@ -2680,7 +2680,7 @@
             default:
                 throw new Error('Bad UTF-8 encoding 0x' + unit.toString(16));
             }
-            if (i >= 65534) {
+            if (i >= 0x7FFF - 1) {
                 var size = i + 1;
                 charCodes.length = size;
                 buf[buf.length] = String.fromCharCode.apply(String, charCodes);
@@ -2704,7 +2704,7 @@
         //     if (n === bs.length) { return [bs, n]; }
         //     return [bs.substr(0, n), n];
         // }
-        return ((n < 100000) ?
+        return ((n < 0xFFFF) ?
                 readShortString(bs, n) :
                 readLongString(bs, n));
     }
