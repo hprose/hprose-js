@@ -12,7 +12,7 @@
  *                                                        *
  * hprose client for JavaScript.                          *
  *                                                        *
- * LastModified: Sep 4, 2016                              *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -1191,4 +1191,4 @@
 
     global.HproseClient = global.hprose.Client = Client;
 
-})(this);
+})(this || [eval][0]('this'));

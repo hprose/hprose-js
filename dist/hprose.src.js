@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.13
+// Hprose for JavaScript v2.0.14
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -19,7 +19,7 @@
  *                                                        *
  * hprose init for JavaScript.                            *
  *                                                        *
- * LastModified: Feb 23, 2016                             *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -29,7 +29,7 @@
 
     global.hprose = {};
 
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -45,7 +45,7 @@
  *                                                        *
  * setTimeout patch for DeviceOne.                        *
  *                                                        *
- * LastModified: Aug 27, 2016                             *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -87,7 +87,7 @@
             timer.stop();
         }
     };
-})(this);
+})(this || [eval][0]('this'));
 /**********************************************************\
 |                                                          |
 |                          hprose                          |
@@ -102,7 +102,7 @@
  *                                                        *
  * Base64 for JavaScript.                                 *
  *                                                        *
- * LastModified: Mar 2, 2016                              *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -221,7 +221,7 @@
         })();
     }
 
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -238,7 +238,7 @@
  *                                                        *
  * hprose helper for JavaScript.                          *
  *                                                        *
- * LastModified: Sep 28, 2016                             *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -402,7 +402,7 @@
     global.hprose.toArray = toArray;
     global.hprose.parseuri = parseuri;
 
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -419,7 +419,7 @@
  *                                                        *
  * Polyfill for JavaScript.                               *
  *                                                        *
- * LastModified: Mar 2, 2016                              *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -1065,7 +1065,7 @@
         'concat',
         'slice'
     ]);
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -1082,7 +1082,7 @@
  *                                                        *
  * Harmony Maps for JavaScript.                           *
  *                                                        *
- * LastModified: Mar 2, 2016                              *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -1486,7 +1486,7 @@
             return m;
         };
     }
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -1503,7 +1503,7 @@
  *                                                        *
  * TimeoutError for JavaScript.                           *
  *                                                        *
- * LastModified: Mar 29, 2016                             *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -1522,7 +1522,7 @@
         TimeoutError.prototype.constructor = TimeoutError;
         global.TimeoutError = TimeoutError;
     }
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -1539,7 +1539,7 @@
  *                                                        *
  * setImmediate for JavaScript.                           *
  *                                                        *
- * LastModified: Sep 28, 2016                             *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -1705,7 +1705,7 @@
     }
 
     attachTo.clearImmediate = clear;
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -1722,7 +1722,7 @@
  *                                                        *
  * hprose Future for JavaScript.                          *
  *                                                        *
- * LastModified: Aug 12, 2016                             *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -2407,7 +2407,7 @@
         reject: { value: error }
     });
 
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -2424,7 +2424,7 @@
  *                                                        *
  * hprose BinaryString for JavaScript.                    *
  *                                                        *
- * LastModified: Jun 16, 2016                             *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -2471,7 +2471,7 @@
     global.hprose.BinaryString = BinaryString;
     global.hprose.binary = function(bs) { return new BinaryString(bs, true); };
 
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -2488,7 +2488,7 @@
  *                                                        *
  * hprose StringIO for JavaScript.                        *
  *                                                        *
- * LastModified: Sep 28, 2016                             *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -3176,7 +3176,7 @@
 
     global.hprose.StringIO = StringIO;
 
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -3192,7 +3192,7 @@
  *                                                        *
  * hprose tags enum for JavaScript.                       *
  *                                                        *
- * LastModified: Feb 23, 2016                             *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -3239,7 +3239,7 @@
         TagError        : 'E',
         TagEnd          : 'z'
     };
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -3256,7 +3256,7 @@
  *                                                        *
  * hprose ClassManager for JavaScript.                    *
  *                                                        *
- * LastModified: Feb 23, 2016                             *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -3294,7 +3294,7 @@
 
     register(Object, 'Object');
 
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -3311,7 +3311,7 @@
  *                                                        *
  * hprose Writer for JavaScript.                          *
  *                                                        *
- * LastModified: Mar 2, 2016                              *
+ * LastModified: Sep 29, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -3832,7 +3832,7 @@
 
     global.HproseWriter = global.hprose.Writer = Writer;
 
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -3849,7 +3849,7 @@
  *                                                        *
  * hprose Reader for JavaScript.                          *
  *                                                        *
- * LastModified: Mar 2, 2016                              *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -4603,7 +4603,7 @@
     });
 
     global.HproseReader = global.hprose.Reader = Reader;
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -4620,7 +4620,7 @@
  *                                                        *
  * hprose Formatter for JavaScript.                       *
  *                                                        *
- * LastModified: Mar 2, 2016                              *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -4655,7 +4655,7 @@
     global.hprose.serialize = serialize;
     global.hprose.unserialize = unserialize;
 
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -4672,7 +4672,7 @@
  *                                                        *
  * hprose ResultMode for JavaScript.                      *
  *                                                        *
- * LastModified: Feb 23, 2016                             *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -4692,7 +4692,7 @@
     global.hprose.Raw           = global.hprose.ResultMode.Raw;
     global.hprose.RawWithEndTag = global.hprose.ResultMode.RawWithEndTag;
 
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -4708,7 +4708,7 @@
  *                                                        *
  * hprose client for JavaScript.                          *
  *                                                        *
- * LastModified: Sep 4, 2016                              *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -5887,7 +5887,7 @@
 
     global.HproseClient = global.hprose.Client = Client;
 
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -5904,7 +5904,7 @@
  *                                                        *
  * POST data to HTTP Server (using Flash).                *
  *                                                        *
- * LastModified: Aug 27, 2016                             *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -6182,7 +6182,7 @@
     //init();
     setJsReady();
 
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -6199,7 +6199,7 @@
  *                                                        *
  * hprose CookieManager for JavaScript.                   *
  *                                                        *
- * LastModified: Aug 27, 2016                             *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -6303,7 +6303,7 @@
         setCookie: setCookie,
         getCookie: getCookie
     };
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -6319,7 +6319,7 @@
  *                                                        *
  * hprose http client for JavaScript.                     *
  *                                                        *
- * LastModified: Aug 27, 2016                             *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -6624,7 +6624,7 @@
 
     global.HproseHttpClient = global.hprose.HttpClient = HttpClient;
 
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -6640,7 +6640,7 @@
  *                                                        *
  * hprose websocket client for JavaScript.                *
  *                                                        *
- * LastModified: Aug 27, 2016                             *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -6822,7 +6822,7 @@
     global.HproseWebSocketClient =
     global.hprose.WebSocketClient = WebSocketClient;
 
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -6838,7 +6838,7 @@
  *                                                        *
  * chrome tcp socket for JavaScript.                      *
  *                                                        *
- * LastModified: Mar 1, 2016                              *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -7008,7 +7008,7 @@
 
     global.hprose.ChromeTcpSocket = ChromeTcpSocket;
 
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -7024,7 +7024,7 @@
  *                                                        *
  * APICloud tcp socket for JavaScript.                    *
  *                                                        *
- * LastModified: Mar 7, 2016                              *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -7140,7 +7140,7 @@
 
     global.hprose.APICloudTcpSocket = APICloudTcpSocket;
 
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -7156,7 +7156,7 @@
  *                                                        *
  * hprose tcp client for JavaScript.                      *
  *                                                        *
- * LastModified: Sep 17, 2016                             *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -7635,7 +7635,7 @@
     global.HproseTcpClient =
     global.hprose.TcpClient = TcpClient;
 
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -7652,7 +7652,7 @@
  *                                                        *
  * jsonrpc client filter for JavaScript.                  *
  *                                                        *
- * LastModified: Mar 2, 2016                              *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -7738,7 +7738,7 @@
         global.hprose.filter.JSONRPCClientFilter = global.hprose.JSONRPCClientFilter;
     }
 
-})(this);
+})(this || [eval][0]('this'));
 
 /**********************************************************\
 |                                                          |
@@ -7755,7 +7755,7 @@
  *                                                        *
  * hprose CommonJS/AMD/CMD loader for JavaScript.         *
  *                                                        *
- * LastModified: Sep 28, 2016                             *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -7782,7 +7782,9 @@
 
     global.hprose.client = {
         Client: global.hprose.Client,
-        HttpClient: global.hprose.HttpClient
+        HttpClient: global.hprose.HttpClient,
+        TcpClient: global.hprose.TcpClient,
+        WebSocketClient: global.hprose.WebSocketClient
     };
 
     if (typeof define === 'function') {
@@ -7796,4 +7798,4 @@
     if (typeof module === 'object') {
         module.exports = global.hprose;
     }
-})(this);
+})(this || [eval][0]('this'));

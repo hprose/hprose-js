@@ -13,7 +13,7 @@
  *                                                        *
  * hprose BinaryString for JavaScript.                    *
  *                                                        *
- * LastModified: Jun 16, 2016                             *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -60,4 +60,4 @@
     global.hprose.BinaryString = BinaryString;
     global.hprose.binary = function(bs) { return new BinaryString(bs, true); };
 
-})(this);
+})(this || [eval][0]('this'));

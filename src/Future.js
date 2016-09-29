@@ -13,7 +13,7 @@
  *                                                        *
  * hprose Future for JavaScript.                          *
  *                                                        *
- * LastModified: Aug 12, 2016                             *
+ * LastModified: Sep 29, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -698,4 +698,4 @@
         reject: { value: error }
     });
 
-})(this);
+})(this || [eval][0]('this'));
