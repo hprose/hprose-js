@@ -1,5 +1,5 @@
 {
-  "name": "hprose",
+  "name": "hprose-js",
   "filename": "hprose.js",
   "version": "2.0.14",
   "description": "Hprose is a High Performance Remote Object Service Engine.",
