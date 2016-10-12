@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.14
+// Hprose for JavaScript v2.0.15
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -691,8 +691,7 @@ return null;}
 function subscribe(name,id,callback,timeout,failswitch){if(typeof name!==s_string){throw new TypeError('topic name must be a string.');}
 if(id===undefined||id===null){if(typeof callback===s_function){id=callback;}
 else{throw new TypeError('callback must be a function.');}}
-if(typeof id===s_function){timeout=callback;callback=id;if(_id===null){_id=autoId();}
-_id.then(function(id){subscribe(name,id,callback,timeout,failswitch);});return;}
+if(typeof id===s_function){timeout=callback;callback=id;autoId().then(function(id){subscribe(name,id,callback,timeout,failswitch);});return;}
 if(typeof callback!==s_function){throw new TypeError('callback must be a function.');}
 if(Future.isPromise(id)){id.then(function(id){subscribe(name,id,callback,timeout,failswitch);});return;}
 if(timeout===undefined){timeout=_timeout;}
@@ -712,11 +711,12 @@ else{_id.then(function(id){unsubscribe(name,id,callback);});}}
 else if(Future.isPromise(id)){id.then(function(id){unsubscribe(name,id,callback);});}
 else{delTopic(_topics[name],id,callback);}
 if(isObjectEmpty(_topics[name])){delete _topics[name];}}
-function getId(){return _id;}
-function autoId(){return _invoke(self,'#',[],false);}
 function isSubscribed(name){return _topics.hasOwnProperty(name);}
 function subscribedList(){var list=[];for(var name in _topics){if(_topics.hasOwnProperty(name)){list.push(name);}}
 return list;}
+function getId(){return _id;}
+function autoId(){if(_id===null){_id=_invoke(self,'#',[],false);}
+return _id;}
 autoId.sync=true;autoId.idempotent=true;autoId.failswitch=true;function addInvokeHandler(handler){_invokeHandlers.push(handler);_invokeHandler=_invokeHandlers.reduceRight(function(next,handler){return function(name,args,context){return Future.sync(function(){return handler(name,args,context,next);});};},invokeHandler);}
 function addBatchInvokeHandler(handler){_batchInvokeHandlers.push(handler);_batchInvokeHandler=_batchInvokeHandlers.reduceRight(function(next,handler){return function(batches,context){return Future.sync(function(){return handler(batches,context,next);});};},batchInvokeHandler);}
 function addBeforeFilterHandler(handler){_beforeFilterHandlers.push(handler);_beforeFilterHandler=_beforeFilterHandlers.reduceRight(function(next,handler){return function(request,context){return Future.sync(function(){return handler(request,context,next);});};},beforeFilterHandler);}

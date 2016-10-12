@@ -901,10 +901,7 @@
             if (typeof id === s_function) {
                 timeout = callback;
                 callback = id;
-                if (_id === null) {
-                    _id = autoId();
-                }
-                _id.then(function(id) {
+                autoId().then(function(id) {
                     subscribe(name, id, callback, timeout, failswitch);
                 });
                 return;
@@ -1022,12 +1019,6 @@
                 delete _topics[name];
             }
         }
-        function getId() {
-            return _id;
-        }
-        function autoId() {
-            return _invoke(self, '#', [], false);
-        }
         function isSubscribed(name) {
             return _topics.hasOwnProperty(name);
         }
@@ -1039,6 +1030,15 @@
                 }
             }
             return list;
+        }
+        function getId() {
+            return _id;
+        }
+        function autoId() {
+            if (_id === null) {
+                _id = _invoke(self, '#', [], false);
+            }
+            return _id;
         }
         autoId.sync = true;
         autoId.idempotent = true;

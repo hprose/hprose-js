@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.14
+// Hprose for JavaScript v2.0.15
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -5609,10 +5609,7 @@
             if (typeof id === s_function) {
                 timeout = callback;
                 callback = id;
-                if (_id === null) {
-                    _id = autoId();
-                }
-                _id.then(function(id) {
+                autoId().then(function(id) {
                     subscribe(name, id, callback, timeout, failswitch);
                 });
                 return;
@@ -5730,13 +5727,7 @@
                 delete _topics[name];
             }
         }
-        function getId() {
-            return _id;
-        }
-        function autoId() {
-            return _invoke(self, '#', [], false);
-        }
-        function isSubscribed(name) {
+       function isSubscribed(name) {
             return _topics.hasOwnProperty(name);
         }
         function subscribedList() {
@@ -5747,6 +5738,15 @@
                 }
             }
             return list;
+        }
+        function getId() {
+            return _id;
+        }
+        function autoId() {
+            if (_id === null) {
+                _id = _invoke(self, '#', [], false);
+            }
+            return _id;
         }
         autoId.sync = true;
         autoId.idempotent = true;
