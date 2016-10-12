@@ -684,20 +684,19 @@ if(argc>2){if(typeof onsuccess!==s_function){args.push(noop);}
 for(var i=2;i<argc;i++){args.push(arguments[i]);}}
 return _invoke(self,name,args,_batch);}
 function ready(onComplete,onError){return _ready.then(onComplete,onError);}
-function getTopic(name,id,create){if(_topics[name]){var topics=_topics[name];if(topics[id]){return topics[id];}
-return null;}
-if(create){_topics[name]=createObject(null);}
+function getTopic(name,id){if(_topics[name]){var topics=_topics[name];if(topics[id]){return topics[id];}}
 return null;}
 function subscribe(name,id,callback,timeout,failswitch){if(typeof name!==s_string){throw new TypeError('topic name must be a string.');}
 if(id===undefined||id===null){if(typeof callback===s_function){id=callback;}
 else{throw new TypeError('callback must be a function.');}}
+if(!_topics[name]){_topics[name]=createObject(null);}
 if(typeof id===s_function){timeout=callback;callback=id;autoId().then(function(id){subscribe(name,id,callback,timeout,failswitch);});return;}
 if(typeof callback!==s_function){throw new TypeError('callback must be a function.');}
 if(Future.isPromise(id)){id.then(function(id){subscribe(name,id,callback,timeout,failswitch);});return;}
 if(timeout===undefined){timeout=_timeout;}
-var topic=getTopic(name,id,true);if(topic===null){var cb=function(){_invoke(self,name,[id,topic.handler,cb,{idempotent:true,failswitch:failswitch,timeout:timeout}],false);};topic={handler:function(result){var topic=getTopic(name,id,false);if(topic){if(result!==null){var callbacks=topic.callbacks;for(var i=0,n=callbacks.length;i<n;++i){try{callbacks[i](result);}
+var topic=getTopic(name,id);if(topic===null){var cb=function(){_invoke(self,name,[id,topic.handler,cb,{idempotent:true,failswitch:failswitch,timeout:timeout}],false);};topic={handler:function(result){var topic=getTopic(name,id);if(topic){if(result!==null){var callbacks=topic.callbacks;for(var i=0,n=callbacks.length;i<n;++i){try{callbacks[i](result);}
 catch(e){}}}
-if(getTopic(name,id,false)!==null){cb();}}},callbacks:[callback]};_topics[name][id]=topic;cb();}
+if(getTopic(name,id)!==null){cb();}}},callbacks:[callback]};_topics[name][id]=topic;cb();}
 else if(topic.callbacks.indexOf(callback)<0){topic.callbacks.push(callback);}}
 function delTopic(topics,id,callback){if(topics){if(typeof callback===s_function){var topic=topics[id];if(topic){var callbacks=topic.callbacks;var p=callbacks.indexOf(callback);if(p>=0){callbacks[p]=callbacks[callbacks.length-1];callbacks.length--;}
 if(callbacks.length===0){delete topics[id];}}}

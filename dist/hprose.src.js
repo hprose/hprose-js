@@ -5578,16 +5578,12 @@
         function ready(onComplete, onError) {
             return _ready.then(onComplete, onError);
         }
-        function getTopic(name, id, create) {
+        function getTopic(name, id) {
             if (_topics[name]) {
                 var topics = _topics[name];
                 if (topics[id]) {
                     return topics[id];
                 }
-                return null;
-            }
-            if (create) {
-                _topics[name] = createObject(null);
             }
             return null;
         }
@@ -5604,6 +5600,9 @@
                 else {
                     throw new TypeError('callback must be a function.');
                 }
+            }
+            if (!_topics[name]) {
+                _topics[name] = createObject(null);
             }
             if (typeof id === s_function) {
                 timeout = callback;
@@ -5623,7 +5622,7 @@
                 return;
             }
             if (timeout === undefined) { timeout = _timeout; }
-            var topic = getTopic(name, id, true);
+            var topic = getTopic(name, id);
             if (topic === null) {
                 var cb = function() {
                     _invoke(self, name, [id, topic.handler, cb, {
@@ -5634,7 +5633,7 @@
                 };
                 topic = {
                     handler: function(result) {
-                        var topic = getTopic(name, id, false);
+                        var topic = getTopic(name, id);
                         if (topic) {
                             if (result !== null) {
                                 var callbacks = topic.callbacks;
@@ -5645,7 +5644,7 @@
                                     catch (e) {}
                                 }
                             }
-                            if (getTopic(name, id, false) !== null) { cb(); }
+                            if (getTopic(name, id) !== null) { cb(); }
                         }
                     },
                     callbacks: [callback]
