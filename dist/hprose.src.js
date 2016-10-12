@@ -396,10 +396,9 @@
 
     var isObjectEmpty = function (obj) {
         if (obj) {
-            for (var prop in obj) {
-                if (obj.hasOwnProperty(prop)) {
-                    return false;
-                }
+            var prop;
+            for (prop in obj) {
+                return false;
             }
         }
         return true;
@@ -5727,15 +5726,13 @@
                 delete _topics[name];
             }
         }
-       function isSubscribed(name) {
-            return _topics.hasOwnProperty(name);
+        function isSubscribed(name) {
+            return !!_topics[name];
         }
         function subscribedList() {
             var list = [];
             for (var name in _topics) {
-                if (_topics.hasOwnProperty(name)) {
-                    list.push(name);
-                }
+                list.push(name);
             }
             return list;
         }

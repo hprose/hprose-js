@@ -171,10 +171,9 @@
 
     var isObjectEmpty = function (obj) {
         if (obj) {
-            for (var prop in obj) {
-                if (obj.hasOwnProperty(prop)) {
-                    return false;
-                }
+            var prop;
+            for (prop in obj) {
+                return false;
             }
         }
         return true;

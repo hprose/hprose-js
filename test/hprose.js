@@ -52,7 +52,7 @@ var remain=n&0x7FFF;var count=n>>15;var a=new Array(remain?count+1:count);for(va
 if(remain){a[count]=String.fromCharCode.apply(String,toArray(bytes.subarray(count<<15,n)));}
 return a.join('');};var toUint8Array=function(bs){var n=bs.length;var data=new Uint8Array(n);for(var i=0;i<n;i++){data[i]=bs.charCodeAt(i)&0xFF;}
 return data;};var parseuri=function(url){var pattern=new RegExp("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");var matches=url.match(pattern);var host=matches[4].split(':',2);return{protocol:matches[1],host:matches[4],hostname:host[0],port:parseInt(host[1],10)||0,path:matches[5],query:matches[7],fragment:matches[9]};}
-var isObjectEmpty=function(obj){if(obj){for(var prop in obj){if(obj.hasOwnProperty(prop)){return false;}}}
+var isObjectEmpty=function(obj){if(obj){var prop;for(prop in obj){return false;}}
 return true;}
 global.hprose.defineProperties=defineProperties;global.hprose.createObject=createObject;global.hprose.generic=generic;global.hprose.toBinaryString=toBinaryString;global.hprose.toUint8Array=toUint8Array;global.hprose.toArray=toArray;global.hprose.parseuri=parseuri;global.hprose.isObjectEmpty=isObjectEmpty;})(this||[eval][0]('this'));(function(global,undefined){'use strict';if(!Function.prototype.bind){Function.prototype.bind=function(oThis){if(typeof this!=='function'){throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');}
 var aArgs=Array.prototype.slice.call(arguments,1),toBind=this,NOP=function(){},bound=function(){return toBind.apply(this instanceof NOP?this:oThis,aArgs.concat(Array.prototype.slice.call(arguments)));};if(this.prototype){NOP.prototype=this.prototype;}
@@ -711,8 +711,8 @@ else{_id.then(function(id){unsubscribe(name,id,callback);});}}
 else if(Future.isPromise(id)){id.then(function(id){unsubscribe(name,id,callback);});}
 else{delTopic(_topics[name],id,callback);}
 if(isObjectEmpty(_topics[name])){delete _topics[name];}}
-function isSubscribed(name){return _topics.hasOwnProperty(name);}
-function subscribedList(){var list=[];for(var name in _topics){if(_topics.hasOwnProperty(name)){list.push(name);}}
+function isSubscribed(name){return!!_topics[name];}
+function subscribedList(){var list=[];for(var name in _topics){list.push(name);}
 return list;}
 function getId(){return _id;}
 function autoId(){if(_id===null){_id=_invoke(self,'#',[],false);}
