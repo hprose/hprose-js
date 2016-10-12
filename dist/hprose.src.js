@@ -238,7 +238,7 @@
  *                                                        *
  * hprose helper for JavaScript.                          *
  *                                                        *
- * LastModified: Sep 29, 2016                             *
+ * LastModified: Oct 12, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -394,6 +394,17 @@
         };
     }
 
+    var isObjectEmpty = function (obj) {
+        if (obj) {
+            for (var prop in obj) {
+                if (obj.hasOwnProperty(prop)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     global.hprose.defineProperties = defineProperties;
     global.hprose.createObject = createObject;
     global.hprose.generic = generic;
@@ -401,6 +412,7 @@
     global.hprose.toUint8Array = toUint8Array;
     global.hprose.toArray = toArray;
     global.hprose.parseuri = parseuri;
+    global.hprose.isObjectEmpty = isObjectEmpty;
 
 })(this || [eval][0]('this'));
 
@@ -4708,7 +4720,7 @@
  *                                                        *
  * hprose client for JavaScript.                          *
  *                                                        *
- * LastModified: Sep 29, 2016                             *
+ * LastModified: Oct 12, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -4726,6 +4738,7 @@
     var defineProperties = global.hprose.defineProperties;
     var createObject = global.hprose.createObject;
     var parseuri = global.hprose.parseuri;
+    var isObjectEmpty = global.hprose.isObjectEmpty;
 
     var GETFUNCTIONS = Tags.TagEnd;
 
@@ -5713,12 +5726,27 @@
             else {
                 delTopic(_topics[name], id, callback);
             }
+            if (isObjectEmpty(_topics[name])) {
+                delete _topics[name];
+            }
         }
         function getId() {
             return _id;
         }
         function autoId() {
             return _invoke(self, '#', [], false);
+        }
+        function isSubscribed(name) {
+            return _topics.hasOwnProperty(name);
+        }
+        function subscribedList() {
+            var list = [];
+            for (var name in _topics) {
+                if (_topics.hasOwnProperty(name)) {
+                    list.push(name);
+                }
+            }
+            return list;
         }
         autoId.sync = true;
         autoId.idempotent = true;
@@ -5817,6 +5845,8 @@
             ready: { value: ready },
             subscribe: { value: subscribe },
             unsubscribe: { value: unsubscribe },
+            isSubscribed: { value : isSubscribed },
+            subscribedList: { value : subscribedList },
             use: { value: use },
             batch: { value: batch },
             beforeFilter: { value: beforeFilter },
