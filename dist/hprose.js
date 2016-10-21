@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.15
+// Hprose for JavaScript v2.0.16
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -214,7 +214,7 @@ attachTo.clearImmediate=clear;})(this||[eval][0]('this'));(function(global,undef
 catch(e){self.reject(e);}});}}
 function isFuture(obj){return obj instanceof Future;}
 function isPromise(obj){return isFuture(obj)||(hasPromise&&(obj instanceof global.Promise)&&(typeof(obj.then==='function')));}
-function toPromise(obj){return(isPromise(obj)?obj:value(obj));}
+function toPromise(obj){return(isFuture(obj)?obj:value(obj));}
 function delayed(duration,value){var computation=(typeof value==='function')?value:function(){return value;};var future=new Future();setTimeout(function(){try{future.resolve(computation());}
 catch(e){future.reject(e);}},duration);return future;}
 function error(e){var future=new Future();future.reject(e);return future;}
@@ -261,7 +261,7 @@ else{next.resolve(x);}}
 function _reject(onreject,next,e){if(onreject){_call(onreject,next,e);}
 else{next.reject(e);}}
 defineProperties(Future.prototype,{_value:{writable:true},_reason:{writable:true},_state:{value:PENDING,writable:true},resolve:{value:function(value){if(value===this){this.reject(new TypeError('Self resolution'));return;}
-if(isPromise(value)){value.fill(this);return;}
+if(isFuture(value)){value.fill(this);return;}
 if((value!==null)&&(typeof value==='object')||(typeof value==='function')){var then;try{then=value.then;}
 catch(e){this.reject(e);return;}
 if(typeof then==='function'){var notrun=true;try{var self=this;then.call(value,function(y){if(notrun){notrun=false;self.resolve(y);}},function(r){if(notrun){notrun=false;self.reject(r);}});return;}

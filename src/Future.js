@@ -13,7 +13,7 @@
  *                                                        *
  * hprose Future for JavaScript.                          *
  *                                                        *
- * LastModified: Sep 29, 2016                             *
+ * LastModified: Oct 21, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -62,7 +62,7 @@
     }
 
     function toPromise(obj) {
-        return (isPromise(obj) ? obj : value(obj));
+        return (isFuture(obj) ? obj : value(obj));
     }
 
     function delayed(duration, value) {
@@ -402,7 +402,7 @@
                 this.reject(new TypeError('Self resolution'));
                 return;
             }
-            if (isPromise(value)) {
+            if (isFuture(value)) {
                 value.fill(this);
                 return;
             }
