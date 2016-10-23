@@ -13,7 +13,7 @@
  *                                                        *
  * POST data to HTTP Server (using Flash).                *
  *                                                        *
- * LastModified: Sep 29, 2016                             *
+ * LastModified: Oct 23, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -44,6 +44,7 @@
 
     // static private members
     var localfile = (global.location !== undefined && global.location.protocol === 'file:');
+    var XMLHttpRequest = global.XMLHttpRequest;
     var nativeXHR = (typeof(XMLHttpRequest) !== 'undefined');
     var corsSupport = (!localfile && nativeXHR && 'withCredentials' in new XMLHttpRequest());
 
@@ -74,6 +75,9 @@
     var swfReady = false;
 
     function checkFlash() {
+        if (!navigator) {
+            return 0;
+        }
         var flash = 'Shockwave Flash';
         var flashmime = 'application/x-shockwave-flash';
         var flashax = 'ShockwaveFlash.ShockwaveFlash';

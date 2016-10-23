@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.16
+// Hprose for JavaScript v2.0.17
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -290,24 +290,18 @@ else if(codeUnit<0xD800||codeUnit>0xDFFF){buf[j]=String.fromCharCode(0xE0|(codeU
 else{if(i+1<n){var nextCodeUnit=s.charCodeAt(i+1);if(codeUnit<0xDC00&&0xDC00<=nextCodeUnit&&nextCodeUnit<=0xDFFF){var rune=(((codeUnit&0x03FF)<<10)|(nextCodeUnit&0x03FF))+0x010000;buf[j]=String.fromCharCode(0xF0|((rune>>18)&0x3F),0x80|((rune>>12)&0x3F),0x80|((rune>>6)&0x3F),0x80|(rune&0x3F));++i;continue;}}
 throw new Error('Malformed string');}}
 return buf.join('');}
-function readShortString(bs,n){var charCodes=new Array(n);var i=0,off=0;for(var len=bs.length;i<n&&off<len;i++){var unit=bs.charCodeAt(off++);switch(unit>>4){case 0:case 1:case 2:case 3:case 4:case 5:case 6:case 7:charCodes[i]=unit;break;case 12:case 13:if(off<len){charCodes[i]=((unit&0x1F)<<6)|(bs.charCodeAt(off++)&0x3F);}
-else{throw new Error('Unfinished UTF-8 octet sequence');}
-break;case 14:if(off+1<len){charCodes[i]=((unit&0x0F)<<12)|((bs.charCodeAt(off++)&0x3F)<<6)|(bs.charCodeAt(off++)&0x3F);}
-else{throw new Error('Unfinished UTF-8 octet sequence');}
-break;case 15:if(off+2<len){var rune=(((unit&0x07)<<18)|((bs.charCodeAt(off++)&0x3F)<<12)|((bs.charCodeAt(off++)&0x3F)<<6)|(bs.charCodeAt(off++)&0x3F))-0x10000;if(0<=rune&&rune<=0xFFFFF){charCodes[i++]=(((rune>>10)&0x03FF)|0xD800);charCodes[i]=((rune&0x03FF)|0xDC00);}
-else{throw new Error('Character outside valid Unicode range: 0x'+rune.toString(16));}}
-else{throw new Error('Unfinished UTF-8 octet sequence');}
-break;default:throw new Error('Bad UTF-8 encoding 0x'+unit.toString(16));}}
+function readShortString(bs,n){var charCodes=new Array(n);var i=0,off=0;for(var len=bs.length;i<n&&off<len;i++){var unit=bs.charCodeAt(off++);switch(unit>>4){case 0:case 1:case 2:case 3:case 4:case 5:case 6:case 7:charCodes[i]=unit;break;case 12:case 13:if(off<len){charCodes[i]=((unit&0x1F)<<6)|(bs.charCodeAt(off++)&0x3F);break;}
+throw new Error('Unfinished UTF-8 octet sequence');case 14:if(off+1<len){charCodes[i]=((unit&0x0F)<<12)|((bs.charCodeAt(off++)&0x3F)<<6)|(bs.charCodeAt(off++)&0x3F);break;}
+throw new Error('Unfinished UTF-8 octet sequence');case 15:if(off+2<len){var rune=(((unit&0x07)<<18)|((bs.charCodeAt(off++)&0x3F)<<12)|((bs.charCodeAt(off++)&0x3F)<<6)|(bs.charCodeAt(off++)&0x3F))-0x10000;if(0<=rune&&rune<=0xFFFFF){charCodes[i++]=(((rune>>10)&0x03FF)|0xD800);charCodes[i]=((rune&0x03FF)|0xDC00);break;}
+throw new Error('Character outside valid Unicode range: 0x'+rune.toString(16));}
+throw new Error('Unfinished UTF-8 octet sequence');default:throw new Error('Bad UTF-8 encoding 0x'+unit.toString(16));}}
 if(i<n){charCodes.length=i;}
 return[String.fromCharCode.apply(String,charCodes),off];}
-function readLongString(bs,n){var buf=[];var charCodes=new Array(0x8000);var i=0,off=0;for(var len=bs.length;i<n&&off<len;i++){var unit=bs.charCodeAt(off++);switch(unit>>4){case 0:case 1:case 2:case 3:case 4:case 5:case 6:case 7:charCodes[i]=unit;break;case 12:case 13:if(off<len){charCodes[i]=((unit&0x1F)<<6)|(bs.charCodeAt(off++)&0x3F);}
-else{throw new Error('Unfinished UTF-8 octet sequence');}
-break;case 14:if(off+1<len){charCodes[i]=((unit&0x0F)<<12)|((bs.charCodeAt(off++)&0x3F)<<6)|(bs.charCodeAt(off++)&0x3F);}
-else{throw new Error('Unfinished UTF-8 octet sequence');}
-break;case 15:if(off+2<len){var rune=(((unit&0x07)<<18)|((bs.charCodeAt(off++)&0x3F)<<12)|((bs.charCodeAt(off++)&0x3F)<<6)|(bs.charCodeAt(off++)&0x3F))-0x10000;if(0<=rune&&rune<=0xFFFFF){charCodes[i++]=(((rune>>10)&0x03FF)|0xD800);charCodes[i]=((rune&0x03FF)|0xDC00);}
-else{throw new Error('Character outside valid Unicode range: 0x'+rune.toString(16));}}
-else{throw new Error('Unfinished UTF-8 octet sequence');}
-break;default:throw new Error('Bad UTF-8 encoding 0x'+unit.toString(16));}
+function readLongString(bs,n){var buf=[];var charCodes=new Array(0x8000);var i=0,off=0;for(var len=bs.length;i<n&&off<len;i++){var unit=bs.charCodeAt(off++);switch(unit>>4){case 0:case 1:case 2:case 3:case 4:case 5:case 6:case 7:charCodes[i]=unit;break;case 12:case 13:if(off<len){charCodes[i]=((unit&0x1F)<<6)|(bs.charCodeAt(off++)&0x3F);break;}
+throw new Error('Unfinished UTF-8 octet sequence');case 14:if(off+1<len){charCodes[i]=((unit&0x0F)<<12)|((bs.charCodeAt(off++)&0x3F)<<6)|(bs.charCodeAt(off++)&0x3F);break;}
+throw new Error('Unfinished UTF-8 octet sequence');case 15:if(off+2<len){var rune=(((unit&0x07)<<18)|((bs.charCodeAt(off++)&0x3F)<<12)|((bs.charCodeAt(off++)&0x3F)<<6)|(bs.charCodeAt(off++)&0x3F))-0x10000;if(0<=rune&&rune<=0xFFFFF){charCodes[i++]=(((rune>>10)&0x03FF)|0xD800);charCodes[i]=((rune&0x03FF)|0xDC00);break;}
+throw new Error('Character outside valid Unicode range: 0x'+rune.toString(16));}
+throw new Error('Unfinished UTF-8 octet sequence');default:throw new Error('Bad UTF-8 encoding 0x'+unit.toString(16));}
 if(i>=0x7FFF-1){var size=i+1;charCodes.length=size;buf[buf.length]=String.fromCharCode.apply(String,charCodes);n-=size;i=-1;}}
 if(i>0){charCodes.length=i;buf[buf.length]=String.fromCharCode.apply(String,charCodes);}
 return[buf.join(''),off];}
@@ -316,14 +310,11 @@ if(n===0){return['',0];}
 return((n<0xFFFF)?readShortString(bs,n):readLongString(bs,n));}
 function readUTF8(bs,n){if(n===undefined||n===null||(n<0)){n=bs.length;}
 if(n===0){return'';}
-var i=0,off=0;for(var len=bs.length;i<n&&off<len;i++){var unit=bs.charCodeAt(off++);switch(unit>>4){case 0:case 1:case 2:case 3:case 4:case 5:case 6:case 7:break;case 12:case 13:if(off<len){++off;}
-else{throw new Error('Unfinished UTF-8 octet sequence');}
-break;case 14:if(off+1<len){off+=2;}
-else{throw new Error('Unfinished UTF-8 octet sequence');}
-break;case 15:if(off+2<len){var rune=(((unit&0x07)<<18)|((bs.charCodeAt(off++)&0x3F)<<12)|((bs.charCodeAt(off++)&0x3F)<<6)|(bs.charCodeAt(off++)&0x3F))-0x10000;if(0<=rune&&rune<=0xFFFFF){break;}
+var i=0,off=0;for(var len=bs.length;i<n&&off<len;i++){var unit=bs.charCodeAt(off++);switch(unit>>4){case 0:case 1:case 2:case 3:case 4:case 5:case 6:case 7:break;case 12:case 13:if(off<len){++off;break;}
+throw new Error('Unfinished UTF-8 octet sequence');case 14:if(off+1<len){off+=2;break;}
+throw new Error('Unfinished UTF-8 octet sequence');case 15:if(off+2<len){var rune=(((unit&0x07)<<18)|((bs.charCodeAt(off++)&0x3F)<<12)|((bs.charCodeAt(off++)&0x3F)<<6)|(bs.charCodeAt(off++)&0x3F))-0x10000;if(0<=rune&&rune<=0xFFFFF){break;}
 throw new Error('Character outside valid Unicode range: 0x'+rune.toString(16));}
-else{throw new Error('Unfinished UTF-8 octet sequence');}
-break;default:throw new Error('Bad UTF-8 encoding 0x'+unit.toString(16));}}
+throw new Error('Unfinished UTF-8 octet sequence');default:throw new Error('Bad UTF-8 encoding 0x'+unit.toString(16));}}
 return bs.substr(0,off);}
 function utf8Decode(bs){return readString(bs)[0];}
 function utf8Length(s){var n=s.length;var length=0;for(var i=0;i<n;++i){var codeUnit=s.charCodeAt(i);if(codeUnit<0x80){++length;}
@@ -332,22 +323,16 @@ else if(codeUnit<0xD800||codeUnit>0xDFFF){length+=3;}
 else{if(i+1<n){var nextCodeUnit=s.charCodeAt(i+1);if(codeUnit<0xDC00&&0xDC00<=nextCodeUnit&&nextCodeUnit<=0xDFFF){++i;length+=4;continue;}}
 throw new Error('Malformed string');}}
 return length;}
-function utf16Length(bs){var n=bs.length;var length=0;for(var i=0;i<n;++i,++length){var unit=bs.charCodeAt(i);switch(unit>>4){case 0:case 1:case 2:case 3:case 4:case 5:case 6:case 7:break;case 12:case 13:if(i<n){++i;}
-else{throw new Error('Unfinished UTF-8 octet sequence');}
-break;case 14:if(i+1<n){i+=2;}
-else{throw new Error('Unfinished UTF-8 octet sequence');}
-break;case 15:if(i+2<n){var rune=(((unit&0x07)<<18)|((bs.charCodeAt(i++)&0x3F)<<12)|((bs.charCodeAt(i++)&0x3F)<<6)|(bs.charCodeAt(i++)&0x3F))-0x10000;if(0<=rune&&rune<=0xFFFFF){++length;}
-else{throw new Error('Character outside valid Unicode range: 0x'+rune.toString(16));}}
-else{throw new Error('Unfinished UTF-8 octet sequence');}
-break;default:throw new Error('Bad UTF-8 encoding 0x'+unit.toString(16));}}
+function utf16Length(bs){var n=bs.length;var length=0;for(var i=0;i<n;++i,++length){var unit=bs.charCodeAt(i);switch(unit>>4){case 0:case 1:case 2:case 3:case 4:case 5:case 6:case 7:break;case 12:case 13:if(i<n){++i;break;}
+throw new Error('Unfinished UTF-8 octet sequence');case 14:if(i+1<n){i+=2;break;}
+throw new Error('Unfinished UTF-8 octet sequence');case 15:if(i+2<n){var rune=(((unit&0x07)<<18)|((bs.charCodeAt(i++)&0x3F)<<12)|((bs.charCodeAt(i++)&0x3F)<<6)|(bs.charCodeAt(i++)&0x3F))-0x10000;if(0<=rune&&rune<=0xFFFFF){++length;break;}
+throw new Error('Character outside valid Unicode range: 0x'+rune.toString(16));}
+throw new Error('Unfinished UTF-8 octet sequence');default:throw new Error('Bad UTF-8 encoding 0x'+unit.toString(16));}}
 return length;}
-function isUTF8(bs){for(var i=0,n=bs.length;i<n;++i){var unit=bs.charCodeAt(i);switch(unit>>4){case 0:case 1:case 2:case 3:case 4:case 5:case 6:case 7:break;case 12:case 13:if(i<n){++i;}
-else{return false;}
-break;case 14:if(i+1<n){i+=2;}
-else{return false;}
-break;case 15:if(i+2<n){var rune=(((unit&0x07)<<18)|((bs.charCodeAt(i++)&0x3F)<<12)|((bs.charCodeAt(i++)&0x3F)<<6)|(bs.charCodeAt(i++)&0x3F))-0x10000;if(!(0<=rune&&rune<=0xFFFFF)){return false;}}
-else{return false;}
-break;default:return false;}}
+function isUTF8(bs){for(var i=0,n=bs.length;i<n;++i){var unit=bs.charCodeAt(i);switch(unit>>4){case 0:case 1:case 2:case 3:case 4:case 5:case 6:case 7:break;case 12:case 13:if(i<n){++i;break;}
+return false;case 14:if(i+1<n){i+=2;break;}
+return false;case 15:if(i+2<n){var rune=(((unit&0x07)<<18)|((bs.charCodeAt(i++)&0x3F)<<12)|((bs.charCodeAt(i++)&0x3F)<<6)|(bs.charCodeAt(i++)&0x3F))-0x10000;if(0<=rune&&rune<=0xFFFFF){break;}}
+return false;default:return false;}}
 return true;}
 function StringIO(){var a=arguments;switch(a.length){case 1:this._buffer=[a[0].toString()];break;case 2:this._buffer=[a[0].toString().substr(a[1])];break;case 3:this._buffer=[a[0].toString().substr(a[1],a[2])];break;default:this._buffer=[''];break;}
 this.mark();}
@@ -735,7 +720,8 @@ if(typeof uri==='string'){checkuri(uri);}
 else if(Array.isArray(uri)){uri.forEach(function(uri){checkuri(uri);});throw new Error('Not support multiple protocol.');}
 throw new Error('You should set server uri first!');}
 defineProperties(Client,{create:{value:create}});global.HproseClient=global.hprose.Client=Client;})(this||[eval][0]('this'));(function(global){'use strict';if(typeof global.document==="undefined"){global.FlashHttpRequest={flashSupport:function(){return false;}};return;}
-var document=global.document;var scripts=document.getElementsByTagName('script');var flashpath=scripts[scripts.length-1].getAttribute('flashpath')||'';scripts=null;var localfile=(global.location!==undefined&&global.location.protocol==='file:');var nativeXHR=(typeof(XMLHttpRequest)!=='undefined');var corsSupport=(!localfile&&nativeXHR&&'withCredentials'in new XMLHttpRequest());var flashID='flashhttprequest_as3';var flashSupport=false;var request=null;var callbackList=[];var jsTaskQueue=[];var swfTaskQueue=[];var jsReady=false;var swfReady=false;function checkFlash(){var flash='Shockwave Flash';var flashmime='application/x-shockwave-flash';var flashax='ShockwaveFlash.ShockwaveFlash';var plugins=navigator.plugins;var mimetypes=navigator.mimeTypes;var version=0;var ie=false;if(plugins&&plugins[flash]){version=plugins[flash].description;if(version&&!(mimetypes&&mimetypes[flashmime]&&!mimetypes[flashmime].enabledPlugin)){version=version.replace(/^.*\s+(\S+\s+\S+$)/,'$1');version=parseInt(version.replace(/^(.*)\..*$/,'$1'),10);}}
+var document=global.document;var scripts=document.getElementsByTagName('script');var flashpath=scripts[scripts.length-1].getAttribute('flashpath')||'';scripts=null;var localfile=(global.location!==undefined&&global.location.protocol==='file:');var XMLHttpRequest=global.XMLHttpRequest;var nativeXHR=(typeof(XMLHttpRequest)!=='undefined');var corsSupport=(!localfile&&nativeXHR&&'withCredentials'in new XMLHttpRequest());var flashID='flashhttprequest_as3';var flashSupport=false;var request=null;var callbackList=[];var jsTaskQueue=[];var swfTaskQueue=[];var jsReady=false;var swfReady=false;function checkFlash(){if(!navigator){return 0;}
+var flash='Shockwave Flash';var flashmime='application/x-shockwave-flash';var flashax='ShockwaveFlash.ShockwaveFlash';var plugins=navigator.plugins;var mimetypes=navigator.mimeTypes;var version=0;var ie=false;if(plugins&&plugins[flash]){version=plugins[flash].description;if(version&&!(mimetypes&&mimetypes[flashmime]&&!mimetypes[flashmime].enabledPlugin)){version=version.replace(/^.*\s+(\S+\s+\S+$)/,'$1');version=parseInt(version.replace(/^(.*)\..*$/,'$1'),10);}}
 else if(global.ActiveXObject){try{ie=true;var ax=new global.ActiveXObject(flashax);if(ax){version=ax.GetVariable('$version');if(version){version=version.split(' ')[1].split(',');version=parseInt(version[0],10);}}}
 catch(e){}}
 if(version<10){return 0;}

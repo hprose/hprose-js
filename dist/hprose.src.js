@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.16
+// Hprose for JavaScript v2.0.17
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -2499,7 +2499,7 @@
  *                                                        *
  * hprose StringIO for JavaScript.                        *
  *                                                        *
- * LastModified: Sep 29, 2016                             *
+ * LastModified: Oct 23, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -2531,9 +2531,6 @@
 
     // s is an UTF16 encode string
     function utf8Encode(s) {
-        // if (/^[\x00-\x7f]*$/.test(s)) {
-        //     return s;
-        // }
         var buf = [];
         var n = s.length;
         for (var i = 0, j = 0; i < n; ++i, ++j) {
@@ -2590,21 +2587,17 @@
                 if (off < len) {
                     charCodes[i] = ((unit & 0x1F) << 6) |
                                     (bs.charCodeAt(off++) & 0x3F);
+                    break;
                 }
-                else {
-                    throw new Error('Unfinished UTF-8 octet sequence');
-                }
-                break;
+                throw new Error('Unfinished UTF-8 octet sequence');
             case 14:
                 if (off + 1 < len) {
                     charCodes[i] = ((unit & 0x0F) << 12) |
                                    ((bs.charCodeAt(off++) & 0x3F) << 6) |
                                    (bs.charCodeAt(off++) & 0x3F);
+                    break;
                 }
-                else {
-                    throw new Error('Unfinished UTF-8 octet sequence');
-                }
-                break;
+                throw new Error('Unfinished UTF-8 octet sequence');
             case 15:
                 if (off + 2 < len) {
                     var rune = (((unit & 0x07) << 18) |
@@ -2614,15 +2607,11 @@
                     if (0 <= rune && rune <= 0xFFFFF) {
                         charCodes[i++] = (((rune >> 10) & 0x03FF) | 0xD800);
                         charCodes[i] = ((rune & 0x03FF) | 0xDC00);
+                        break;
                     }
-                    else {
-                        throw new Error('Character outside valid Unicode range: 0x' + rune.toString(16));
-                    }
+                    throw new Error('Character outside valid Unicode range: 0x' + rune.toString(16));
                 }
-                else {
-                    throw new Error('Unfinished UTF-8 octet sequence');
-                }
-                break;
+                throw new Error('Unfinished UTF-8 octet sequence');
             default:
                 throw new Error('Bad UTF-8 encoding 0x' + unit.toString(16));
             }
@@ -2655,21 +2644,17 @@
                 if (off < len) {
                     charCodes[i] = ((unit & 0x1F) << 6) |
                                     (bs.charCodeAt(off++) & 0x3F);
+                    break;
                 }
-                else {
-                    throw new Error('Unfinished UTF-8 octet sequence');
-                }
-                break;
+                throw new Error('Unfinished UTF-8 octet sequence');
             case 14:
                 if (off + 1 < len) {
                     charCodes[i] = ((unit & 0x0F) << 12) |
                                    ((bs.charCodeAt(off++) & 0x3F) << 6) |
                                    (bs.charCodeAt(off++) & 0x3F);
+                    break;
                 }
-                else {
-                    throw new Error('Unfinished UTF-8 octet sequence');
-                }
-                break;
+                throw new Error('Unfinished UTF-8 octet sequence');
             case 15:
                 if (off + 2 < len) {
                     var rune = (((unit & 0x07) << 18) |
@@ -2679,15 +2664,11 @@
                     if (0 <= rune && rune <= 0xFFFFF) {
                         charCodes[i++] = (((rune >> 10) & 0x03FF) | 0xD800);
                         charCodes[i] = ((rune & 0x03FF) | 0xDC00);
+                        break;
                     }
-                    else {
-                        throw new Error('Character outside valid Unicode range: 0x' + rune.toString(16));
-                    }
+                    throw new Error('Character outside valid Unicode range: 0x' + rune.toString(16));
                 }
-                else {
-                    throw new Error('Unfinished UTF-8 octet sequence');
-                }
-                break;
+                throw new Error('Unfinished UTF-8 octet sequence');
             default:
                 throw new Error('Bad UTF-8 encoding 0x' + unit.toString(16));
             }
@@ -2711,10 +2692,6 @@
     function readString(bs, n) {
         if (n === undefined || n === null || (n < 0)) { n = bs.length; }
         if (n === 0) { return ['', 0]; }
-        // if (/^[\x00-\x7f]*$/.test(bs) || !(/^[\x00-\xff]*$/.test(bs))) {
-        //     if (n === bs.length) { return [bs, n]; }
-        //     return [bs.substr(0, n), n];
-        // }
         return ((n < 0xFFFF) ?
                 readShortString(bs, n) :
                 readLongString(bs, n));
@@ -2725,13 +2702,6 @@
     function readUTF8(bs, n) {
         if (n === undefined || n === null || (n < 0)) { n = bs.length; }
         if (n === 0) { return ''; }
-        // if (/^[\x00-\x7f]*$/.test(bs)) {
-        //     if (n === bs.length) { return bs; }
-        //     return bs.substr(0, n);
-        // }
-        // if (!(/^[\x00-\xff]*$/.test(bs))) {
-        //     throw new Error("The first argument must be an UTF8 encode binary string.");
-        // }
         var i = 0, off = 0;
         for (var len = bs.length; i < n && off < len; i++) {
             var unit = bs.charCodeAt(off++);
@@ -2749,19 +2719,15 @@
             case 13:
                 if (off < len) {
                     ++off;
+                    break;
                 }
-                else {
-                    throw new Error('Unfinished UTF-8 octet sequence');
-                }
-                break;
+                throw new Error('Unfinished UTF-8 octet sequence');
             case 14:
                 if (off + 1 < len) {
                     off += 2;
+                    break;
                 }
-                else {
-                    throw new Error('Unfinished UTF-8 octet sequence');
-                }
-                break;
+                throw new Error('Unfinished UTF-8 octet sequence');
             case 15:
                 if (off + 2 < len) {
                     var rune = (((unit & 0x07) << 18) |
@@ -2773,10 +2739,7 @@
                     }
                     throw new Error('Character outside valid Unicode range: 0x' + rune.toString(16));
                 }
-                else {
-                    throw new Error('Unfinished UTF-8 octet sequence');
-                }
-                break;
+                throw new Error('Unfinished UTF-8 octet sequence');
             default:
                 throw new Error('Bad UTF-8 encoding 0x' + unit.toString(16));
             }
@@ -2792,9 +2755,6 @@
     // s is an UTF16 encode string
     function utf8Length(s) {
         var n = s.length;
-        // if (/^[\x00-\x7f]*$/.test(s)) {
-        //     return n;
-        // }
         var length = 0;
         for (var i = 0; i < n; ++i) {
             var codeUnit = s.charCodeAt(i);
@@ -2825,9 +2785,6 @@
     // bs is an UTF8 encode binary string
     function utf16Length(bs) {
         var n = bs.length;
-        // if (/^[\x00-\x7f]*$/.test(bs) || !(/^[\x00-\xff]*$/.test(bs))) {
-        //     return n;
-        // }
         var length = 0;
         for (var i = 0; i < n; ++i, ++length) {
             var unit = bs.charCodeAt(i);
@@ -2845,19 +2802,15 @@
             case 13:
                 if (i < n) {
                     ++i;
+                    break;
                 }
-                else {
-                    throw new Error('Unfinished UTF-8 octet sequence');
-                }
-                break;
+                throw new Error('Unfinished UTF-8 octet sequence');
             case 14:
                 if (i + 1 < n) {
                     i += 2;
+                    break;
                 }
-                else {
-                    throw new Error('Unfinished UTF-8 octet sequence');
-                }
-                break;
+                throw new Error('Unfinished UTF-8 octet sequence');
             case 15:
                 if (i + 2 < n) {
                     var rune = (((unit & 0x07) << 18) |
@@ -2866,15 +2819,11 @@
                                 (bs.charCodeAt(i++) & 0x3F)) - 0x10000;
                     if (0 <= rune && rune <= 0xFFFFF) {
                         ++length;
+                        break;
                     }
-                    else {
-                        throw new Error('Character outside valid Unicode range: 0x' + rune.toString(16));
-                    }
+                    throw new Error('Character outside valid Unicode range: 0x' + rune.toString(16));
                 }
-                else {
-                    throw new Error('Unfinished UTF-8 octet sequence');
-                }
-                break;
+                throw new Error('Unfinished UTF-8 octet sequence');
             default:
                 throw new Error('Bad UTF-8 encoding 0x' + unit.toString(16));
             }
@@ -2883,12 +2832,6 @@
     }
 
     function isUTF8(bs) {
-        // if (/^[\x00-\x7f]*$/.test(bs)) {
-        //     return true;
-        // }
-        // if (!(/^[\x00-\xff]*$/.test(bs))) {
-        //     return false;
-        // }
         for (var i = 0, n = bs.length; i < n; ++i) {
             var unit = bs.charCodeAt(i);
             switch (unit >> 4) {
@@ -2905,33 +2848,26 @@
             case 13:
                 if (i < n) {
                     ++i;
+                    break;
                 }
-                else {
-                    return false;
-                }
-                break;
+                return false;
             case 14:
                 if (i + 1 < n) {
                     i += 2;
+                    break;
                 }
-                else {
-                    return false;
-                }
-                break;
+                return false;
             case 15:
                 if (i + 2 < n) {
                     var rune = (((unit & 0x07) << 18) |
                                 ((bs.charCodeAt(i++) & 0x3F) << 12) |
                                 ((bs.charCodeAt(i++) & 0x3F) << 6) |
                                 (bs.charCodeAt(i++) & 0x3F)) - 0x10000;
-                    if (!(0 <= rune && rune <= 0xFFFFF)) {
-                        return false;
+                    if (0 <= rune && rune <= 0xFFFFF) {
+                        break;
                     }
                 }
-                else {
-                    return false;
-                }
-                break;
+                return false;
             default:
                 return false;
             }
@@ -5930,7 +5866,7 @@
  *                                                        *
  * POST data to HTTP Server (using Flash).                *
  *                                                        *
- * LastModified: Sep 29, 2016                             *
+ * LastModified: Oct 23, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -5961,6 +5897,7 @@
 
     // static private members
     var localfile = (global.location !== undefined && global.location.protocol === 'file:');
+    var XMLHttpRequest = global.XMLHttpRequest;
     var nativeXHR = (typeof(XMLHttpRequest) !== 'undefined');
     var corsSupport = (!localfile && nativeXHR && 'withCredentials' in new XMLHttpRequest());
 
@@ -5991,6 +5928,9 @@
     var swfReady = false;
 
     function checkFlash() {
+        if (!navigator) {
+            return 0;
+        }
         var flash = 'Shockwave Flash';
         var flashmime = 'application/x-shockwave-flash';
         var flashax = 'ShockwaveFlash.ShockwaveFlash';
