@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.17
+// Hprose for JavaScript v2.0.18
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -760,7 +760,7 @@ global.hprose.cookieManager={setCookie:setCookie,getCookie:getCookie};})(this||[
 else if(global.document&&global.document.addEventListener){global.document.addEventListener("plusready",function(){XMLHttpRequest=global.plus.net.XMLHttpRequest;},false);}
 var deviceone;try{deviceone=global.require("deviceone");}
 catch(e){}
-var localfile=(global.location!==undefined&&global.location.protocol==='file:');var nativeXHR=(typeof(XMLHttpRequest)!=='undefined');var corsSupport=(!localfile&&nativeXHR&&'withCredentials'in new XMLHttpRequest());var ActiveXObject=global.ActiveXObject;var XMLHttpNameCache=null;function createMSXMLHttp(){if(XMLHttpNameCache!==null){return new ActiveXObject(XMLHttpNameCache);}
+var wx=global.wx;var localfile=(global.location!==undefined&&global.location.protocol==='file:');var nativeXHR=(typeof(XMLHttpRequest)!=='undefined');var corsSupport=(!localfile&&nativeXHR&&'withCredentials'in new XMLHttpRequest());var ActiveXObject=global.ActiveXObject;var XMLHttpNameCache=null;function createMSXMLHttp(){if(XMLHttpNameCache!==null){return new ActiveXObject(XMLHttpNameCache);}
 var MSXML=['MSXML2.XMLHTTP','MSXML2.XMLHTTP.6.0','MSXML2.XMLHTTP.5.0','MSXML2.XMLHTTP.4.0','MSXML2.XMLHTTP.3.0','MsXML2.XMLHTTP.2.6','Microsoft.XMLHTTP','Microsoft.XMLHTTP.1.0','Microsoft.XMLHTTP.1'];var n=MSXML.length;for(var i=0;i<n;i++){try{var xhr=new ActiveXObject(MSXML[i]);XMLHttpNameCache=MSXML[i];return xhr;}
 catch(e){}}
 throw new Error('Could not find an installed XML parser');}
@@ -789,11 +789,14 @@ function deviceOnePost(request,env){var future=new Future();var http=deviceone.m
 var cookie=cookieManager.getCookie(self.uri());if(cookie!==''){http.setRequestHeader('Cookie',cookie);}
 http.on("success",function(data){var cookie=http.getResponseHeader('set-cookie');if(cookie){cookieManager.setCookie({'set-cookie':cookie},self.uri());}
 future.resolve(data);});http.on("fail",function(result){future.reject(new Error(result.status+":"+result.data));});http.request();return future;}
+function wxPost(request,env){var future=new Future();var header={};for(var k in _header){header[k]=_header[k];}
+header['Content-Type']='text/plain; charset=UTF-8';wx.request({url:self.uri(),method:'POST',data:request,header:header,timeout:env.timeout,complete:function(ret){if(ret.statusCode===200){future.resolve(ret.data);}
+else{future.reject(new Error(ret.statusCode+":"+ret.data));}}});return future;}
 function isCrossDomain(){if(global.location===undefined){return true;}
 var parser=parseuri(self.uri());if(parser.protocol!==global.location.protocol){return true;}
 if(parser.host!==global.location.host){return true;}
 return false;}
-function sendAndReceive(request,env){var fhr=(FlashHttpRequest.flashSupport()&&!localfile&&!corsSupport&&(env.binary||isCrossDomain()));var apicloud=(typeof(global.api)!=="undefined"&&typeof(global.api.ajax)!=="undefined");var future=fhr?fhrPost(request,env):apicloud?apiPost(request,env):deviceone?deviceOnePost(request,env):xhrPost(request,env);if(env.oneway){future.resolve();}
+function sendAndReceive(request,env){var fhr=(FlashHttpRequest.flashSupport()&&!localfile&&!corsSupport&&(env.binary||isCrossDomain()));var apicloud=(typeof(global.api)!=="undefined"&&typeof(global.api.ajax)!=="undefined");var wxreq=wx&&wx.request;var future=wxreq?wxPost(request,env):fhr?fhrPost(request,env):apicloud?apiPost(request,env):deviceone?deviceOnePost(request,env):xhrPost(request,env);if(env.oneway){future.resolve();}
 return future;}
 function setHeader(name,value){if(name.toLowerCase()!=='content-type'){if(value){_header[name]=value;}
 else{delete _header[name];}}}
