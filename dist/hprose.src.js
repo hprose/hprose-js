@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.18
+// Hprose for JavaScript v2.0.19
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -5866,7 +5866,7 @@
  *                                                        *
  * POST data to HTTP Server (using Flash).                *
  *                                                        *
- * LastModified: Oct 23, 2016                             *
+ * LastModified: Nov 7, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -5892,7 +5892,7 @@
     // get flash path
     var document = global.document;
     var scripts = document.getElementsByTagName('script');
-    var flashpath = scripts[scripts.length - 1].getAttribute('flashpath') || '';
+    var flashpath = scripts[scripts.length - 1].getAttribute('flashpath') || global.hproseFlashPath || '';
     scripts = null;
 
     // static private members
