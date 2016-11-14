@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.19
+// Hprose for JavaScript v2.0.20
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -520,20 +520,19 @@ function inputFilter(response,context){for(var i=_filters.length-1;i>=0;i--){res
 return response;}
 function beforeFilterHandler(request,context){request=outputFilter(request,context);return _afterFilterHandler(request,context).then(function(response){if(context.oneway){return;}
 return inputFilter(response,context);});}
-function afterFilterHandler(request,context){return self.sendAndReceive(request,context);}
-function sendAndReceive(request,context,onsuccess,onerror){_beforeFilterHandler(request,context).then(onsuccess,function(e){if(retry(request,context,onsuccess,onerror)){return;}
-onerror(e);});}
+function afterFilterHandler(request,context){return self.sendAndReceive(request,context).catchError(function(e){var response=retry(request,context);if(response!==null){return response;}
+throw e;});}
+function sendAndReceive(request,context,onsuccess,onerror){_beforeFilterHandler(request,context).then(onsuccess,onerror);}
 function failswitch(){var n=_uriList.length;if(n>1){var i=_index+1;if(i>=n){i=0;_failround++;}
 _index=i;_uri=_uriList[_index];}
 else{_failround++;}
 if(typeof self.onfailswitch===s_function){self.onfailswitch(self);}}
-function retry(data,context,onsuccess,onerror){if(context.failswitch){failswitch();}
+function retry(data,context){if(context.failswitch){failswitch();}
 if(context.idempotent&&(context.retried<context.retry)){var interval=++context.retried*500;if(context.failswitch){interval-=(_uriList.length-1)*500;}
 if(interval>5000){interval=5000;}
-if(interval>0){global.setTimeout(function(){sendAndReceive(data,context,onsuccess,onerror);},interval);}
-else{sendAndReceive(data,context,onsuccess,onerror);}
-return true;}
-return false;}
+if(interval>0){return Future.delayed(interval,function(){return afterFilterHandler(data,context);});}
+else{return afterFilterHandler(data,context);}}
+return null;}
 function initService(stub){var context={retry:_retry,retried:0,idempotent:true,failswitch:true,timeout:_timeout,client:self,userdata:{}};var onsuccess=function(data){var error=null;try{var stream=new StringIO(data);var reader=new Reader(stream,true);var tag=stream.readChar();switch(tag){case Tags.TagError:error=new Error(reader.readString());break;case Tags.TagFunctions:var functions=reader.readList();reader.checkTag(Tags.TagEnd);setFunctions(stub,functions);break;default:error=new Error('Wrong Response:\r\n'+data);break;}}
 catch(e){error=e;}
 if(error!==null){_ready.reject(error);}
