@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.20
+// Hprose for JavaScript v2.0.21
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -213,7 +213,7 @@ else{attachTo.setImmediate=polifill.setTimeout();}
 attachTo.clearImmediate=clear;})(this||[eval][0]('this'));(function(global,undefined){'use strict';var PENDING=0;var FULFILLED=1;var REJECTED=2;var defineProperties=global.hprose.defineProperties;var createObject=global.hprose.createObject;var hasPromise='Promise'in global;var setImmediate=global.setImmediate;var setTimeout=global.setTimeout;var clearTimeout=global.clearTimeout;var TimeoutError=global.TimeoutError;function Future(computation){var self=this;defineProperties(self,{_subscribers:{value:[]},resolve:{value:this.resolve.bind(self)},reject:{value:this.reject.bind(self)}});if(typeof computation==='function'){setImmediate(function(){try{self.resolve(computation());}
 catch(e){self.reject(e);}});}}
 function isFuture(obj){return obj instanceof Future;}
-function isPromise(obj){return isFuture(obj)||(hasPromise&&(obj instanceof global.Promise)&&(typeof(obj.then==='function')));}
+function isPromise(obj){return'function'==typeof obj.then;}
 function toPromise(obj){return(isFuture(obj)?obj:value(obj));}
 function delayed(duration,value){var computation=(typeof value==='function')?value:function(){return value;};var future=new Future();setTimeout(function(){try{future.resolve(computation());}
 catch(e){future.reject(e);}},duration);return future;}
