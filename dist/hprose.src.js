@@ -5867,7 +5867,7 @@
  *                                                        *
  * POST data to HTTP Server (using Flash).                *
  *                                                        *
- * LastModified: Nov 7, 2016                              *
+ * LastModified: Nov 16, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -5893,7 +5893,7 @@
     // get flash path
     var document = global.document;
     var scripts = document.getElementsByTagName('script');
-    var flashpath = scripts[scripts.length - 1].getAttribute('flashpath') || global.hproseFlashPath || '';
+    var flashpath = ((scripts.length > 0) && scripts[scripts.length - 1].getAttribute('flashpath')) || global.hproseFlashPath || '';
     scripts = null;
 
     // static private members
