@@ -789,7 +789,7 @@ var cookie=cookieManager.getCookie(self.uri());if(cookie!==''){http.setRequestHe
 http.on("success",function(data){var cookie=http.getResponseHeader('set-cookie');if(cookie){cookieManager.setCookie({'set-cookie':cookie},self.uri());}
 future.resolve(data);});http.on("fail",function(result){future.reject(new Error(result.status+":"+result.data));});http.request();return future;}
 function wxPost(request,env){var future=new Future();var header={};for(var k in _header){header[k]=_header[k];}
-header['Content-Type']='text/plain; charset=UTF-8';wx.request({url:self.uri(),method:'POST',data:request,header:header,timeout:env.timeout,complete:function(ret){if(ret.statusCode===200){future.resolve(ret.data);}
+header['Content-Type']='text/plain; charset=UTF-8';wx.request({url:self.uri(),method:'POST',data:request,header:header,timeout:env.timeout,complete:function(ret){if(parseInt(ret.statusCode,10)===200){future.resolve(ret.data);}
 else{future.reject(new Error(ret.statusCode+":"+ret.data));}}});return future;}
 function isCrossDomain(){if(global.location===undefined){return true;}
 var parser=parseuri(self.uri());if(parser.protocol!==global.location.protocol){return true;}

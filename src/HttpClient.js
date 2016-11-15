@@ -12,7 +12,7 @@
  *                                                        *
  * hprose http client for JavaScript.                     *
  *                                                        *
- * LastModified: Nov 6, 2016                              *
+ * LastModified: Nov 16, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -260,7 +260,7 @@
                 header: header,
                 timeout: env.timeout,
                 complete: function(ret) {
-                    if (ret.statusCode === 200) {
+                    if (parseInt(ret.statusCode, 10) === 200) {
                         future.resolve(ret.data);
                     }
                     else {
