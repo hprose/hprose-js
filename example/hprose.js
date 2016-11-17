@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.22
+// Hprose for JavaScript v2.0.23
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -857,8 +857,8 @@ if((_count<100)&&(_requests.length>0)){++_count;var request=_requests.pop();_rea
 if(_count===0&&!self.keepAlive()){close();}}
 function onclose(e){_futures.forEach(function(future,id){future.reject(new Error(e.code+':'+e.reason));delete _futures[id];});_count=0;ws=null;}
 function connect(){_ready=new Future();ws=new WebSocket(self.uri());ws.binaryType='arraybuffer';ws.onopen=onopen;ws.onmessage=onmessage;ws.onerror=noop;ws.onclose=onclose;}
-function sendAndReceive(request,env){if(ws===null||ws.readyState===WebSocket.CLOSING||ws.readyState===WebSocket.CLOSED){connect();}
-var future=new Future();var id=getNextId();_futures[id]=future;_envs[id]=env;if(env.timeout>0){future=future.timeout(env.timeout).catchError(function(e){delete _futures[id];--_count;throw e;},function(e){return e instanceof TimeoutError;});}
+function sendAndReceive(request,env){var id=getNextId();var future=new Future();_futures[id]=future;_envs[id]=env;if(env.timeout>0){future=future.timeout(env.timeout).catchError(function(e){delete _futures[id];--_count;throw e;},function(e){return e instanceof TimeoutError;});}
+if(ws===null||ws.readyState===WebSocket.CLOSING||ws.readyState===WebSocket.CLOSED){connect();}
 if(_count<100){++_count;_ready.then(function(){send(id,request);});}
 else{_requests.push([id,request]);}
 if(env.oneway){future.resolve();}

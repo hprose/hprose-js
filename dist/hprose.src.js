@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.22
+// Hprose for JavaScript v2.0.23
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -6804,7 +6804,7 @@
  *                                                        *
  * hprose websocket client for JavaScript.                *
  *                                                        *
- * LastModified: Sep 29, 2016                             *
+ * LastModified: Nov 18, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -6913,13 +6913,8 @@
             ws.onclose = onclose;
         }
         function sendAndReceive(request, env) {
-            if (ws === null ||
-                ws.readyState === WebSocket.CLOSING ||
-                ws.readyState === WebSocket.CLOSED) {
-                connect();
-            }
-            var future = new Future();
             var id = getNextId();
+            var future = new Future();
             _futures[id] = future;
             _envs[id] = env;
             if (env.timeout > 0) {
@@ -6931,6 +6926,11 @@
                 function(e) {
                     return e instanceof TimeoutError;
                 });
+            }
+            if (ws === null ||
+                ws.readyState === WebSocket.CLOSING ||
+                ws.readyState === WebSocket.CLOSED) {
+                connect();
             }
             if (_count < 100) {
                 ++_count;
