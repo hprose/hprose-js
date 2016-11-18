@@ -440,7 +440,7 @@ hprose.global = (
  *                                                        *
 \**********************************************************/
 
-(function (global, generic, undefined) {
+(function (generic, undefined) {
     'use strict';
     /* Function */
     if (!Function.prototype.bind) {
@@ -1079,7 +1079,7 @@ hprose.global = (
         'concat',
         'slice'
     ]);
-})(hprose.global, hprose.generic);
+})(hprose.generic);
 
 /**********************************************************\
 |                                                          |
