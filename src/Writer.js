@@ -13,21 +13,21 @@
  *                                                        *
  * hprose Writer for JavaScript.                          *
  *                                                        *
- * LastModified: Sep 29, 2016                              *
+ * LastModified: Nov 18, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-(function (global, undefined) {
+(function (hprose, global, undefined) {
     'use strict';
 
     var Map = global.Map;
-    var StringIO = global.hprose.StringIO;
-    var BinaryString = global.hprose.BinaryString;
-    var Tags = global.hprose.Tags;
-    var ClassManager = global.hprose.ClassManager;
-    var defineProperties = global.hprose.defineProperties;
-    var createObject = global.hprose.createObject;
+    var StringIO = hprose.StringIO;
+    var BinaryString = hprose.BinaryString;
+    var Tags = hprose.Tags;
+    var ClassManager = hprose.ClassManager;
+    var defineProperties = hprose.defineProperties;
+    var createObject = hprose.createObject;
     var utf8Encode = StringIO.utf8Encode;
 
     function getClassName(obj) {
@@ -532,6 +532,6 @@
         } }
     });
 
-    global.HproseWriter = global.hprose.Writer = Writer;
+    global.HproseWriter = hprose.Writer = Writer;
 
-})(this || [eval][0]('this'));
+})(hprose, hprose.global);

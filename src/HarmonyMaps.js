@@ -13,7 +13,7 @@
  *                                                        *
  * Harmony Maps for JavaScript.                           *
  *                                                        *
- * LastModified: Sep 29, 2016                             *
+ * LastModified: Nov 18, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -417,4 +417,4 @@
             return m;
         };
     }
-})(this || [eval][0]('this'));
+})(hprose.global);

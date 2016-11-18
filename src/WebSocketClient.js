@@ -17,18 +17,18 @@
  *                                                        *
 \**********************************************************/
 
-(function (global, undefined) {
+(function (hprose, global, undefined) {
     'use strict';
 
-    var StringIO = global.hprose.StringIO;
-    var Client = global.hprose.Client;
-    var Future = global.hprose.Future;
+    var StringIO = hprose.StringIO;
+    var Client = hprose.Client;
+    var Future = hprose.Future;
     var TimeoutError = global.TimeoutError;
 
-    var defineProperties = global.hprose.defineProperties;
-    var toBinaryString = global.hprose.toBinaryString;
-    var toUint8Array = global.hprose.toUint8Array;
-    var parseuri = global.hprose.parseuri;
+    var defineProperties = hprose.defineProperties;
+    var toBinaryString = hprose.toBinaryString;
+    var toUint8Array = hprose.toUint8Array;
+    var parseuri = hprose.parseuri;
     var WebSocket = global.WebSocket || global.MozWebSocket;
 
     function noop(){}
@@ -192,6 +192,6 @@
     });
 
     global.HproseWebSocketClient =
-    global.hprose.WebSocketClient = WebSocketClient;
+    hprose.WebSocketClient = WebSocketClient;
 
-})(this || [eval][0]('this'));
+})(hprose, hprose.global);

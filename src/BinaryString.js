@@ -13,16 +13,16 @@
  *                                                        *
  * hprose BinaryString for JavaScript.                    *
  *                                                        *
- * LastModified: Sep 29, 2016                             *
+ * LastModified: Nov 18, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-(function (global) {
+(function (hprose) {
     'use strict';
 
-    var defineProperties = global.hprose.defineProperties;
-    var createObject = global.hprose.createObject;
+    var defineProperties = hprose.defineProperties;
+    var createObject = hprose.createObject;
 
     function BinaryString(bs, needtest) {
         if (!needtest || /^[\x00-\xff]*$/.test(bs)) {
@@ -57,7 +57,7 @@
     BinaryString.prototype = createObject(null, methods);
     BinaryString.prototype.constructor = BinaryString;
 
-    global.hprose.BinaryString = BinaryString;
-    global.hprose.binary = function(bs) { return new BinaryString(bs, true); };
+    hprose.BinaryString = BinaryString;
+    hprose.binary = function(bs) { return new BinaryString(bs, true); };
 
-})(this || [eval][0]('this'));
+})(hprose);

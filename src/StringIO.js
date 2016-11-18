@@ -13,15 +13,15 @@
  *                                                        *
  * hprose StringIO for JavaScript.                        *
  *                                                        *
- * LastModified: Oct 23, 2016                             *
+ * LastModified: Nov 18, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-(function (global, undefined) {
+(function (hprose, undefined) {
     'use strict';
 
-    var defineProperties = global.hprose.defineProperties;
+    var defineProperties = hprose.defineProperties;
 
     // i is a int32 number
     function int32BE(i) {
@@ -66,10 +66,11 @@
                     var nextCodeUnit = s.charCodeAt(i + 1);
                     if (codeUnit < 0xDC00 && 0xDC00 <= nextCodeUnit && nextCodeUnit <= 0xDFFF) {
                         var rune = (((codeUnit & 0x03FF) << 10) | (nextCodeUnit & 0x03FF)) + 0x010000;
-                        buf[j] = String.fromCharCode(0xF0 | ((rune >> 18) &0x3F),
-                                                     0x80 | ((rune >> 12) & 0x3F),
-                                                     0x80 | ((rune >> 6) & 0x3F),
-                                                     0x80 | (rune & 0x3F));
+                        buf[j] = String.fromCharCode(
+                            0xF0 | ((rune >> 18) &0x3F),
+                            0x80 | ((rune >> 12) & 0x3F),
+                            0x80 | ((rune >> 6) & 0x3F),
+                            0x80 | (rune & 0x3F));
                         ++i;
                         continue;
                     }
@@ -635,6 +636,6 @@
         isUTF8: { value: isUTF8 }
     });
 
-    global.hprose.StringIO = StringIO;
+    hprose.StringIO = StringIO;
 
-})(this || [eval][0]('this'));
+})(hprose);

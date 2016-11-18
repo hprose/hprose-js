@@ -13,12 +13,12 @@
  *                                                        *
  * Polyfill for JavaScript.                               *
  *                                                        *
- * LastModified: Sep 29, 2016                             *
+ * LastModified: Nov 18, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-(function (global, undefined) {
+(function (global, generic, undefined) {
     'use strict';
     /* Function */
     if (!Function.prototype.bind) {
@@ -594,8 +594,6 @@
                    f(this.getUTCSeconds())   + 'Z';
         };
     }
-    /* Generic methods */
-    var generic = global.hprose.generic;
 
     function genericMethods(obj, properties) {
         var proto = obj.prototype;
@@ -659,4 +657,4 @@
         'concat',
         'slice'
     ]);
-})(this || [eval][0]('this'));
+})(hprose.global, hprose.generic);

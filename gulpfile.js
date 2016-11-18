@@ -39,8 +39,6 @@ gulp.task('concat', ['clear'], function() {
                      'src/TcpClient.js',
                      'src/JSONRPCClientFilter.js',
                      'src/Loader.js'])
-        .pipe(jshint())
-        .pipe(jshint.reporter())
         .pipe(concat('hprose.src.js'))
         .pipe(jshint())
         .pipe(jshint.reporter())

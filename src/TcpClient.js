@@ -12,23 +12,23 @@
  *                                                        *
  * hprose tcp client for JavaScript.                      *
  *                                                        *
- * LastModified: Sep 29, 2016                             *
+ * LastModified: Nov 18, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-(function (global, undefined) {
+(function (hprose, global, undefined) {
     'use strict';
 
-    var ChromeTcpSocket = global.hprose.ChromeTcpSocket;
-    var APICloudTcpSocket = global.hprose.APICloudTcpSocket;
-    var Client = global.hprose.Client;
-    var StringIO = global.hprose.StringIO;
-    var Future = global.hprose.Future;
     var TimeoutError = global.TimeoutError;
-    var createObject = global.hprose.createObject;
-    var defineProperties = global.hprose.defineProperties;
-    var parseuri = global.hprose.parseuri;
+    var ChromeTcpSocket = hprose.ChromeTcpSocket;
+    var APICloudTcpSocket = hprose.APICloudTcpSocket;
+    var Client = hprose.Client;
+    var StringIO = hprose.StringIO;
+    var Future = hprose.Future;
+    var createObject = hprose.createObject;
+    var defineProperties = hprose.defineProperties;
+    var parseuri = hprose.parseuri;
 
     function noop(){}
 
@@ -489,6 +489,6 @@
     });
 
     global.HproseTcpClient =
-    global.hprose.TcpClient = TcpClient;
+    hprose.TcpClient = TcpClient;
 
-})(this || [eval][0]('this'));
+})(hprose, hprose.global);

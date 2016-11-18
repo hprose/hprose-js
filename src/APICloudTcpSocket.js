@@ -12,16 +12,16 @@
  *                                                        *
  * APICloud tcp socket for JavaScript.                    *
  *                                                        *
- * LastModified: Sep 29, 2016                             *
+ * LastModified: Nov 18, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-(function (global, undefined) {
+(function (hprose, global, undefined) {
     'use strict';
 
-    var Future = global.hprose.Future;
-    var defineProperties = global.hprose.defineProperties;
+    var Future = hprose.Future;
+    var defineProperties = hprose.defineProperties;
     var atob = global.atob;
     var btoa = global.btoa;
 
@@ -126,6 +126,6 @@
         } }
     });
 
-    global.hprose.APICloudTcpSocket = APICloudTcpSocket;
+    hprose.APICloudTcpSocket = APICloudTcpSocket;
 
-})(this || [eval][0]('this'));
+})(hprose, hprose.global);

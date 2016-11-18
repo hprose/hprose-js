@@ -12,13 +12,14 @@
  *                                                        *
  * setTimeout patch for DeviceOne.                        *
  *                                                        *
- * LastModified: Sep 29, 2016                             *
+ * LastModified: Nov 18, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
 (function (global) {
     'use strict';
+    
     if (typeof global.setTimeout !== "undefined") {
         return;
     }
@@ -54,4 +55,4 @@
             timer.stop();
         }
     };
-})(this || [eval][0]('this'));
+})(hprose.global);

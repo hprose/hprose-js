@@ -12,18 +12,18 @@
  *                                                        *
  * chrome tcp socket for JavaScript.                      *
  *                                                        *
- * LastModified: Sep 29, 2016                             *
+ * LastModified: Nov 18, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-(function (global, undefined) {
+(function (hprose, global, undefined) {
     'use strict';
 
-    var Future = global.hprose.Future;
-    var defineProperties = global.hprose.defineProperties;
-    var toUint8Array = global.hprose.toUint8Array;
-    var toBinaryString = global.hprose.toBinaryString;
+    var Future = hprose.Future;
+    var defineProperties = hprose.defineProperties;
+    var toUint8Array = hprose.toUint8Array;
+    var toBinaryString = hprose.toBinaryString;
 
     function noop(){}
 
@@ -180,6 +180,6 @@
         } }
     });
 
-    global.hprose.ChromeTcpSocket = ChromeTcpSocket;
+    hprose.ChromeTcpSocket = ChromeTcpSocket;
 
-})(this || [eval][0]('this'));
+})(hprose, hprose.global);

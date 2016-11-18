@@ -13,19 +13,19 @@
  *                                                        *
  * jsonrpc client filter for JavaScript.                  *
  *                                                        *
- * LastModified: Sep 29, 2016                             *
+ * LastModified: Nov 18, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-(function (global) {
+/* global JSON */
+(function (hprose) {
     'use strict';
 
-    var Tags = global.hprose.Tags;
-    var StringIO = global.hprose.StringIO;
-    var Writer = global.hprose.Writer;
-    var Reader = global.hprose.Reader;
-    var JSON = global.JSON;
+    var Tags = hprose.Tags;
+    var StringIO = hprose.StringIO;
+    var Writer = hprose.Writer;
+    var Reader = hprose.Reader;
 
     var s_id = 1;
 
@@ -88,15 +88,6 @@
         return JSON.stringify(requests[0]);
     };
 
-    global.hprose.JSONRPCClientFilter = JSONRPCClientFilter;
+    hprose.JSONRPCClientFilter = JSONRPCClientFilter;
 
-    if (typeof(global.hprose.filter) === "undefined") {
-        global.hprose.filter = {
-            JSONRPCClientFilter: global.hprose.JSONRPCClientFilter
-        };
-    }
-    else {
-        global.hprose.filter.JSONRPCClientFilter = global.hprose.JSONRPCClientFilter;
-    }
-
-})(this || [eval][0]('this'));
+})(hprose);

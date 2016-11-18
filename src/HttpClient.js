@@ -12,22 +12,22 @@
  *                                                        *
  * hprose http client for JavaScript.                     *
  *                                                        *
- * LastModified: Nov 16, 2016                             *
+ * LastModified: Nov 18, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-(function (global, undefined) {
+(function (hprose, global, undefined) {
     'use strict';
 
-    var Client = global.hprose.Client;
-    var Future = global.hprose.Future;
-    var createObject = global.hprose.createObject;
-    var defineProperties = global.hprose.defineProperties;
-    var toBinaryString = global.hprose.toBinaryString;
-    var toUint8Array = global.hprose.toUint8Array;
-    var parseuri = global.hprose.parseuri;
-    var cookieManager = global.hprose.cookieManager;
+    var Client = hprose.Client;
+    var Future = hprose.Future;
+    var createObject = hprose.createObject;
+    var defineProperties = hprose.defineProperties;
+    var toBinaryString = hprose.toBinaryString;
+    var toUint8Array = hprose.toUint8Array;
+    var parseuri = hprose.parseuri;
+    var cookieManager = hprose.cookieManager;
 
     var TimeoutError = global.TimeoutError;
     var FlashHttpRequest = global.FlashHttpRequest;
@@ -49,8 +49,6 @@
         deviceone = global.require("deviceone");
     }
     catch (e) {}
-
-    var wx = global.wx;
 
     var localfile = (global.location !== undefined && global.location.protocol === 'file:');
     var nativeXHR = (typeof(XMLHttpRequest) !== 'undefined');
@@ -246,31 +244,6 @@
             return future;
         }
 
-        function wxPost(request, env) {
-            var future = new Future();
-            var header = {};
-            for (var k in _header) {
-                header[k] = _header[k];
-            }
-            header['Content-Type'] = 'text/plain; charset=UTF-8';
-            wx.request({
-                url: self.uri(),
-                method: 'POST',
-                data: request,
-                header: header,
-                timeout: env.timeout,
-                complete: function(ret) {
-                    if (parseInt(ret.statusCode, 10) === 200) {
-                        future.resolve(ret.data);
-                    }
-                    else {
-                        future.reject(new Error(ret.statusCode + ":" + ret.data));
-                    }
-                }
-            });
-            return future; 
-        }
-
         function isCrossDomain() {
             if (global.location === undefined) {
                 return true;
@@ -291,9 +264,7 @@
                       (env.binary || isCrossDomain()));
             var apicloud = (typeof(global.api) !== "undefined" &&
                            typeof(global.api.ajax) !== "undefined");
-            var wxreq = wx && wx.request;
-            var future = wxreq ?    wxPost(request, env) :
-                         fhr ?      fhrPost(request, env) :
+            var future = fhr ?      fhrPost(request, env) :
                          apicloud ? apiPost(request, env) :
                          deviceone ? deviceOnePost(request, env) :
                                     xhrPost(request, env);
@@ -344,6 +315,6 @@
         create: { value: create }
     });
 
-    global.HproseHttpClient = global.hprose.HttpClient = HttpClient;
+    global.HproseHttpClient = hprose.HttpClient = HttpClient;
 
-})(this || [eval][0]('this'));
+})(hprose, hprose.global);

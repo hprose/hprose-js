@@ -13,16 +13,16 @@
  *                                                        *
  * hprose ClassManager for JavaScript.                    *
  *                                                        *
- * LastModified: Sep 29, 2016                             *
+ * LastModified: Nov 18, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-(function (global) {
+(function (hprose, global) {
     'use strict';
 
     var WeakMap = global.WeakMap;
-    var createObject = global.hprose.createObject;
+    var createObject = hprose.createObject;
 
     var classCache = createObject(null);
     var aliasCache = new WeakMap();
@@ -41,14 +41,14 @@
     }
 
     global.HproseClassManager  =
-    global.hprose.ClassManager = createObject(null, {
+    hprose.ClassManager = createObject(null, {
         register: { value: register },
         getClassAlias: { value: getClassAlias },
         getClass: { value: getClass }
     });
 
-    global.hprose.register = register;
+    hprose.register = register;
 
     register(Object, 'Object');
 
-})(this || [eval][0]('this'));
+})(hprose, hprose.global);

@@ -13,18 +13,18 @@
  *                                                        *
  * hprose Formatter for JavaScript.                       *
  *                                                        *
- * LastModified: Sep 29, 2016                             *
+ * LastModified: Nov 18, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-(function (global) {
+(function (hprose) {
     'use strict';
 
-    var StringIO = global.hprose.StringIO;
-    var Writer = global.hprose.Writer;
-    var Reader = global.hprose.Reader;
-    var createObject = global.hprose.createObject;
+    var StringIO = hprose.StringIO;
+    var Writer = hprose.Writer;
+    var Reader = hprose.Reader;
+    var createObject = hprose.createObject;
 
     function serialize(value, simple, binary) {
         var stream = new StringIO();
@@ -40,12 +40,12 @@
         return new Reader(stream, simple, useHarmonyMap, binary).unserialize();
     }
 
-    global.hprose.Formatter = createObject(null, {
+    hprose.Formatter = createObject(null, {
         serialize: { value: serialize },
         unserialize: { value: unserialize }
     });
 
-    global.hprose.serialize = serialize;
-    global.hprose.unserialize = unserialize;
+    hprose.serialize = serialize;
+    hprose.unserialize = unserialize;
 
-})(this || [eval][0]('this'));
+})(hprose);

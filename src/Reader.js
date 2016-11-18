@@ -13,21 +13,21 @@
  *                                                        *
  * hprose Reader for JavaScript.                          *
  *                                                        *
- * LastModified: Sep 29, 2016                             *
+ * LastModified: Nov 18, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-(function (global, undefined) {
+(function (hprose, global, undefined) {
     'use strict';
 
     var Map = global.Map;
-    var StringIO = global.hprose.StringIO;
-    var BinaryString = global.hprose.BinaryString;
-    var Tags = global.hprose.Tags;
-    var ClassManager = global.hprose.ClassManager;
-    var defineProperties = global.hprose.defineProperties;
-    var createObject = global.hprose.createObject;
+    var StringIO = hprose.StringIO;
+    var BinaryString = hprose.BinaryString;
+    var Tags = hprose.Tags;
+    var ClassManager = hprose.ClassManager;
+    var defineProperties = hprose.defineProperties;
+    var createObject = hprose.createObject;
 
     function unexpectedTag(tag, expectTags) {
         if (tag && expectTags) {
@@ -189,7 +189,7 @@
         });
     }
 
-    global.hprose.RawReader = RawReader;
+    hprose.RawReader = RawReader;
 
     var fakeReaderRefer = createObject(null, {
         set: { value: function() {} },
@@ -766,5 +766,5 @@
         } }
     });
 
-    global.HproseReader = global.hprose.Reader = Reader;
-})(this || [eval][0]('this'));
+    global.HproseReader = hprose.Reader = Reader;
+})(hprose, hprose.global);

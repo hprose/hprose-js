@@ -13,20 +13,20 @@
  *                                                        *
  * hprose Future for JavaScript.                          *
  *                                                        *
- * LastModified: Nov 17, 2016                             *
+ * LastModified: Nov 18, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-(function (global, undefined) {
+(function (hprose, global, undefined) {
     'use strict';
 
     var PENDING = 0;
     var FULFILLED = 1;
     var REJECTED = 2;
 
-    var defineProperties = global.hprose.defineProperties;
-    var createObject = global.hprose.createObject;
+    var defineProperties = hprose.defineProperties;
+    var createObject = hprose.createObject;
 
     var hasPromise = 'Promise' in global;
     var setImmediate = global.setImmediate;
@@ -206,6 +206,9 @@
     }
 
     function isGenerator(obj) {
+        if (!obj) {
+            return false;
+        }
         return 'function' == typeof obj.next && 'function' == typeof obj['throw'];
     }
 
@@ -222,50 +225,6 @@
             return true;
         }
         return isGenerator(constructor.prototype);
-    }
-
-    function thunkToPromise(fn) {
-        var thisArg = (function() { return this; })();
-        var future = new Future();
-        fn.call(thisArg, function(err, res) {
-            if (arguments.length < 2) {
-                if (err instanceof Error) {
-                    return future.reject(err);
-                }
-                return future.resolve(err);
-            }
-            if (err) {
-                return future.reject(err);
-            }
-            if (arguments.length > 2) {
-                res = Array.slice(arguments, 1);
-            }
-            future.resolve(res);
-        });
-        return future;
-    }
-
-    function thunkify(fn) {
-        return function() {
-            var args = Array.slice(arguments, 0);
-            var thisArg = this;
-            var results = new Future();
-            args.push(function() {
-                thisArg = this;
-                results.resolve(arguments);
-            });
-            try {
-                fn.apply(this, args);
-            }
-            catch (err) {
-                results.resolve([err]);
-            }
-            return function(done) {
-                results.then(function(results) {
-                    done.apply(thisArg, results);
-                });
-            };
-        };
     }
 
     function promisify(fn) {
@@ -306,9 +265,6 @@
         }
         if (isGeneratorFunction(obj) || isGenerator(obj)) {
             return co(obj);
-        }
-        if ('function' == typeof obj) {
-            return thunkToPromise(obj);
         }
         return value(obj);
     }
@@ -507,7 +463,6 @@
         settle: { value: settle },
         attempt: { value: attempt },
         run: { value: run },
-        thunkify: { value: thunkify },
         promisify: { value: promisify },
         co: { value: co },
         wrap: { value: wrap },
@@ -815,12 +770,11 @@
         } }
     });
 
-    global.hprose.Future = Future;
+    hprose.Future = Future;
 
-    global.hprose.thunkify = thunkify;
-    global.hprose.promisify = promisify;
-    global.hprose.co = co;
-    global.hprose.co.wrap = global.hprose.wrap = wrap;
+    hprose.promisify = promisify;
+    hprose.co = co;
+    hprose.co.wrap = hprose.wrap = wrap;
 
     function Completer() {
         var future = new Future();
@@ -834,13 +788,13 @@
         });
     }
 
-    global.hprose.Completer = Completer;
+    hprose.Completer = Completer;
 
-    global.hprose.resolved = value;
+    hprose.resolved = value;
 
-    global.hprose.rejected = error;
+    hprose.rejected = error;
 
-    global.hprose.deferred = function() {
+    hprose.deferred = function() {
         var self = new Future();
         return createObject(null, {
             promise: { value: self },
@@ -851,19 +805,21 @@
 
     if (hasPromise) { return; }
 
-    global.Promise = function(executor) {
+    function MyPromise(executor) {
         Future.call(this);
         executor(this.resolve, this.reject);
-    };
+    }
 
-    global.Promise.prototype = createObject(Future.prototype);
-    global.Promise.prototype.constructor = Future;
+    MyPromise.prototype = createObject(Future.prototype);
+    MyPromise.prototype.constructor = Future;
 
-    defineProperties(global.Promise, {
+    defineProperties(MyPromise, {
         all: { value: all },
         race: { value: race },
         resolve: { value: value },
         reject: { value: error }
     });
 
-})(this || [eval][0]('this'));
+    global.Promise = MyPromise;
+
+})(hprose, hprose.global);

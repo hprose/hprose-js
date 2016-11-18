@@ -13,12 +13,12 @@
  *                                                        *
  * hprose helper for JavaScript.                          *
  *                                                        *
- * LastModified: Oct 12, 2016                             *
+ * LastModified: Nov 18, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 
-(function (global, undefined) {
+(function (hprose, undefined) {
     'use strict';
 
     var propertyToMethod = function(prop) {
@@ -114,7 +114,7 @@
         return function(context) {
             return method.apply(context, Array.prototype.slice.call(arguments, 1));
         };
-    }
+    };
 
     var toArray = function(arrayLikeObject) {
         var n = arrayLikeObject.length;
@@ -167,7 +167,7 @@
             query: matches[7],
             fragment: matches[9]
         };
-    }
+    };
 
     var isObjectEmpty = function (obj) {
         if (obj) {
@@ -177,15 +177,15 @@
             }
         }
         return true;
-    }
+    };
 
-    global.hprose.defineProperties = defineProperties;
-    global.hprose.createObject = createObject;
-    global.hprose.generic = generic;
-    global.hprose.toBinaryString = toBinaryString;
-    global.hprose.toUint8Array = toUint8Array;
-    global.hprose.toArray = toArray;
-    global.hprose.parseuri = parseuri;
-    global.hprose.isObjectEmpty = isObjectEmpty;
+    hprose.defineProperties = defineProperties;
+    hprose.createObject = createObject;
+    hprose.generic = generic;
+    hprose.toBinaryString = toBinaryString;
+    hprose.toUint8Array = toUint8Array;
+    hprose.toArray = toArray;
+    hprose.parseuri = parseuri;
+    hprose.isObjectEmpty = isObjectEmpty;
 
-})(this || [eval][0]('this'));
+})(hprose);

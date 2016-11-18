@@ -13,7 +13,7 @@
  *                                                        *
  * POST data to HTTP Server (using Flash).                *
  *                                                        *
- * LastModified: Nov 16, 2016                             *
+ * LastModified: Nov 18, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -27,7 +27,7 @@
  * static encapsulation environment for FlashHttpRequest
  */
 
-/*jshint es3:true, unused:false, eqeqeq:true */
+/*jshint unused:false */
 (function (global) {
     'use strict';
     if (typeof global.document === "undefined") {
@@ -295,4 +295,4 @@
     //init();
     setJsReady();
 
-})(this || [eval][0]('this'));
+})(hprose.global);
