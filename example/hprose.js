@@ -235,6 +235,15 @@ function isGeneratorFunction(obj){if(!obj){return false;}
 var constructor=obj.constructor;if(!constructor){return false;}
 if('GeneratorFunction'===constructor.name||'GeneratorFunction'===constructor.displayName){return true;}
 return isGenerator(constructor.prototype);}
+function thunkToPromise(fn){if(isGeneratorFunction(fn)||isGenerator(fn)){return co(fn);}
+var thisArg=(function(){return this;})();var future=new Future();fn.call(thisArg,function(err,res){if(arguments.length<2){if(err instanceof Error){return future.reject(err);}
+return future.resolve(err);}
+if(err){return future.reject(err);}
+if(arguments.length>2){res=Array.slice(arguments,1);}
+future.resolve(res);});return future;}
+function thunkify(fn){return function(){var args=Array.slice(arguments,0);var thisArg=this;var results=new Future();args.push(function(){thisArg=this;results.resolve(arguments);});try{fn.apply(this,args);}
+catch(err){results.resolve([err]);}
+return function(done){results.then(function(results){done.apply(thisArg,results);});};};}
 function promisify(fn){return function(){var args=Array.slice(arguments,0);var results=new Future();args.push(function(err,res){if(arguments.length<2){if(err instanceof Error){return results.reject(err);}
 return results.resolve(err);}
 if(err){return results.reject(err);}
@@ -252,10 +261,10 @@ catch(e){future.reject(e);}}
 function onRejected(err){try{next(gen['throw'](err));}
 catch(e){return future.reject(e);}}
 function next(ret){if(ret.done){future.resolve(ret.value);}
-else{toPromise(ret.value).then(onFulfilled,onRejected);}}
+else{(('function'==typeof ret.value)?thunkToPromise(ret.value):toPromise(ret.value)).then(onFulfilled,onRejected);}}
 if(!gen||typeof gen.next!=='function'){return future.resolve(gen);}
 onFulfilled();return future;}
-function wrap(handler,thisArg){return function(){thisArg=thisArg||this;return all(arguments).then(function(args){var result=handler.apply(thisArg,args);if(isGeneratorFunction(result)){return co.call(thisArg,result);}
+function wrap(handler,thisArg){return function(){thisArg=thisArg||this;return all(arguments).then(function(args){var result=handler.apply(thisArg,args);if(isGeneratorFunction(result)||isGenerator(result)){return co.call(thisArg,result);}
 return result;});};}
 function forEach(array,callback,thisArg){thisArg=thisArg||(function(){return this;})();return all(array).then(function(array){return array.forEach(callback,thisArg);});}
 function every(array,callback,thisArg){thisArg=thisArg||(function(){return this;})();return all(array).then(function(array){return array.every(callback,thisArg);});}
@@ -277,7 +286,7 @@ function includes(array,searchElement,fromIndex){return all(array).then(function
 return searchElement.then(function(searchElement){return array.includes(searchElement,fromIndex);});});}
 function find(array,predicate,thisArg){thisArg=thisArg||(function(){return this;})();return all(array).then(function(array){return array.find(predicate,thisArg);});}
 function findIndex(array,predicate,thisArg){thisArg=thisArg||(function(){return this;})();return all(array).then(function(array){return array.findIndex(predicate,thisArg);});}
-defineProperties(Future,{delayed:{value:delayed},error:{value:error},sync:{value:sync},value:{value:value},all:{value:all},race:{value:race},resolve:{value:value},reject:{value:error},promise:{value:promise},isFuture:{value:isFuture},isPromise:{value:isPromise},toPromise:{value:toPromise},join:{value:join},any:{value:any},settle:{value:settle},attempt:{value:attempt},run:{value:run},promisify:{value:promisify},co:{value:co},wrap:{value:wrap},forEach:{value:forEach},every:{value:every},some:{value:some},filter:{value:filter},map:{value:map},reduce:{value:reduce},reduceRight:{value:reduceRight},indexOf:{value:indexOf},lastIndexOf:{value:lastIndexOf},includes:{value:includes},find:{value:find},findIndex:{value:findIndex}});function _call(callback,next,x){setImmediate(function(){try{var r=callback(x);next.resolve(r);}
+defineProperties(Future,{delayed:{value:delayed},error:{value:error},sync:{value:sync},value:{value:value},all:{value:all},race:{value:race},resolve:{value:value},reject:{value:error},promise:{value:promise},isFuture:{value:isFuture},isPromise:{value:isPromise},toPromise:{value:toPromise},join:{value:join},any:{value:any},settle:{value:settle},attempt:{value:attempt},run:{value:run},thunkify:{value:thunkify},promisify:{value:promisify},co:{value:co},wrap:{value:wrap},forEach:{value:forEach},every:{value:every},some:{value:some},filter:{value:filter},map:{value:map},reduce:{value:reduce},reduceRight:{value:reduceRight},indexOf:{value:indexOf},lastIndexOf:{value:lastIndexOf},includes:{value:includes},find:{value:find},findIndex:{value:findIndex}});function _call(callback,next,x){setImmediate(function(){try{var r=callback(x);next.resolve(r);}
 catch(e){next.reject(e);}});}
 function _resolve(onfulfill,next,x){if(onfulfill){_call(onfulfill,next,x);}
 else{next.resolve(x);}}
@@ -301,7 +310,7 @@ return this['catch'](onreject);}},'catch':{value:function(onreject){return this.
 return;}
 bindargs.shift();var self=this;Object.defineProperty(this,method,{value:function(){var args=Array.slice(arguments);return self.then(function(result){return all(bindargs.concat(args)).then(function(args){return result[method].apply(result,args);});});}});return this;}},forEach:{value:function(callback,thisArg){return forEach(this,callback,thisArg);}},every:{value:function(callback,thisArg){return every(this,callback,thisArg);}},some:{value:function(callback,thisArg){return some(this,callback,thisArg);}},filter:{value:function(callback,thisArg){return filter(this,callback,thisArg);}},map:{value:function(callback,thisArg){return map(this,callback,thisArg);}},reduce:{value:function(callback,initialValue){if(arguments.length>1){return reduce(this,callback,initialValue);}
 return reduce(this,callback);}},reduceRight:{value:function(callback,initialValue){if(arguments.length>1){return reduceRight(this,callback,initialValue);}
-return reduceRight(this,callback);}},indexOf:{value:function(searchElement,fromIndex){return indexOf(this,searchElement,fromIndex);}},lastIndexOf:{value:function(searchElement,fromIndex){return lastIndexOf(this,searchElement,fromIndex);}},includes:{value:function(searchElement,fromIndex){return includes(this,searchElement,fromIndex);}},find:{value:function(predicate,thisArg){return find(this,predicate,thisArg);}},findIndex:{value:function(predicate,thisArg){return findIndex(this,predicate,thisArg);}}});hprose.Future=Future;hprose.promisify=promisify;hprose.co=co;hprose.co.wrap=hprose.wrap=wrap;function Completer(){var future=new Future();defineProperties(this,{future:{value:future},complete:{value:future.resolve},completeError:{value:future.reject},isCompleted:{get:function(){return(future._state!==PENDING);}}});}
+return reduceRight(this,callback);}},indexOf:{value:function(searchElement,fromIndex){return indexOf(this,searchElement,fromIndex);}},lastIndexOf:{value:function(searchElement,fromIndex){return lastIndexOf(this,searchElement,fromIndex);}},includes:{value:function(searchElement,fromIndex){return includes(this,searchElement,fromIndex);}},find:{value:function(predicate,thisArg){return find(this,predicate,thisArg);}},findIndex:{value:function(predicate,thisArg){return findIndex(this,predicate,thisArg);}}});hprose.Future=Future;hprose.thunkify=thunkify;hprose.promisify=promisify;hprose.co=co;hprose.co.wrap=hprose.wrap=wrap;function Completer(){var future=new Future();defineProperties(this,{future:{value:future},complete:{value:future.resolve},completeError:{value:future.reject},isCompleted:{get:function(){return(future._state!==PENDING);}}});}
 hprose.Completer=Completer;hprose.resolved=value;hprose.rejected=error;hprose.deferred=function(){var self=new Future();return createObject(null,{promise:{value:self},resolve:{value:self.resolve},reject:{value:self.reject}});};if(hasPromise){return;}
 function MyPromise(executor){Future.call(this);executor(this.resolve,this.reject);}
 MyPromise.prototype=createObject(Future.prototype);MyPromise.prototype.constructor=Future;defineProperties(MyPromise,{all:{value:all},race:{value:race},resolve:{value:value},reject:{value:error}});global.Promise=MyPromise;})(hprose,hprose.global);(function(hprose){'use strict';var defineProperties=hprose.defineProperties;var createObject=hprose.createObject;function BinaryString(bs,needtest){if(!needtest||/^[\x00-\xff]*$/.test(bs)){defineProperties(this,{length:{value:bs.length},toString:{value:function(){return bs;}},valueOf:{value:function(){return bs;},writable:true,configurable:true,enumerable:false}});}
