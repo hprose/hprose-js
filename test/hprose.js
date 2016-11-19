@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.25
+// Hprose for JavaScript v2.0.26
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -235,22 +235,20 @@ function isGeneratorFunction(obj){if(!obj){return false;}
 var constructor=obj.constructor;if(!constructor){return false;}
 if('GeneratorFunction'===constructor.name||'GeneratorFunction'===constructor.displayName){return true;}
 return isGenerator(constructor.prototype);}
+function getThunkCallback(future){return function(err,res){if(err instanceof Error){return future.reject(err);}
+if(arguments.length<2){return future.resolve(err);}
+if(err===null||err===undefined){res=Array.slice(arguments,1);}
+else{res=Array.slice(arguments,0);}
+if(res.length==1){future.resolve(res[0]);}
+else{future.resolve(res);}};}
 function thunkToPromise(fn){if(isGeneratorFunction(fn)||isGenerator(fn)){return co(fn);}
-var thisArg=(function(){return this;})();var future=new Future();fn.call(thisArg,function(err,res){if(arguments.length<2){if(err instanceof Error){return future.reject(err);}
-return future.resolve(err);}
-if(err){return future.reject(err);}
-if(arguments.length>2){res=Array.slice(arguments,1);}
-future.resolve(res);});return future;}
+var thisArg=(function(){return this;})();var future=new Future();fn.call(thisArg,getThunkCallback(future));return future;}
 function thunkify(fn){return function(){var args=Array.slice(arguments,0);var thisArg=this;var results=new Future();args.push(function(){thisArg=this;results.resolve(arguments);});try{fn.apply(this,args);}
 catch(err){results.resolve([err]);}
 return function(done){results.then(function(results){done.apply(thisArg,results);});};};}
-function promisify(fn){return function(){var args=Array.slice(arguments,0);var results=new Future();args.push(function(err,res){if(arguments.length<2){if(err instanceof Error){return results.reject(err);}
-return results.resolve(err);}
-if(err){return results.reject(err);}
-if(arguments.length>2){res=Array.slice(arguments,1);}
-results.resolve(res);});try{fn.apply(this,args);}
-catch(err){results.reject(err);}
-return results;};}
+function promisify(fn){return function(){var args=Array.slice(arguments,0);var future=new Future();args.push(getThunkCallback(future));try{fn.apply(this,args);}
+catch(err){future.reject(err);}
+return future;};}
 function toPromise(obj){if(!obj){return value(obj);}
 if(isPromise(obj)){return obj;}
 if(isGeneratorFunction(obj)||isGenerator(obj)){return co(obj);}
