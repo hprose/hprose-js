@@ -42,9 +42,6 @@ module.exports = function (grunt) {
     browserName: 'iphone',
     version: '8.1'
   }, {
-    browserName: 'iphone',
-    version: '7.0'
-  }, {
     browserName: 'ipad',
     version: '9.3'
   }, {
@@ -68,9 +65,6 @@ module.exports = function (grunt) {
   }, {
     browserName: 'ipad',
     version: '8.1'
-  }, {
-    browserName: 'ipad',
-    version: '7.0'
   }, {
     browserName: 'chrome',
     platform: 'linux',
