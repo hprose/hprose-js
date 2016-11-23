@@ -13,7 +13,7 @@
  *                                                        *
  * hprose Future for JavaScript.                          *
  *                                                        *
- * LastModified: Nov 18, 2016                             *
+ * LastModified: Nov 23, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -317,6 +317,11 @@
             var args = Array.slice(arguments, 1);
             gen = gen.apply(thisArg, args);
         }
+
+        if (!gen || typeof gen.next !== 'function') {
+            return toPromise(gen);
+        }
+
         var future = new Future();
 
         function onFulfilled(res) {
@@ -333,7 +338,7 @@
                 next(gen['throw'](err));
             }
             catch (e) {
-                return future.reject(e);
+                future.reject(e);
             }
         }
 
@@ -348,9 +353,6 @@
             }
         }
 
-        if (!gen || typeof gen.next !== 'function') {
-            return future.resolve(gen);
-        }
         onFulfilled();
 
         return future;

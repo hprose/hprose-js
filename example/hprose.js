@@ -254,13 +254,13 @@ if(isPromise(obj)){return obj;}
 if(isGeneratorFunction(obj)||isGenerator(obj)){return co(obj);}
 return value(obj);}
 function co(gen){var thisArg=(function(){return this;})();if(typeof gen==='function'){var args=Array.slice(arguments,1);gen=gen.apply(thisArg,args);}
+if(!gen||typeof gen.next!=='function'){return toPromise(gen);}
 var future=new Future();function onFulfilled(res){try{next(gen.next(res));}
 catch(e){future.reject(e);}}
 function onRejected(err){try{next(gen['throw'](err));}
-catch(e){return future.reject(e);}}
+catch(e){future.reject(e);}}
 function next(ret){if(ret.done){future.resolve(ret.value);}
 else{(('function'==typeof ret.value)?thunkToPromise(ret.value):toPromise(ret.value)).then(onFulfilled,onRejected);}}
-if(!gen||typeof gen.next!=='function'){return future.resolve(gen);}
 onFulfilled();return future;}
 function wrap(handler,thisArg){return function(){thisArg=thisArg||this;return all(arguments).then(function(args){var result=handler.apply(thisArg,args);if(isGeneratorFunction(result)||isGenerator(result)){return co.call(thisArg,result);}
 return result;});};}
