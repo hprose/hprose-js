@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.27
+// Hprose for JavaScript v2.0.28
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -6029,7 +6029,7 @@ hprose.global = (
  *                                                        *
  * POST data to HTTP Server (using Flash).                *
  *                                                        *
- * LastModified: Nov 18, 2016                             *
+ * LastModified: Dec 2, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -6174,72 +6174,6 @@ hprose.global = (
         }
     }
 
-    // function detach() {
-    //     if (document.addEventListener) {
-    //         document.removeEventListener('DOMContentLoaded', completed, false);
-    //         global.removeEventListener('load', completed, false);
-    //
-    //     } else {
-    //         document.detachEvent('onreadystatechange', completed);
-    //         global.detachEvent('onload', completed);
-    //     }
-    // }
-    //
-    // function completed(event) {
-    //     if (document.addEventListener || event.type === 'load' || document.readyState === 'complete') {
-    //         detach();
-    //         setJsReady();
-    //     }
-    // }
-    //
-    // function init() {
-    //     if (document.readyState === 'complete') {
-    //         setTimeout(setJsReady, 0);
-    //     }
-    //     else if (document.addEventListener) {
-    //         document.addEventListener('DOMContentLoaded', completed, false);
-    //         global.addEventListener('load', completed, false);
-    //         if (/WebKit/i.test(navigator.userAgent)) {
-    //             var timer = setInterval( function () {
-    //                 if (/loaded|complete/.test(document.readyState)) {
-    //                     clearInterval(timer);
-    //                     completed();
-    //                 }
-    //             }, 10);
-    //         }
-    //     }
-    //     else if (document.attachEvent) {
-    //         document.attachEvent('onreadystatechange', completed);
-    //         global.attachEvent('onload', completed);
-    //         var top = false;
-    //         try {
-    //             top = window.frameElement === null && document.documentElement;
-    //         }
-    //         catch(e) {}
-    //         if (top && top.doScroll) {
-    //             (function doScrollCheck() {
-    //                 if (!jsReady) {
-    //                     try {
-    //                         top.doScroll('left');
-    //                     }
-    //                     catch(e) {
-    //                         return setTimeout(doScrollCheck, 15);
-    //                     }
-    //                     detach();
-    //                     setJsReady();
-    //                 }
-    //             })();
-    //         }
-    //     }
-    //     else if (/MSIE/i.test(navigator.userAgent) &&
-    //             /Windows CE/i.test(navigator.userAgent)) {
-    //         setJsReady();
-    //     }
-    //     else {
-    //         global.onload = setJsReady;
-    //     }
-    // }
-
     function post(url, header, data, callbackid, timeout, binary) {
         data = encodeURIComponent(data);
         if (swfReady) {
@@ -6274,11 +6208,12 @@ hprose.global = (
         }
     };
 
-    FlashHttpRequest.__callback = function (callbackid, data, error) {
+    FlashHttpRequest.__callback = function (callbackid, data, error, headers) {
         data = (data !== null) ? decodeURIComponent(data) : null;
         error = (error !== null) ? decodeURIComponent(error) : null;
+        headers = (error !== null) ? decodeURIComponent(headers) : null;
         if (typeof(callbackList[callbackid]) === 'function') {
-            callbackList[callbackid](data, error);
+            callbackList[callbackid](data, error, headers);
         }
         delete callbackList[callbackid];
     };
@@ -6308,7 +6243,6 @@ hprose.global = (
 
     global.FlashHttpRequest = FlashHttpRequest;
 
-    //init();
     setJsReady();
 
 })(hprose.global);
@@ -6448,7 +6382,7 @@ hprose.global = (
  *                                                        *
  * hprose http client for JavaScript.                     *
  *                                                        *
- * LastModified: Nov 18, 2016                             *
+ * LastModified: Dec 2, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -6541,6 +6475,23 @@ hprose.global = (
         };
     }
 
+    function getResponseHeader(headers) {
+        var header = {};
+        if (headers) {
+            headers = headers.split("\r\n");
+            for (var i = 0, n = headers.length; i < n; i++) {
+                var kv = headers[i].split(": ", 2);
+                if (kv[0] in header) {
+                    header[kv[0]].push(kv[1]);
+                }
+                else {
+                    header[kv[0]] = [kv[1]];
+                }
+            }
+        }
+        return header;
+    }
+
     function HttpClient(uri, functions, settings) {
         if (this.constructor !== HttpClient) {
             return new HttpClient(uri, functions, settings);
@@ -6550,25 +6501,48 @@ hprose.global = (
 
         var self = this;
 
-        function xhrPost(request, env) {
+        function getRequestHeader(headers) {
+            var header = {};
+            var name, value;
+            for (name in _header) {
+                header[name] = _header[name];
+            }
+            if (headers) {
+                for (name in headers) {
+                    value = headers[name];
+                    if (Array.isArray(value)) {
+                        header[name] = value.join(', ');
+                    }
+                    else {
+                        header[name] = value;
+                    }
+                }
+            }
+            return header;
+        }
+
+        function xhrPost(request, context) {
             var future = new Future();
             var xhr = createXHR();
             xhr.open('POST', self.uri(), true);
             if (corsSupport) {
                 xhr.withCredentials = 'true';
             }
-            for (var name in _header) {
-                xhr.setRequestHeader(name, _header[name]);
+            var header = getRequestHeader(context.httpHeader);
+            for (var name in header) {
+                xhr.setRequestHeader(name, header[name]);
             }
-            if (!env.binary) {
+            if (!context.binary) {
                 xhr.setRequestHeader("Content-Type", "text/plain; charset=UTF-8");
             }
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
                     xhr.onreadystatechange = noop;
                     if (xhr.status) {
+                        var headers = xhr.getAllResponseHeaders();
+                        context.httpHeader = getResponseHeader(headers);
                         if (xhr.status === 200) {
-                            if (env.binary) {
+                            if (context.binary) {
                                 future.resolve(toBinaryString(xhr.response));
                             }
                             else {
@@ -6584,8 +6558,8 @@ hprose.global = (
             xhr.onerror = function() {
                 future.reject(new Error('error'));
             };
-            if (env.timeout > 0) {
-                future = future.timeout(env.timeout).catchError(function(e) {
+            if (context.timeout > 0) {
+                future = future.timeout(context.timeout).catchError(function(e) {
                     xhr.onreadystatechange = noop;
                     xhr.onerror = noop;
                     xhr.abort();
@@ -6595,7 +6569,7 @@ hprose.global = (
                     return e instanceof TimeoutError;
                 });
             }
-            if (env.binary) {
+            if (context.binary) {
                 xhr.responseType = "arraybuffer";
                 xhr.sendAsBinary(request);
             }
@@ -6605,9 +6579,10 @@ hprose.global = (
             return future;
         }
 
-        function fhrPost(request, env) {
+        function fhrPost(request, context) {
             var future = new Future();
-            var callback = function(data, error) {
+            var callback = function(data, error, headers) {
+                context.httpHeader = getResponseHeader(headers);
                 if (error === null) {
                     future.resolve(data);
                 }
@@ -6615,29 +6590,43 @@ hprose.global = (
                     future.reject(new Error(error));
                 }
             };
-            FlashHttpRequest.post(self.uri(), _header, request, callback, env.timeout, env.binary);
+            var header = getRequestHeader(context.httpHeader);
+            FlashHttpRequest.post(self.uri(), header, request, callback, context.timeout, context.binary);
             return future;
         }
 
-        function apiPost(request, env) {
+        function apiPost(request, context) {
             var future = new Future();
+            var header = getRequestHeader(context.httpHeader);
             var cookie = cookieManager.getCookie(self.uri());
             if (cookie !== '') {
-                _header['Cookie'] = cookie;
+                header['Cookie'] = cookie;
             }
             global.api.ajax({
                 url: self.uri(),
                 method: 'post',
                 data: { body: request },
-                timeout: env.timeout,
+                timeout: context.timeout,
                 dataType: 'text',
-                headers: _header,
+                headers: header,
                 returnAll: true,
                 certificate: self.certificate
             }, function(ret, err) {
                 if (ret) {
+                    var header = ret.headers;
+                    var name, value;
+                    for (name in header) {
+                        value = header[name];
+                        if (Array.isArray(value)) {
+                            header[name] = value;
+                        }
+                        else {
+                            header[name] = [value];
+                        }
+                    }
+                    context.httpHeader = header;
                     if (ret.statusCode === 200) {
-                        cookieManager.setCookie(ret.headers, self.uri());
+                        cookieManager.setCookie(header, self.uri());
                         future.resolve(ret.body);
                     }
                     else {
@@ -6651,16 +6640,17 @@ hprose.global = (
             return future;
         }
 
-        function deviceOnePost(request, env) {
+        function deviceOnePost(request, context) {
             var future = new Future();
             var http = deviceone.mm('do_Http');
             http.method = "POST";
-            http.timeout = env.timeout;
-            http.contextType = "text/plain; charset=UTF-8";
+            http.timeout = context.timeout;
+            http.contentType = "text/plain; charset=UTF-8";
             http.url = self.uri();
             http.body = request;
-            for (var name in _header) {
-                http.setRequestHeader(name, _header[name]);
+            var header = getRequestHeader(context.httpHeader);
+            for (var name in header) {
+                http.setRequestHeader(name, header[name]);
             }
             var cookie = cookieManager.getCookie(self.uri());
             if (cookie !== '') {
@@ -6694,17 +6684,17 @@ hprose.global = (
             return false;
         }
 
-        function sendAndReceive(request, env) {
+        function sendAndReceive(request, context) {
             var fhr = (FlashHttpRequest.flashSupport() &&
                       !localfile && !corsSupport &&
-                      (env.binary || isCrossDomain()));
+                      (context.binary || isCrossDomain()));
             var apicloud = (typeof(global.api) !== "undefined" &&
                            typeof(global.api.ajax) !== "undefined");
-            var future = fhr ?      fhrPost(request, env) :
-                         apicloud ? apiPost(request, env) :
-                         deviceone ? deviceOnePost(request, env) :
-                                    xhrPost(request, env);
-            if (env.oneway) { future.resolve(); }
+            var future = fhr ?      fhrPost(request, context) :
+                         apicloud ? apiPost(request, context) :
+                         deviceone ? deviceOnePost(request, context) :
+                                    xhrPost(request, context);
+            if (context.oneway) { future.resolve(); }
             return future;
         }
 

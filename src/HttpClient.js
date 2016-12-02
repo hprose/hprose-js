@@ -12,7 +12,7 @@
  *                                                        *
  * hprose http client for JavaScript.                     *
  *                                                        *
- * LastModified: Nov 18, 2016                             *
+ * LastModified: Dec 2, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -105,6 +105,23 @@
         };
     }
 
+    function getResponseHeader(headers) {
+        var header = {};
+        if (headers) {
+            headers = headers.split("\r\n");
+            for (var i = 0, n = headers.length; i < n; i++) {
+                var kv = headers[i].split(": ", 2);
+                if (kv[0] in header) {
+                    header[kv[0]].push(kv[1]);
+                }
+                else {
+                    header[kv[0]] = [kv[1]];
+                }
+            }
+        }
+        return header;
+    }
+
     function HttpClient(uri, functions, settings) {
         if (this.constructor !== HttpClient) {
             return new HttpClient(uri, functions, settings);
@@ -114,25 +131,48 @@
 
         var self = this;
 
-        function xhrPost(request, env) {
+        function getRequestHeader(headers) {
+            var header = {};
+            var name, value;
+            for (name in _header) {
+                header[name] = _header[name];
+            }
+            if (headers) {
+                for (name in headers) {
+                    value = headers[name];
+                    if (Array.isArray(value)) {
+                        header[name] = value.join(', ');
+                    }
+                    else {
+                        header[name] = value;
+                    }
+                }
+            }
+            return header;
+        }
+
+        function xhrPost(request, context) {
             var future = new Future();
             var xhr = createXHR();
             xhr.open('POST', self.uri(), true);
             if (corsSupport) {
                 xhr.withCredentials = 'true';
             }
-            for (var name in _header) {
-                xhr.setRequestHeader(name, _header[name]);
+            var header = getRequestHeader(context.httpHeader);
+            for (var name in header) {
+                xhr.setRequestHeader(name, header[name]);
             }
-            if (!env.binary) {
+            if (!context.binary) {
                 xhr.setRequestHeader("Content-Type", "text/plain; charset=UTF-8");
             }
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
                     xhr.onreadystatechange = noop;
                     if (xhr.status) {
+                        var headers = xhr.getAllResponseHeaders();
+                        context.httpHeader = getResponseHeader(headers);
                         if (xhr.status === 200) {
-                            if (env.binary) {
+                            if (context.binary) {
                                 future.resolve(toBinaryString(xhr.response));
                             }
                             else {
@@ -148,8 +188,8 @@
             xhr.onerror = function() {
                 future.reject(new Error('error'));
             };
-            if (env.timeout > 0) {
-                future = future.timeout(env.timeout).catchError(function(e) {
+            if (context.timeout > 0) {
+                future = future.timeout(context.timeout).catchError(function(e) {
                     xhr.onreadystatechange = noop;
                     xhr.onerror = noop;
                     xhr.abort();
@@ -159,7 +199,7 @@
                     return e instanceof TimeoutError;
                 });
             }
-            if (env.binary) {
+            if (context.binary) {
                 xhr.responseType = "arraybuffer";
                 xhr.sendAsBinary(request);
             }
@@ -169,9 +209,10 @@
             return future;
         }
 
-        function fhrPost(request, env) {
+        function fhrPost(request, context) {
             var future = new Future();
-            var callback = function(data, error) {
+            var callback = function(data, error, headers) {
+                context.httpHeader = getResponseHeader(headers);
                 if (error === null) {
                     future.resolve(data);
                 }
@@ -179,29 +220,43 @@
                     future.reject(new Error(error));
                 }
             };
-            FlashHttpRequest.post(self.uri(), _header, request, callback, env.timeout, env.binary);
+            var header = getRequestHeader(context.httpHeader);
+            FlashHttpRequest.post(self.uri(), header, request, callback, context.timeout, context.binary);
             return future;
         }
 
-        function apiPost(request, env) {
+        function apiPost(request, context) {
             var future = new Future();
+            var header = getRequestHeader(context.httpHeader);
             var cookie = cookieManager.getCookie(self.uri());
             if (cookie !== '') {
-                _header['Cookie'] = cookie;
+                header['Cookie'] = cookie;
             }
             global.api.ajax({
                 url: self.uri(),
                 method: 'post',
                 data: { body: request },
-                timeout: env.timeout,
+                timeout: context.timeout,
                 dataType: 'text',
-                headers: _header,
+                headers: header,
                 returnAll: true,
                 certificate: self.certificate
             }, function(ret, err) {
                 if (ret) {
+                    var header = ret.headers;
+                    var name, value;
+                    for (name in header) {
+                        value = header[name];
+                        if (Array.isArray(value)) {
+                            header[name] = value;
+                        }
+                        else {
+                            header[name] = [value];
+                        }
+                    }
+                    context.httpHeader = header;
                     if (ret.statusCode === 200) {
-                        cookieManager.setCookie(ret.headers, self.uri());
+                        cookieManager.setCookie(header, self.uri());
                         future.resolve(ret.body);
                     }
                     else {
@@ -215,16 +270,17 @@
             return future;
         }
 
-        function deviceOnePost(request, env) {
+        function deviceOnePost(request, context) {
             var future = new Future();
             var http = deviceone.mm('do_Http');
             http.method = "POST";
-            http.timeout = env.timeout;
-            http.contextType = "text/plain; charset=UTF-8";
+            http.timeout = context.timeout;
+            http.contentType = "text/plain; charset=UTF-8";
             http.url = self.uri();
             http.body = request;
-            for (var name in _header) {
-                http.setRequestHeader(name, _header[name]);
+            var header = getRequestHeader(context.httpHeader);
+            for (var name in header) {
+                http.setRequestHeader(name, header[name]);
             }
             var cookie = cookieManager.getCookie(self.uri());
             if (cookie !== '') {
@@ -258,17 +314,17 @@
             return false;
         }
 
-        function sendAndReceive(request, env) {
+        function sendAndReceive(request, context) {
             var fhr = (FlashHttpRequest.flashSupport() &&
                       !localfile && !corsSupport &&
-                      (env.binary || isCrossDomain()));
+                      (context.binary || isCrossDomain()));
             var apicloud = (typeof(global.api) !== "undefined" &&
                            typeof(global.api.ajax) !== "undefined");
-            var future = fhr ?      fhrPost(request, env) :
-                         apicloud ? apiPost(request, env) :
-                         deviceone ? deviceOnePost(request, env) :
-                                    xhrPost(request, env);
-            if (env.oneway) { future.resolve(); }
+            var future = fhr ?      fhrPost(request, context) :
+                         apicloud ? apiPost(request, context) :
+                         deviceone ? deviceOnePost(request, context) :
+                                    xhrPost(request, context);
+            if (context.oneway) { future.resolve(); }
             return future;
         }
 

@@ -1,10 +1,8 @@
 {
   "name": "hprose-js",
-  "filename": "hprose.js",
-  "version": "2.0.27",
+  "version": "2.0.28",
   "description": "Hprose is a High Performance Remote Object Service Engine.",
-  "homepage": "https://github.com/hprose",
-  "license": "MIT",
+  "homepage": "https://github.com/hprose/hprose-js",
   "keywords": [
     "hprose",
     "rpc",
@@ -43,13 +41,25 @@
     "oneway",
     "promises-aplus"
   ],
-  "maintainers": [
-    {
-      "name": "Ma Bingyao",
-      "email": "andot@hprose.com",
-      "web": "http://hprose.com/"
-    }
-  ],
+  "author": {
+    "name": "Ma Bingyao",
+    "email": "andot@hprose.com",
+    "url": "http://hprose.com/"
+  },
+  "directories": {
+    "lib": "dist/"
+  },
+  "main": "dist/hprose.js",
+  "devDependencies": {
+    "gulp-jsmin": "^0.1.5",
+    "promises-aplus-tests": "*"
+  },
+  "scripts": {
+    "aplus-tests": "promises-aplus-tests dist/hprose.js"
+  },
+  "engines": {
+    "node": "*"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/hprose/hprose-js.git"
@@ -63,7 +73,9 @@
       "FlashHttpRequest.swf"
     ]
   },
-  "devDependencies": {
-    "gulp-jsmin": "^0.1.5"
-  }
+  "bugs": {
+    "url": "https://github.com/hprose/hprose-js/issues",
+    "email": "andot@hprose.com"
+  },
+  "license" : "MIT"
 }

@@ -13,7 +13,7 @@
  *                                                        *
  * POST data to HTTP Server (using Flash).                *
  *                                                        *
- * LastModified: Nov 18, 2016                             *
+ * LastModified: Dec 2, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -158,72 +158,6 @@
         }
     }
 
-    // function detach() {
-    //     if (document.addEventListener) {
-    //         document.removeEventListener('DOMContentLoaded', completed, false);
-    //         global.removeEventListener('load', completed, false);
-    //
-    //     } else {
-    //         document.detachEvent('onreadystatechange', completed);
-    //         global.detachEvent('onload', completed);
-    //     }
-    // }
-    //
-    // function completed(event) {
-    //     if (document.addEventListener || event.type === 'load' || document.readyState === 'complete') {
-    //         detach();
-    //         setJsReady();
-    //     }
-    // }
-    //
-    // function init() {
-    //     if (document.readyState === 'complete') {
-    //         setTimeout(setJsReady, 0);
-    //     }
-    //     else if (document.addEventListener) {
-    //         document.addEventListener('DOMContentLoaded', completed, false);
-    //         global.addEventListener('load', completed, false);
-    //         if (/WebKit/i.test(navigator.userAgent)) {
-    //             var timer = setInterval( function () {
-    //                 if (/loaded|complete/.test(document.readyState)) {
-    //                     clearInterval(timer);
-    //                     completed();
-    //                 }
-    //             }, 10);
-    //         }
-    //     }
-    //     else if (document.attachEvent) {
-    //         document.attachEvent('onreadystatechange', completed);
-    //         global.attachEvent('onload', completed);
-    //         var top = false;
-    //         try {
-    //             top = window.frameElement === null && document.documentElement;
-    //         }
-    //         catch(e) {}
-    //         if (top && top.doScroll) {
-    //             (function doScrollCheck() {
-    //                 if (!jsReady) {
-    //                     try {
-    //                         top.doScroll('left');
-    //                     }
-    //                     catch(e) {
-    //                         return setTimeout(doScrollCheck, 15);
-    //                     }
-    //                     detach();
-    //                     setJsReady();
-    //                 }
-    //             })();
-    //         }
-    //     }
-    //     else if (/MSIE/i.test(navigator.userAgent) &&
-    //             /Windows CE/i.test(navigator.userAgent)) {
-    //         setJsReady();
-    //     }
-    //     else {
-    //         global.onload = setJsReady;
-    //     }
-    // }
-
     function post(url, header, data, callbackid, timeout, binary) {
         data = encodeURIComponent(data);
         if (swfReady) {
@@ -258,11 +192,12 @@
         }
     };
 
-    FlashHttpRequest.__callback = function (callbackid, data, error) {
+    FlashHttpRequest.__callback = function (callbackid, data, error, headers) {
         data = (data !== null) ? decodeURIComponent(data) : null;
         error = (error !== null) ? decodeURIComponent(error) : null;
+        headers = (error !== null) ? decodeURIComponent(headers) : null;
         if (typeof(callbackList[callbackid]) === 'function') {
-            callbackList[callbackid](data, error);
+            callbackList[callbackid](data, error, headers);
         }
         delete callbackList[callbackid];
     };
@@ -292,7 +227,6 @@
 
     global.FlashHttpRequest = FlashHttpRequest;
 
-    //init();
     setJsReady();
 
 })(hprose.global);
