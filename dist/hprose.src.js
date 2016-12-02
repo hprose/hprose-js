@@ -6510,7 +6510,7 @@ hprose.global = (
         var self = this;
 
         function getRequestHeader(headers) {
-            var header = {};
+            var header = createObject(null);
             var name, value;
             for (name in _header) {
                 header[name] = _header[name];

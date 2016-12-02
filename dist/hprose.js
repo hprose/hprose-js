@@ -798,7 +798,7 @@ else{header[k]=[header[k],v];}}
 else{header[k]=v;}}}}
 return header;}
 function HttpClient(uri,functions,settings){if(this.constructor!==HttpClient){return new HttpClient(uri,functions,settings);}
-Client.call(this,uri,functions,settings);var _header=createObject(null);var self=this;function getRequestHeader(headers){var header={};var name,value;for(name in _header){header[name]=_header[name];}
+Client.call(this,uri,functions,settings);var _header=createObject(null);var self=this;function getRequestHeader(headers){var header=createObject(null);var name,value;for(name in _header){header[name]=_header[name];}
 if(headers){for(name in headers){value=headers[name];if(Array.isArray(value)){header[name]=value.join(', ');}
 else{header[name]=value;}}}
 return header;}
