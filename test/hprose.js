@@ -839,25 +839,25 @@ return new HttpClient(uri,functions,settings);}
 defineProperties(HttpClient,{create:{value:create}});global.HproseHttpClient=hprose.HttpClient=HttpClient;})(hprose,hprose.global);(function(hprose,global,undefined){'use strict';var StringIO=hprose.StringIO;var Client=hprose.Client;var Future=hprose.Future;var TimeoutError=global.TimeoutError;var defineProperties=hprose.defineProperties;var toBinaryString=hprose.toBinaryString;var toUint8Array=hprose.toUint8Array;var parseuri=hprose.parseuri;var WebSocket=global.WebSocket||global.MozWebSocket;function noop(){}
 function WebSocketClient(uri,functions,settings){if(typeof(WebSocket)==="undefined"){throw new Error('WebSocket is not supported by this browser.');}
 if(this.constructor!==WebSocketClient){return new WebSocketClient(uri,functions,settings);}
-Client.call(this,uri,functions,settings);var _id=0;var _count=0;var _futures=[];var _envs=[];var _requests=[];var _ready=null;var ws=null;var self=this;function getNextId(){return(_id<0x7fffffff)?++_id:_id=0;}
-function send(id,request){var stream=new StringIO();stream.writeInt32BE(id);if(_envs[id].binary){stream.write(request);}
+Client.call(this,uri,functions,settings);var _id=0;var _count=0;var _futures=[];var _contexts=[];var _requests=[];var _ready=null;var ws=null;var self=this;function getNextId(){return(_id<0x7fffffff)?++_id:_id=0;}
+function send(id,request){var stream=new StringIO();stream.writeInt32BE(id);if(_contexts[id].binary){stream.write(request);}
 else{stream.writeUTF16AsUTF8(request);}
 var message=toUint8Array(stream.take());if(ArrayBuffer.isView){ws.send(message);}
 else{ws.send(message.buffer);}}
 function onopen(e){_ready.resolve(e);}
 function onmessage(e){var stream;if(typeof e.data==="string"){stream=new StringIO(StringIO.utf8Encode(e.data));}
 else{stream=new StringIO(toBinaryString(e.data));}
-var id=stream.readInt32BE();var future=_futures[id];var env=_envs[id];delete _futures[id];delete _envs[id];if(future!==undefined){--_count;var data=stream.read(stream.length()-4);if(!env.binary){data=StringIO.utf8Decode(data);}
+var id=stream.readInt32BE();var future=_futures[id];var context=_contexts[id];delete _futures[id];delete _contexts[id];if(future!==undefined){--_count;var data=stream.read(stream.length()-4);if(!context.binary){data=StringIO.utf8Decode(data);}
 future.resolve(data);}
 if((_count<100)&&(_requests.length>0)){++_count;var request=_requests.pop();_ready.then(function(){send(request[0],request[1]);});}
 if(_count===0&&!self.keepAlive()){close();}}
 function onclose(e){_futures.forEach(function(future,id){future.reject(new Error(e.code+':'+e.reason));delete _futures[id];});_count=0;ws=null;}
 function connect(){_ready=new Future();ws=new WebSocket(self.uri());ws.binaryType='arraybuffer';ws.onopen=onopen;ws.onmessage=onmessage;ws.onerror=noop;ws.onclose=onclose;}
-function sendAndReceive(request,env){var id=getNextId();var future=new Future();_futures[id]=future;_envs[id]=env;if(env.timeout>0){future=future.timeout(env.timeout).catchError(function(e){delete _futures[id];--_count;throw e;},function(e){return e instanceof TimeoutError;});}
+function sendAndReceive(request,context){var id=getNextId();var future=new Future();_futures[id]=future;_contexts[id]=context;if(context.timeout>0){future=future.timeout(context.timeout).catchError(function(e){delete _futures[id];--_count;throw e;},function(e){return e instanceof TimeoutError;});}
 if(ws===null||ws.readyState===WebSocket.CLOSING||ws.readyState===WebSocket.CLOSED){connect();}
 if(_count<100){++_count;_ready.then(function(){send(id,request);});}
 else{_requests.push([id,request]);}
-if(env.oneway){future.resolve();}
+if(context.oneway){future.resolve();}
 return future;}
 function close(){if(ws!==null){ws.onopen=noop;ws.onmessage=noop;ws.onclose=noop;ws.close();}}
 defineProperties(this,{sendAndReceive:{value:sendAndReceive},close:{value:close}});}
@@ -900,26 +900,26 @@ else{throw new Error('TCP Socket is not supported by this browser or platform.')
 var self=this;conn.connect(address,port,{persistent:true,tls:tls,timeout:this.client.timeout(),noDelay:this.client.noDelay(),keepAlive:this.client.keepAlive()});conn.onclose=function(){--self.size;};++this.size;return conn;}}});function FullDuplexTcpTransporter(client){TcpTransporter.call(this,client);}
 FullDuplexTcpTransporter.prototype=createObject(TcpTransporter.prototype,{fetch:{value:function(){var pool=this.pool;while(pool.length>0){var conn=pool.pop();if(conn.connected){if(conn.count===0){conn.clearTimeout();conn.ref();}
 return conn;}}
-return null;}},init:{value:function(conn){var self=this;conn.count=0;conn.futures={};conn.envs={};conn.timeoutIds={};setReceiveHandler(conn,function(data,id){var future=conn.futures[id];var env=conn.envs[id];if(future){self.clean(conn,id);if(conn.count===0){self.recycle(conn);}
-if(!env.binary){data=StringIO.utf8Decode(data);}
+return null;}},init:{value:function(conn){var self=this;conn.count=0;conn.futures={};conn.contexts={};conn.timeoutIds={};setReceiveHandler(conn,function(data,id){var future=conn.futures[id];var context=conn.contexts[id];if(future){self.clean(conn,id);if(conn.count===0){self.recycle(conn);}
+if(!context.binary){data=StringIO.utf8Decode(data);}
 future.resolve(data);}});conn.onerror=function(e){var futures=conn.futures;for(var id in futures){var future=futures[id];self.clean(conn,id);future.reject(e);}};}},recycle:{value:function(conn){conn.unref();conn.setTimeout(this.client.poolTimeout(),function(){conn.destroy();});}},clean:{value:function(conn,id){if(conn.timeoutIds[id]!==undefined){global.clearTimeout(conn.timeoutIds[id]);delete conn.timeoutIds[id];}
-delete conn.futures[id];delete conn.envs[id];--conn.count;this.sendNext(conn);}},sendNext:{value:function(conn){if(conn.count<10){if(this.requests.length>0){var request=this.requests.pop();request.push(conn);this.send.apply(this,request);}
-else{if(this.pool.lastIndexOf(conn)<0){this.pool.push(conn);}}}}},send:{value:function(request,future,id,env,conn){var self=this;var timeout=env.timeout;if(timeout>0){conn.timeoutIds[id]=global.setTimeout(function(){self.clean(conn,id);if(conn.count===0){self.recycle(conn);}
+delete conn.futures[id];delete conn.contexts[id];--conn.count;this.sendNext(conn);}},sendNext:{value:function(conn){if(conn.count<10){if(this.requests.length>0){var request=this.requests.pop();request.push(conn);this.send.apply(this,request);}
+else{if(this.pool.lastIndexOf(conn)<0){this.pool.push(conn);}}}}},send:{value:function(request,future,id,context,conn){var self=this;var timeout=context.timeout;if(timeout>0){conn.timeoutIds[id]=global.setTimeout(function(){self.clean(conn,id);if(conn.count===0){self.recycle(conn);}
 future.reject(new TimeoutError('timeout'));},timeout);}
-conn.count++;conn.futures[id]=future;conn.envs[id]=env;var len=request.length;var buf=new StringIO();buf.writeInt32BE(len|0x80000000);buf.writeInt32BE(id);if(env.binary){buf.write(request);}
+conn.count++;conn.futures[id]=future;conn.contexts[id]=context;var len=request.length;var buf=new StringIO();buf.writeInt32BE(len|0x80000000);buf.writeInt32BE(id);if(context.binary){buf.write(request);}
 else{buf.writeUTF16AsUTF8(request);}
-conn.send(buf.take()).then(function(){self.sendNext(conn);});}},getNextId:{value:function(){return(this.nextid<0x7fffffff)?++this.nextid:this.nextid=0;}},sendAndReceive:{value:function(request,future,env){var conn=this.fetch();var id=this.getNextId();if(conn){this.send(request,future,id,env,conn);}
-else if(this.size<this.client.maxPoolSize()){conn=this.create();conn.onerror=function(e){future.reject(e);};var self=this;conn.onconnect=function(){self.init(conn);self.send(request,future,id,env,conn);};}
-else{this.requests.push([request,future,id,env]);}}}});FullDuplexTcpTransporter.prototype.constructor=TcpTransporter;function HalfDuplexTcpTransporter(client){TcpTransporter.call(this,client);}
+conn.send(buf.take()).then(function(){self.sendNext(conn);});}},getNextId:{value:function(){return(this.nextid<0x7fffffff)?++this.nextid:this.nextid=0;}},sendAndReceive:{value:function(request,future,context){var conn=this.fetch();var id=this.getNextId();if(conn){this.send(request,future,id,context,conn);}
+else if(this.size<this.client.maxPoolSize()){conn=this.create();conn.onerror=function(e){future.reject(e);};var self=this;conn.onconnect=function(){self.init(conn);self.send(request,future,id,context,conn);};}
+else{this.requests.push([request,future,id,context]);}}}});FullDuplexTcpTransporter.prototype.constructor=TcpTransporter;function HalfDuplexTcpTransporter(client){TcpTransporter.call(this,client);}
 HalfDuplexTcpTransporter.prototype=createObject(TcpTransporter.prototype,{fetch:{value:function(){var pool=this.pool;while(pool.length>0){var conn=pool.pop();if(conn.connected){conn.clearTimeout();conn.ref();return conn;}}
 return null;}},recycle:{value:function(conn){if(this.pool.lastIndexOf(conn)<0){conn.unref();conn.setTimeout(this.client.poolTimeout(),function(){conn.destroy();});this.pool.push(conn);}}},clean:{value:function(conn){conn.onreceive=noop;conn.onerror=noop;if(conn.timeoutId!==undefined){global.clearTimeout(conn.timeoutId);delete conn.timeoutId;}}},sendNext:{value:function(conn){if(this.requests.length>0){var request=this.requests.pop();request.push(conn);this.send.apply(this,request);}
-else{this.recycle(conn);}}},send:{value:function(request,future,env,conn){var self=this;var timeout=env.timeout;if(timeout>0){conn.timeoutId=global.setTimeout(function(){self.clean(conn);conn.destroy();future.reject(new TimeoutError('timeout'));},timeout);}
-setReceiveHandler(conn,function(data){self.clean(conn);self.sendNext(conn);if(!env.binary){data=StringIO.utf8Decode(data);}
-future.resolve(data);});conn.onerror=function(e){self.clean(conn);future.reject(e);};var len=request.length;var buf=new StringIO();buf.writeInt32BE(len);if(env.binary){buf.write(request);}
+else{this.recycle(conn);}}},send:{value:function(request,future,context,conn){var self=this;var timeout=context.timeout;if(timeout>0){conn.timeoutId=global.setTimeout(function(){self.clean(conn);conn.destroy();future.reject(new TimeoutError('timeout'));},timeout);}
+setReceiveHandler(conn,function(data){self.clean(conn);self.sendNext(conn);if(!context.binary){data=StringIO.utf8Decode(data);}
+future.resolve(data);});conn.onerror=function(e){self.clean(conn);future.reject(e);};var len=request.length;var buf=new StringIO();buf.writeInt32BE(len);if(context.binary){buf.write(request);}
 else{buf.writeUTF16AsUTF8(request);}
-conn.send(buf.take());}},sendAndReceive:{value:function(request,future,env){var conn=this.fetch();if(conn){this.send(request,future,env,conn);}
-else if(this.size<this.client.maxPoolSize()){conn=this.create();var self=this;conn.onerror=function(e){future.reject(e);};conn.onconnect=function(){self.send(request,future,env,conn);};}
-else{this.requests.push([request,future,env]);}}}});HalfDuplexTcpTransporter.prototype.constructor=TcpTransporter;function TcpClient(uri,functions,settings){if(this.constructor!==TcpClient){return new TcpClient(uri,functions,settings);}
+conn.send(buf.take());}},sendAndReceive:{value:function(request,future,context){var conn=this.fetch();if(conn){this.send(request,future,context,conn);}
+else if(this.size<this.client.maxPoolSize()){conn=this.create();var self=this;conn.onerror=function(e){future.reject(e);};conn.onconnect=function(){self.send(request,future,context,conn);};}
+else{this.requests.push([request,future,context]);}}}});HalfDuplexTcpTransporter.prototype.constructor=TcpTransporter;function TcpClient(uri,functions,settings){if(this.constructor!==TcpClient){return new TcpClient(uri,functions,settings);}
 Client.call(this,uri,functions,settings);var self=this;var _noDelay=true;var _fullDuplex=false;var _maxPoolSize=10;var _poolTimeout=30000;var fdtrans=null;var hdtrans=null;function getNoDelay(){return _noDelay;}
 function setNoDelay(value){_noDelay=!!value;}
 function getFullDuplex(){return _fullDuplex;}
@@ -930,11 +930,11 @@ else{_maxPoolSize=10;}}
 function getPoolTimeout(){return _poolTimeout;}
 function setPoolTimeout(value){if(typeof(value)==='number'){_poolTimeout=value|0;}
 else{_poolTimeout=0;}}
-function sendAndReceive(request,env){var future=new Future();if(_fullDuplex){if((fdtrans===null)||(fdtrans.uri!==self.uri)){fdtrans=new FullDuplexTcpTransporter(self);}
-fdtrans.sendAndReceive(request,future,env);}
+function sendAndReceive(request,context){var future=new Future();if(_fullDuplex){if((fdtrans===null)||(fdtrans.uri!==self.uri)){fdtrans=new FullDuplexTcpTransporter(self);}
+fdtrans.sendAndReceive(request,future,context);}
 else{if((hdtrans===null)||(hdtrans.uri!==self.uri)){hdtrans=new HalfDuplexTcpTransporter(self);}
-hdtrans.sendAndReceive(request,future,env);}
-if(env.oneway){future.resolve();}
+hdtrans.sendAndReceive(request,future,context);}
+if(context.oneway){future.resolve();}
 return future;}
 defineProperties(this,{noDelay:{get:getNoDelay,set:setNoDelay},fullDuplex:{get:getFullDuplex,set:setFullDuplex},maxPoolSize:{get:getMaxPoolSize,set:setMaxPoolSize},poolTimeout:{get:getPoolTimeout,set:setPoolTimeout},sendAndReceive:{value:sendAndReceive}});}
 function checkuri(uri){var parser=parseuri(uri);var protocol=parser.protocol;if(protocol==='tcp:'||protocol==='tcp4:'||protocol==='tcp6:'||protocol==='tcps:'||protocol==='tcp4s:'||protocol==='tcp6s:'||protocol==='tls:'){return;}

@@ -12,7 +12,7 @@
  *                                                        *
  * hprose websocket client for JavaScript.                *
  *                                                        *
- * LastModified: Nov 18, 2016                             *
+ * LastModified: Dec 2, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -45,7 +45,7 @@
         var _id = 0;
         var _count = 0;
         var _futures = [];
-        var _envs = [];
+        var _contexts = [];
         var _requests = [];
         var _ready = null;
         var ws = null;
@@ -58,7 +58,7 @@
         function send(id, request) {
             var stream = new StringIO();
             stream.writeInt32BE(id);
-            if (_envs[id].binary) {
+            if (_contexts[id].binary) {
                 stream.write(request);
             }
             else {
@@ -85,13 +85,13 @@
             }
             var id = stream.readInt32BE();
             var future = _futures[id];
-            var env = _envs[id];
+            var context = _contexts[id];
             delete _futures[id];
-            delete _envs[id];
+            delete _contexts[id];
             if (future !== undefined) {
                 --_count;
                 var data = stream.read(stream.length() - 4);
-                if (!env.binary) {
+                if (!context.binary) {
                     data = StringIO.utf8Decode(data);
                 }
                 future.resolve(data);
@@ -120,13 +120,13 @@
             ws.onerror = noop;
             ws.onclose = onclose;
         }
-        function sendAndReceive(request, env) {
+        function sendAndReceive(request, context) {
             var id = getNextId();
             var future = new Future();
             _futures[id] = future;
-            _envs[id] = env;
-            if (env.timeout > 0) {
-                future = future.timeout(env.timeout).catchError(function(e) {
+            _contexts[id] = context;
+            if (context.timeout > 0) {
+                future = future.timeout(context.timeout).catchError(function(e) {
                     delete _futures[id];
                     --_count;
                     throw e;
@@ -147,7 +147,7 @@
             else {
                 _requests.push([id, request]);
             }
-            if (env.oneway) { future.resolve(); }
+            if (context.oneway) { future.resolve(); }
             return future;
         }
         function close() {

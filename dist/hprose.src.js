@@ -6757,7 +6757,7 @@ hprose.global = (
  *                                                        *
  * hprose websocket client for JavaScript.                *
  *                                                        *
- * LastModified: Nov 18, 2016                             *
+ * LastModified: Dec 2, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -6790,7 +6790,7 @@ hprose.global = (
         var _id = 0;
         var _count = 0;
         var _futures = [];
-        var _envs = [];
+        var _contexts = [];
         var _requests = [];
         var _ready = null;
         var ws = null;
@@ -6803,7 +6803,7 @@ hprose.global = (
         function send(id, request) {
             var stream = new StringIO();
             stream.writeInt32BE(id);
-            if (_envs[id].binary) {
+            if (_contexts[id].binary) {
                 stream.write(request);
             }
             else {
@@ -6830,13 +6830,13 @@ hprose.global = (
             }
             var id = stream.readInt32BE();
             var future = _futures[id];
-            var env = _envs[id];
+            var context = _contexts[id];
             delete _futures[id];
-            delete _envs[id];
+            delete _contexts[id];
             if (future !== undefined) {
                 --_count;
                 var data = stream.read(stream.length() - 4);
-                if (!env.binary) {
+                if (!context.binary) {
                     data = StringIO.utf8Decode(data);
                 }
                 future.resolve(data);
@@ -6865,13 +6865,13 @@ hprose.global = (
             ws.onerror = noop;
             ws.onclose = onclose;
         }
-        function sendAndReceive(request, env) {
+        function sendAndReceive(request, context) {
             var id = getNextId();
             var future = new Future();
             _futures[id] = future;
-            _envs[id] = env;
-            if (env.timeout > 0) {
-                future = future.timeout(env.timeout).catchError(function(e) {
+            _contexts[id] = context;
+            if (context.timeout > 0) {
+                future = future.timeout(context.timeout).catchError(function(e) {
                     delete _futures[id];
                     --_count;
                     throw e;
@@ -6892,7 +6892,7 @@ hprose.global = (
             else {
                 _requests.push([id, request]);
             }
-            if (env.oneway) { future.resolve(); }
+            if (context.oneway) { future.resolve(); }
             return future;
         }
         function close() {
@@ -7273,7 +7273,7 @@ hprose.global = (
  *                                                        *
  * hprose tcp client for JavaScript.                      *
  *                                                        *
- * LastModified: Nov 18, 2016                             *
+ * LastModified: Dec 2, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -7417,17 +7417,17 @@ hprose.global = (
             var self = this;
             conn.count = 0;
             conn.futures = {};
-            conn.envs = {};
+            conn.contexts = {};
             conn.timeoutIds = {};
             setReceiveHandler(conn, function(data, id) {
                 var future = conn.futures[id];
-                var env = conn.envs[id];
+                var context = conn.contexts[id];
                 if (future) {
                     self.clean(conn, id);
                     if (conn.count === 0) {
                         self.recycle(conn);
                     }
-                    if (!env.binary) {
+                    if (!context.binary) {
                         data = StringIO.utf8Decode(data);
                     }
                     future.resolve(data);
@@ -7454,7 +7454,7 @@ hprose.global = (
                 delete conn.timeoutIds[id];
             }
             delete conn.futures[id];
-            delete conn.envs[id];
+            delete conn.contexts[id];
             --conn.count;
             this.sendNext(conn);
         } },
@@ -7472,9 +7472,9 @@ hprose.global = (
                 }
             }
         } },
-        send: { value: function(request, future, id, env, conn) {
+        send: { value: function(request, future, id, context, conn) {
             var self = this;
-            var timeout = env.timeout;
+            var timeout = context.timeout;
             if (timeout > 0) {
                 conn.timeoutIds[id] = global.setTimeout(function() {
                     self.clean(conn, id);
@@ -7486,12 +7486,12 @@ hprose.global = (
             }
             conn.count++;
             conn.futures[id] = future;
-            conn.envs[id] = env;
+            conn.contexts[id] = context;
             var len = request.length;
             var buf = new StringIO();
             buf.writeInt32BE(len | 0x80000000);
             buf.writeInt32BE(id);
-            if (env.binary) {
+            if (context.binary) {
                 buf.write(request);
             }
             else {
@@ -7504,11 +7504,11 @@ hprose.global = (
         getNextId: { value: function() {
             return (this.nextid < 0x7fffffff) ? ++this.nextid : this.nextid = 0;
         } },
-        sendAndReceive: { value: function(request, future, env) {
+        sendAndReceive: { value: function(request, future, context) {
             var conn = this.fetch();
             var id = this.getNextId();
             if (conn) {
-                this.send(request, future, id, env, conn);
+                this.send(request, future, id, context, conn);
             }
             else if (this.size < this.client.maxPoolSize()) {
                 conn = this.create();
@@ -7518,11 +7518,11 @@ hprose.global = (
                 var self = this;
                 conn.onconnect = function() {
                     self.init(conn);
-                    self.send(request, future, id, env, conn);
+                    self.send(request, future, id, context, conn);
                 };
             }
             else {
-                this.requests.push([request, future, id, env]);
+                this.requests.push([request, future, id, context]);
             }
         } }
     });
@@ -7574,9 +7574,9 @@ hprose.global = (
                 this.recycle(conn);
             }
         } },
-        send: { value: function(request, future, env, conn) {
+        send: { value: function(request, future, context, conn) {
             var self = this;
-            var timeout = env.timeout;
+            var timeout = context.timeout;
             if (timeout > 0) {
                 conn.timeoutId = global.setTimeout(function() {
                     self.clean(conn);
@@ -7587,7 +7587,7 @@ hprose.global = (
             setReceiveHandler(conn, function(data) {
                 self.clean(conn);
                 self.sendNext(conn);
-                if (!env.binary) {
+                if (!context.binary) {
                     data = StringIO.utf8Decode(data);
                 }
                 future.resolve(data);
@@ -7600,7 +7600,7 @@ hprose.global = (
             var len = request.length;
             var buf = new StringIO();
             buf.writeInt32BE(len);
-            if (env.binary) {
+            if (context.binary) {
                 buf.write(request);
             }
             else {
@@ -7608,10 +7608,10 @@ hprose.global = (
             }
             conn.send(buf.take());
         } },
-        sendAndReceive: { value: function(request, future, env) {
+        sendAndReceive: { value: function(request, future, context) {
             var conn = this.fetch();
             if (conn) {
-                this.send(request, future, env, conn);
+                this.send(request, future, context, conn);
             }
             else if (this.size < this.client.maxPoolSize()) {
                 conn = this.create();
@@ -7620,11 +7620,11 @@ hprose.global = (
                     future.reject(e);
                 };
                 conn.onconnect = function() {
-                    self.send(request, future, env, conn);
+                    self.send(request, future, context, conn);
                 };
             }
             else {
-                this.requests.push([request, future, env]);
+                this.requests.push([request, future, context]);
             }
         } }
     });
@@ -7690,21 +7690,21 @@ hprose.global = (
             }
         }
 
-        function sendAndReceive(request, env) {
+        function sendAndReceive(request, context) {
             var future = new Future();
             if (_fullDuplex) {
                 if ((fdtrans === null) || (fdtrans.uri !== self.uri)) {
                     fdtrans = new FullDuplexTcpTransporter(self);
                 }
-                fdtrans.sendAndReceive(request, future, env);
+                fdtrans.sendAndReceive(request, future, context);
             }
             else {
                 if ((hdtrans === null) || (hdtrans.uri !== self.uri)) {
                     hdtrans = new HalfDuplexTcpTransporter(self);
                 }
-                hdtrans.sendAndReceive(request, future, env);
+                hdtrans.sendAndReceive(request, future, context);
             }
-            if (env.oneway) { future.resolve(); }
+            if (context.oneway) { future.resolve(); }
             return future;
         }
 
