@@ -793,8 +793,9 @@ else if(ActiveXObject){return createMSXMLHttp();}
 else{throw new Error("XMLHttpRequest is not supported by this browser.");}}
 function noop(){}
 if(nativeXHR&&typeof(Uint8Array)!=='undefined'&&!XMLHttpRequest.prototype.sendAsBinary){XMLHttpRequest.prototype.sendAsBinary=function(bs){var data=toUint8Array(bs);this.send(ArrayBuffer.isView?data:data.buffer);};}
-function getResponseHeader(headers){var header={};if(headers){headers=headers.split("\r\n");for(var i=0,n=headers.length;i<n;i++){var kv=headers[i].split(": ",2);if(kv[0]in header){header[kv[0]].push(kv[1]);}
-else{header[kv[0]]=[kv[1]];}}}
+function getResponseHeader(headers){var header={};if(headers){headers=headers.split("\r\n");for(var i=0,n=headers.length;i<n;i++){if(headers[i]!==""){var kv=headers[i].split(": ",2);var k=kv[0];var v=kv[1];if(k in header){if(Array.isArray(header[k])){header[k].push(v);}
+else{header[k]=[header[k],v];}}
+else{header[k]=v;}}}}
 return header;}
 function HttpClient(uri,functions,settings){if(this.constructor!==HttpClient){return new HttpClient(uri,functions,settings);}
 Client.call(this,uri,functions,settings);var _header=createObject(null);var self=this;function getRequestHeader(headers){var header={};var name,value;for(name in _header){header[name]=_header[name];}
@@ -813,9 +814,7 @@ return future;}
 function fhrPost(request,context){var future=new Future();var callback=function(data,error,headers){context.httpHeader=getResponseHeader(headers);if(error===null){future.resolve(data);}
 else{future.reject(new Error(error));}};var header=getRequestHeader(context.httpHeader);FlashHttpRequest.post(self.uri(),header,request,callback,context.timeout,context.binary);return future;}
 function apiPost(request,context){var future=new Future();var header=getRequestHeader(context.httpHeader);var cookie=cookieManager.getCookie(self.uri());if(cookie!==''){header['Cookie']=cookie;}
-global.api.ajax({url:self.uri(),method:'post',data:{body:request},timeout:context.timeout,dataType:'text',headers:header,returnAll:true,certificate:self.certificate},function(ret,err){if(ret){var header=ret.headers;var name,value;for(name in header){value=header[name];if(Array.isArray(value)){header[name]=value;}
-else{header[name]=[value];}}
-context.httpHeader=header;if(ret.statusCode===200){cookieManager.setCookie(header,self.uri());future.resolve(ret.body);}
+global.api.ajax({url:self.uri(),method:'post',data:{body:request},timeout:context.timeout,dataType:'text',headers:header,returnAll:true,certificate:self.certificate},function(ret,err){if(ret){context.httpHeader=ret.headers;if(ret.statusCode===200){cookieManager.setCookie(ret.headers,self.uri());future.resolve(ret.body);}
 else{future.reject(new Error(ret.statusCode+':'+ret.body));}}
 else{future.reject(new Error(err.msg));}});return future;}
 function deviceOnePost(request,context){var future=new Future();var http=deviceone.mm('do_Http');http.method="POST";http.timeout=context.timeout;http.contentType="text/plain; charset=UTF-8";http.url=self.uri();http.body=request;var header=getRequestHeader(context.httpHeader);for(var name in header){http.setRequestHeader(name,header[name]);}

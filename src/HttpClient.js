@@ -110,12 +110,21 @@
         if (headers) {
             headers = headers.split("\r\n");
             for (var i = 0, n = headers.length; i < n; i++) {
-                var kv = headers[i].split(": ", 2);
-                if (kv[0] in header) {
-                    header[kv[0]].push(kv[1]);
-                }
-                else {
-                    header[kv[0]] = [kv[1]];
+                if (headers[i] !== "") {
+                    var kv = headers[i].split(": ", 2);
+                    var k = kv[0];
+                    var v = kv[1];
+                    if (k in header) {
+                        if (Array.isArray(header[k])) {
+                            header[k].push(v);
+                        }
+                        else {
+                            header[k] = [header[k], v];
+                        }
+                    }
+                    else {
+                        header[k] = v;
+                    }
                 }
             }
         }
@@ -243,20 +252,9 @@
                 certificate: self.certificate
             }, function(ret, err) {
                 if (ret) {
-                    var header = ret.headers;
-                    var name, value;
-                    for (name in header) {
-                        value = header[name];
-                        if (Array.isArray(value)) {
-                            header[name] = value;
-                        }
-                        else {
-                            header[name] = [value];
-                        }
-                    }
-                    context.httpHeader = header;
+                    context.httpHeader = ret.headers;
                     if (ret.statusCode === 200) {
-                        cookieManager.setCookie(header, self.uri());
+                        cookieManager.setCookie(ret.headers, self.uri());
                         future.resolve(ret.body);
                     }
                     else {
