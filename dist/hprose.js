@@ -760,7 +760,7 @@ function post(url,header,data,callbackid,timeout,binary){data=encodeURIComponent
 else{swfTaskQueue.push(function(){request.post(url,header,data,callbackid,timeout,binary);});}}
 var FlashHttpRequest={};FlashHttpRequest.flashSupport=function(){return flashSupport;};FlashHttpRequest.post=function(url,header,data,callback,timeout,binary){var callbackid=-1;if(callback){callbackid=callbackList.length;callbackList[callbackid]=callback;}
 if(jsReady){post(url,header,data,callbackid,timeout,binary);}
-else{jsTaskQueue.push(function(){post(url,header,data,callbackid,timeout,binary);});}};FlashHttpRequest.__callback=function(callbackid,data,error,headers){data=(data!==null)?decodeURIComponent(data):null;error=(error!==null)?decodeURIComponent(error):null;headers=(error!==null)?decodeURIComponent(headers):null;if(typeof(callbackList[callbackid])==='function'){callbackList[callbackid](data,error,headers);}
+else{jsTaskQueue.push(function(){post(url,header,data,callbackid,timeout,binary);});}};FlashHttpRequest.__callback=function(callbackid,data,error){data=(data!==null)?decodeURIComponent(data):null;error=(error!==null)?decodeURIComponent(error):null;if(typeof(callbackList[callbackid])==='function'){callbackList[callbackid](data,error);}
 delete callbackList[callbackid];};FlashHttpRequest.__jsReady=function(){return jsReady;};FlashHttpRequest.__setSwfReady=function(){request=(navigator.appName.indexOf('Microsoft')!==-1)?global[flashID]:document[flashID];swfReady=true;global.__flash__removeCallback=function(instance,name){try{if(instance){instance[name]=null;}}
 catch(flashEx){}};while(swfTaskQueue.length>0){var task=swfTaskQueue.shift();if(typeof(task)==='function'){task();}}};global.FlashHttpRequest=FlashHttpRequest;setJsReady();})(hprose.global);(function(hprose){'use strict';var parseuri=hprose.parseuri;var s_cookieManager={};function setCookie(headers,uri){var parser=parseuri(uri);var host=parser.host;var name,values;function _setCookie(value){var cookies,cookie,i;cookies=value.replace(/(^\s*)|(\s*$)/g,'').split(';');cookie={};value=cookies[0].replace(/(^\s*)|(\s*$)/g,'').split('=',2);if(value[1]===undefined){value[1]=null;}
 cookie.name=value[0];cookie.value=value[1];for(i=1;i<cookies.length;i++){value=cookies[i].replace(/(^\s*)|(\s*$)/g,'').split('=',2);if(value[1]===undefined){value[1]=null;}
@@ -793,7 +793,7 @@ else if(ActiveXObject){return createMSXMLHttp();}
 else{throw new Error("XMLHttpRequest is not supported by this browser.");}}
 function noop(){}
 if(nativeXHR&&typeof(Uint8Array)!=='undefined'&&!XMLHttpRequest.prototype.sendAsBinary){XMLHttpRequest.prototype.sendAsBinary=function(bs){var data=toUint8Array(bs);this.send(ArrayBuffer.isView?data:data.buffer);};}
-function getResponseHeader(headers){var header={};if(headers){headers=headers.split("\r\n");for(var i=0,n=headers.length;i<n;i++){if(headers[i]!==""){var kv=headers[i].split(": ",2);var k=kv[0];var v=kv[1];if(k in header){if(Array.isArray(header[k])){header[k].push(v);}
+function getResponseHeader(headers){var header=createObject(null);if(headers){headers=headers.split("\r\n");for(var i=0,n=headers.length;i<n;i++){if(headers[i]!==""){var kv=headers[i].split(": ",2);var k=kv[0].trim();var v=kv[1].trim();if(k in header){if(Array.isArray(header[k])){header[k].push(v);}
 else{header[k]=[header[k],v];}}
 else{header[k]=v;}}}}
 return header;}
@@ -811,7 +811,7 @@ else{future.reject(new Error(xhr.status+':'+xhr.statusText));}}}};xhr.onerror=fu
 if(context.binary){xhr.responseType="arraybuffer";xhr.sendAsBinary(request);}
 else{xhr.send(request);}
 return future;}
-function fhrPost(request,context){var future=new Future();var callback=function(data,error,headers){context.httpHeader=getResponseHeader(headers);if(error===null){future.resolve(data);}
+function fhrPost(request,context){var future=new Future();var callback=function(data,error){context.httpHeader=createObject(null);if(error===null){future.resolve(data);}
 else{future.reject(new Error(error));}};var header=getRequestHeader(context.httpHeader);FlashHttpRequest.post(self.uri(),header,request,callback,context.timeout,context.binary);return future;}
 function apiPost(request,context){var future=new Future();var header=getRequestHeader(context.httpHeader);var cookie=cookieManager.getCookie(self.uri());if(cookie!==''){header['Cookie']=cookie;}
 global.api.ajax({url:self.uri(),method:'post',data:{body:request},timeout:context.timeout,dataType:'text',headers:header,returnAll:true,certificate:self.certificate},function(ret,err){if(ret){context.httpHeader=ret.headers;if(ret.statusCode===200){cookieManager.setCookie(ret.headers,self.uri());future.resolve(ret.body);}
@@ -820,7 +820,7 @@ else{future.reject(new Error(err.msg));}});return future;}
 function deviceOnePost(request,context){var future=new Future();var http=deviceone.mm('do_Http');http.method="POST";http.timeout=context.timeout;http.contentType="text/plain; charset=UTF-8";http.url=self.uri();http.body=request;var header=getRequestHeader(context.httpHeader);for(var name in header){http.setRequestHeader(name,header[name]);}
 var cookie=cookieManager.getCookie(self.uri());if(cookie!==''){http.setRequestHeader('Cookie',cookie);}
 http.on("success",function(data){var cookie=http.getResponseHeader('set-cookie');if(cookie){cookieManager.setCookie({'set-cookie':cookie},self.uri());}
-future.resolve(data);});http.on("fail",function(result){future.reject(new Error(result.status+":"+result.data));});http.request();return future;}
+future.resolve(data);});http.on("fail",function(result){future.reject(new Error(result.status+":"+result.data));});http.request();context.httpHeader=createObject(null);return future;}
 function isCrossDomain(){if(global.location===undefined){return true;}
 var parser=parseuri(self.uri());if(parser.protocol!==global.location.protocol){return true;}
 if(parser.host!==global.location.host){return true;}

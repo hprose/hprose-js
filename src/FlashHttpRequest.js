@@ -192,12 +192,11 @@
         }
     };
 
-    FlashHttpRequest.__callback = function (callbackid, data, error, headers) {
+    FlashHttpRequest.__callback = function (callbackid, data, error) {
         data = (data !== null) ? decodeURIComponent(data) : null;
         error = (error !== null) ? decodeURIComponent(error) : null;
-        headers = (error !== null) ? decodeURIComponent(headers) : null;
         if (typeof(callbackList[callbackid]) === 'function') {
-            callbackList[callbackid](data, error, headers);
+            callbackList[callbackid](data, error);
         }
         delete callbackList[callbackid];
     };

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>hprose websocket client test</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="hprose.js"></script>
+    <script src="../src/JSONRPCClientFilter.js"></script>
+  </head>
+  <body>
+    <script>
+function loghandler(request, context, next) {
+    console.log(request);
+    var response = next(request, context);
+    response.then(function(data) {
+         console.log(data);
+         console.log(context.httpHeader);
+    });
+    return response;
+}
+var client = hprose.Client.create("http://www.hprose.com/example/", ['hello']);
+client.beforeFilter.use(loghandler);
+client.hello("world", function(result) {
+    console.log(result);
+});
+
+
+
+    </script>
+  </body>
+</html>

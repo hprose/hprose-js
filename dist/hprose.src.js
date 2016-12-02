@@ -6208,12 +6208,11 @@ hprose.global = (
         }
     };
 
-    FlashHttpRequest.__callback = function (callbackid, data, error, headers) {
+    FlashHttpRequest.__callback = function (callbackid, data, error) {
         data = (data !== null) ? decodeURIComponent(data) : null;
         error = (error !== null) ? decodeURIComponent(error) : null;
-        headers = (error !== null) ? decodeURIComponent(headers) : null;
         if (typeof(callbackList[callbackid]) === 'function') {
-            callbackList[callbackid](data, error, headers);
+            callbackList[callbackid](data, error);
         }
         delete callbackList[callbackid];
     };
@@ -6476,14 +6475,14 @@ hprose.global = (
     }
 
     function getResponseHeader(headers) {
-        var header = {};
+        var header = createObject(null);
         if (headers) {
             headers = headers.split("\r\n");
             for (var i = 0, n = headers.length; i < n; i++) {
                 if (headers[i] !== "") {
                     var kv = headers[i].split(": ", 2);
-                    var k = kv[0];
-                    var v = kv[1];
+                    var k = kv[0].trim();
+                    var v = kv[1].trim();
                     if (k in header) {
                         if (Array.isArray(header[k])) {
                             header[k].push(v);
@@ -6590,8 +6589,8 @@ hprose.global = (
 
         function fhrPost(request, context) {
             var future = new Future();
-            var callback = function(data, error, headers) {
-                context.httpHeader = getResponseHeader(headers);
+            var callback = function(data, error) {
+                context.httpHeader = createObject(null);
                 if (error === null) {
                     future.resolve(data);
                 }
@@ -6665,6 +6664,7 @@ hprose.global = (
                 future.reject(new Error(result.status + ":" + result.data));
             });
             http.request();
+            context.httpHeader = createObject(null);
             return future;
         }
 
