@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.28
+// Hprose for JavaScript v2.0.29
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -1734,7 +1734,7 @@ hprose.global = (
  *                                                        *
  * hprose Future for JavaScript.                          *
  *                                                        *
- * LastModified: Nov 24, 2016                             *
+ * LastModified: Dec 5, 2016                              *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -2037,7 +2037,7 @@ hprose.global = (
         }
 
         if (!gen || typeof gen.next !== 'function') {
-            return toPromise(gen);
+            return toFuture(gen);
         }
 
         var future = new Future();
@@ -4817,7 +4817,7 @@ hprose.global = (
  *                                                        *
  * hprose client for JavaScript.                          *
  *                                                        *
- * LastModified: Nov 18, 2016                             *
+ * LastModified: Dec 5, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -5851,9 +5851,7 @@ hprose.global = (
             _invokeHandler = _invokeHandlers.reduceRight(
             function(next, handler) {
                 return function(name, args, context) {
-                    return Future.sync(function() {
-                        return handler(name, args, context, next);
-                    });
+                    return Future.toPromise(handler(name, args, context, next));
                 };
             }, invokeHandler);
         }
@@ -5862,9 +5860,7 @@ hprose.global = (
             _batchInvokeHandler = _batchInvokeHandlers.reduceRight(
             function(next, handler) {
                 return function(batches, context) {
-                    return Future.sync(function() {
-                        return handler(batches, context, next);
-                    });
+                    return Future.toPromise(handler(batches, context, next));
                 };
             }, batchInvokeHandler);
         }
@@ -5873,9 +5869,7 @@ hprose.global = (
             _beforeFilterHandler = _beforeFilterHandlers.reduceRight(
             function(next, handler) {
                 return function(request, context) {
-                    return Future.sync(function() {
-                        return handler(request, context, next);
-                    });
+                    return Future.toPromise(handler(request, context, next));
                 };
             }, beforeFilterHandler);
         }
@@ -5884,9 +5878,7 @@ hprose.global = (
             _afterFilterHandler = _afterFilterHandlers.reduceRight(
             function(next, handler) {
                 return function(request, context) {
-                    return Future.sync(function() {
-                        return handler(request, context, next);
-                    });
+                    return Future.toPromise(handler(request, context, next));
                 };
             }, afterFilterHandler);
         }

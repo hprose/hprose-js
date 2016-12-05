@@ -12,7 +12,7 @@
  *                                                        *
  * hprose client for JavaScript.                          *
  *                                                        *
- * LastModified: Nov 18, 2016                             *
+ * LastModified: Dec 5, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -1046,9 +1046,7 @@
             _invokeHandler = _invokeHandlers.reduceRight(
             function(next, handler) {
                 return function(name, args, context) {
-                    return Future.sync(function() {
-                        return handler(name, args, context, next);
-                    });
+                    return Future.toPromise(handler(name, args, context, next));
                 };
             }, invokeHandler);
         }
@@ -1057,9 +1055,7 @@
             _batchInvokeHandler = _batchInvokeHandlers.reduceRight(
             function(next, handler) {
                 return function(batches, context) {
-                    return Future.sync(function() {
-                        return handler(batches, context, next);
-                    });
+                    return Future.toPromise(handler(batches, context, next));
                 };
             }, batchInvokeHandler);
         }
@@ -1068,9 +1064,7 @@
             _beforeFilterHandler = _beforeFilterHandlers.reduceRight(
             function(next, handler) {
                 return function(request, context) {
-                    return Future.sync(function() {
-                        return handler(request, context, next);
-                    });
+                    return Future.toPromise(handler(request, context, next));
                 };
             }, beforeFilterHandler);
         }
@@ -1079,9 +1073,7 @@
             _afterFilterHandler = _afterFilterHandlers.reduceRight(
             function(next, handler) {
                 return function(request, context) {
-                    return Future.sync(function() {
-                        return handler(request, context, next);
-                    });
+                    return Future.toPromise(handler(request, context, next));
                 };
             }, afterFilterHandler);
         }

@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.28
+// Hprose for JavaScript v2.0.29
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -253,7 +253,7 @@ return future;};}
 function toPromise(obj){if(isGeneratorFunction(obj)||isGenerator(obj)){return co(obj);}
 return toFuture(obj);}
 function co(gen){var thisArg=(function(){return this;})();if(typeof gen==='function'){var args=slice.call(arguments,1);gen=gen.apply(thisArg,args);}
-if(!gen||typeof gen.next!=='function'){return toPromise(gen);}
+if(!gen||typeof gen.next!=='function'){return toFuture(gen);}
 var future=new Future();function onFulfilled(res){try{next(gen.next(res));}
 catch(e){future.reject(e);}}
 function onRejected(err){try{next(gen['throw'](err));}
@@ -725,10 +725,10 @@ return list;}
 function getId(){return _id;}
 function autoId(){if(_id===null){_id=_invoke(self,'#',[],false);}
 return _id;}
-autoId.sync=true;autoId.idempotent=true;autoId.failswitch=true;function addInvokeHandler(handler){_invokeHandlers.push(handler);_invokeHandler=_invokeHandlers.reduceRight(function(next,handler){return function(name,args,context){return Future.sync(function(){return handler(name,args,context,next);});};},invokeHandler);}
-function addBatchInvokeHandler(handler){_batchInvokeHandlers.push(handler);_batchInvokeHandler=_batchInvokeHandlers.reduceRight(function(next,handler){return function(batches,context){return Future.sync(function(){return handler(batches,context,next);});};},batchInvokeHandler);}
-function addBeforeFilterHandler(handler){_beforeFilterHandlers.push(handler);_beforeFilterHandler=_beforeFilterHandlers.reduceRight(function(next,handler){return function(request,context){return Future.sync(function(){return handler(request,context,next);});};},beforeFilterHandler);}
-function addAfterFilterHandler(handler){_afterFilterHandlers.push(handler);_afterFilterHandler=_afterFilterHandlers.reduceRight(function(next,handler){return function(request,context){return Future.sync(function(){return handler(request,context,next);});};},afterFilterHandler);}
+autoId.sync=true;autoId.idempotent=true;autoId.failswitch=true;function addInvokeHandler(handler){_invokeHandlers.push(handler);_invokeHandler=_invokeHandlers.reduceRight(function(next,handler){return function(name,args,context){return Future.toPromise(handler(name,args,context,next));};},invokeHandler);}
+function addBatchInvokeHandler(handler){_batchInvokeHandlers.push(handler);_batchInvokeHandler=_batchInvokeHandlers.reduceRight(function(next,handler){return function(batches,context){return Future.toPromise(handler(batches,context,next));};},batchInvokeHandler);}
+function addBeforeFilterHandler(handler){_beforeFilterHandlers.push(handler);_beforeFilterHandler=_beforeFilterHandlers.reduceRight(function(next,handler){return function(request,context){return Future.toPromise(handler(request,context,next));};},beforeFilterHandler);}
+function addAfterFilterHandler(handler){_afterFilterHandlers.push(handler);_afterFilterHandler=_afterFilterHandlers.reduceRight(function(next,handler){return function(request,context){return Future.toPromise(handler(request,context,next));};},afterFilterHandler);}
 function use(handler){addInvokeHandler(handler);return self;}
 var batch=createObject(null,{begin:{value:beginBatch},end:{value:endBatch},use:{value:function(handler){addBatchInvokeHandler(handler);return batch;}}});var beforeFilter=createObject(null,{use:{value:function(handler){addBeforeFilterHandler(handler);return beforeFilter;}}});var afterFilter=createObject(null,{use:{value:function(handler){addAfterFilterHandler(handler);return afterFilter;}}});defineProperties(this,{'#':{value:autoId},onerror:{value:null,writable:true},onfailswitch:{value:null,writable:true},uri:{get:getUri},uriList:{get:getUriList,set:setUriList},id:{get:getId},binary:{get:getBinary,set:setBinary},failswitch:{get:getFailswitch,set:setFailswitch},failround:{get:getFailround},timeout:{get:getTimeout,set:setTimeout},retry:{get:getRetry,set:setRetry},idempotent:{get:getIdempotent,set:setIdempotent},keepAlive:{get:getKeepAlive,set:setKeepAlive},byref:{get:getByRef,set:setByRef},simple:{get:getSimpleMode,set:setSimpleMode},useHarmonyMap:{get:getUseHarmonyMap,set:setUseHarmonyMap},filter:{get:getFilter,set:setFilter},addFilter:{value:addFilter},removeFilter:{value:removeFilter},filters:{get:filters},useService:{value:useService},invoke:{value:invoke},ready:{value:ready},subscribe:{value:subscribe},unsubscribe:{value:unsubscribe},isSubscribed:{value:isSubscribed},subscribedList:{value:subscribedList},use:{value:use},batch:{value:batch},beforeFilter:{value:beforeFilter},afterFilter:{value:afterFilter}});{if((settings)&&(typeof settings===s_object)){['failswitch','timeout','retry','idempotent','keepAlive','byref','simple','useHarmonyMap','filter','binary'].forEach(function(key){if(key in settings){self[key](settings[key]);}});}
 if(uri){setUriList(uri);useService(functions);}}}

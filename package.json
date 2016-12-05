@@ -1,6 +1,6 @@
 {
   "name": "hprose-js",
-  "version": "2.0.28",
+  "version": "2.0.29",
   "description": "Hprose is a High Performance Remote Object Service Engine.",
   "homepage": "https://github.com/hprose/hprose-js",
   "keywords": [
