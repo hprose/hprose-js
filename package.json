@@ -51,7 +51,6 @@
   },
   "main": "dist/hprose.js",
   "devDependencies": {
-    "gulp-jsmin": "^0.1.5",
     "promises-aplus-tests": "*"
   },
   "scripts": {

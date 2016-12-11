@@ -1,6 +1,6 @@
 /* jshint node:true */
 var gulp = require('gulp'),
-    jsmin = require('gulp-jsmin'),
+    uglify = require('gulp-uglify'),
     concat = require('gulp-concat'),
     jshint = require("gulp-jshint"),
     lzmajs = require("gulp-lzmajs"),
@@ -49,7 +49,11 @@ gulp.task('uglify', ['concat'], function() {
     return gulp.src(['dist/hprose.src.js',
                      'utils/regenerator-runtime.js'])
         .pipe(concat('hprose.js'))
-        .pipe(jsmin())
+        .pipe(uglify({
+            compress: { screw_ie8: false },
+            mangle: { screw_ie8: false },
+            output: { screw_ie8: false }
+        }))
         .pipe(gulp.dest('dist'));
 });
 
