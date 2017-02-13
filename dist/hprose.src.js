@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.29
+// Hprose for JavaScript v2.0.30
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -3420,7 +3420,7 @@ hprose.global = (
  *                                                        *
  * hprose Writer for JavaScript.                          *
  *                                                        *
- * LastModified: Nov 18, 2016                              *
+ * LastModified: Feb 13, 2017                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -3439,6 +3439,9 @@ hprose.global = (
 
     function getClassName(obj) {
         var cls = obj.constructor;
+        if (!cls) {
+            return 'Object';
+        }
         var classname = ClassManager.getClassAlias(cls);
         if (classname) { return classname; }
         if (cls.name) {

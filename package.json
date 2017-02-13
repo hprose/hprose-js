@@ -1,6 +1,6 @@
 {
   "name": "hprose-js",
-  "version": "2.0.29",
+  "version": "2.0.30",
   "description": "Hprose is a High Performance Remote Object Service Engine.",
   "homepage": "https://github.com/hprose/hprose-js",
   "keywords": [
@@ -49,7 +49,7 @@
   "directories": {
     "lib": "dist/"
   },
-  "main": "dist/hprose.js",
+  "main": "dist/hprose.src.js",
   "devDependencies": {
     "promises-aplus-tests": "*"
   },
@@ -68,7 +68,7 @@
     "target": "git://github.com/hprose/hprose-js.git",
     "basePath": "dist/",
     "files": [
-      "hprose.js",
+      "hprose.src.js",
       "FlashHttpRequest.swf"
     ]
   },
