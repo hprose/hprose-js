@@ -12,7 +12,7 @@
  *                                                        *
  * hprose client for JavaScript.                          *
  *                                                        *
- * LastModified: Dec 5, 2016                             *
+ * LastModified: Feb 14, 2017                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -227,7 +227,7 @@
                     }
                     else {
                         for (var n in m) {
-                            setMethods(stub, obj[name], name + '_', n, m[n]);
+                            setMethods(stub, obj[name], namespace + name + '_', n, m[n]);
                         }
                     }
                 }
