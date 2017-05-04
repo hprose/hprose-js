@@ -1,4 +1,4 @@
-// Hprose for JavaScript v2.0.31
+// Hprose for JavaScript v2.0.32
 // Copyright (c) 2008-2016 http://hprose.com
 // Hprose is freely distributable under the MIT license.
 // For all details and documentation:
@@ -6867,6 +6867,7 @@ hprose.global = (
             _contexts[id] = context;
             if (context.timeout > 0) {
                 future = future.timeout(context.timeout).catchError(function(e) {
+                    ws = null;
                     delete _futures[id];
                     --_count;
                     throw e;

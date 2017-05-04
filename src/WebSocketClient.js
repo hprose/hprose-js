@@ -127,6 +127,7 @@
             _contexts[id] = context;
             if (context.timeout > 0) {
                 future = future.timeout(context.timeout).catchError(function(e) {
+                    ws = null;
                     delete _futures[id];
                     --_count;
                     throw e;
