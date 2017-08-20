@@ -12,7 +12,7 @@
  *                                                        *
  * hprose client for JavaScript.                          *
  *                                                        *
- * LastModified: Feb 14, 2017                             *
+ * LastModified: Aug 20, 2017                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -915,7 +915,8 @@
                 });
                 return;
             }
-            if (timeout === undefined) { timeout = _timeout; }
+            // Default subscribe timeout is 5 minutes.
+            if (timeout === undefined) { timeout = 300000; }
             var topic = getTopic(name, id);
             if (topic === null) {
                 var cb = function() {
