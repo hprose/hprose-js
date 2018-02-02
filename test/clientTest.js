@@ -26,7 +26,7 @@
 describe('hprose', function(){
     describe('hprose.HttpClient', function(){
         var methodList = ['hello', 'sum', 'swapKeyAndValue', 'getUserList', 'print_r'];
-        var client = new hprose.HttpClient('http://hprose.com/example/', methodList);
+        var client = new hprose.HttpClient('http://hprose.com/example/index.php', methodList);
         client.idempotent(true);
         client.onerror = function(name, err) {
             assert(false, name + ':' + err);
@@ -83,7 +83,7 @@ describe('hprose', function(){
 
     describe('hprose.HttpClient with JSONRPCClientFilter', function(){
         var methodList = ['hello', 'sum', 'getUserList'];
-        var client = new hprose.HttpClient('http://hprose.com/example/', methodList);
+        var client = new hprose.HttpClient('http://hprose.com/example/index.php', methodList);
         client.idempotent(true);
         client.filter(new hprose.JSONRPCClientFilter());
         client.onerror = function(name, err) {
