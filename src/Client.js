@@ -12,7 +12,7 @@
  *                                                        *
  * hprose client for JavaScript.                          *
  *                                                        *
- * LastModified: Aug 20, 2017                             *
+ * LastModified: Jan 31, 2018                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -157,6 +157,27 @@
             return null;
         }
 
+        function normalizeFunctions(functions) {
+            var root = [createObject(null)];
+            for (var i in functions) {
+                var func = functions[i].split('_');
+                var n = func.length - 1;
+                if (n > 0) {
+                    var node = root;
+                    for (var j = 0; j < n; j++) {
+                        var f = func[j];
+                        if (node[0][f] === undefined) {
+                            node[0][f] = [createObject(null)];
+                        }
+                        node = node[0][f];
+                    }
+                    node.push(func[n]);
+                }
+                root.push(functions[i]);
+            }
+            return root;
+        }
+
         function initService(stub) {
             var context = {
                 retry: _retry,
@@ -178,7 +199,7 @@
                             error = new Error(reader.readString());
                             break;
                         case Tags.TagFunctions:
-                            var functions = reader.readList();
+                            var functions = normalizeFunctions(reader.readList());
                             reader.checkTag(Tags.TagEnd);
                             setFunctions(stub, functions);
                             break;

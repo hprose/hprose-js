@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>hprose namespace test</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="hprose.js"></script>
+  </head>
+  <body>
+    <script>
+        hprose.co(function*() {
+            var client = hprose.Client.create('http://hprose.com/example/index.php');
+            yield client.useService();
+            console.log(client);
+            console.log(yield client.print.r(["Hprose"], true));
+        });
+    </script>
+  </body>
+</html>
